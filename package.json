@@ -1,0 +1,35 @@
+{
+  "name": "team4-frontend",
+  "version": "1.0.0",
+  "description": "Team4 Frontend",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && cp -r src/views dist/views",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "echo 'lint'",
+    "test": "echo 'test'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kainos-academy-2026/team4-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kainos-academy-2026/team4-frontend/issues"
+  },
+  "homepage": "https://github.com/kainos-academy-2026/team4-frontend#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.0",
+    "@types/nunjucks": "^3.2.6",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3"
+  }
+}
