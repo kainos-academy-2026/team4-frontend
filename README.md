@@ -32,6 +32,18 @@ npm run dev
 npm run start
 ```
 
+- Run Biome lint and formatting checks for TypeScript and JSON files:
+
+```bash
+npm run lint
+```
+
+- Apply Biome safe auto-fixes for lint and formatting issues where supported:
+
+```bash
+npm run lint:fix
+```
+
 Default local port is `3000`. Override with `PORT`, for example:
 
 ```bash
