@@ -44,7 +44,7 @@ npm run lint
 npm run lint:fix
 ```
 
-- Run tests from the `test/` directory:
+- Run tests from the repository root:
 
 ```bash
 npm test
