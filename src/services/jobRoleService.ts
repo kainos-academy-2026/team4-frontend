@@ -3,24 +3,7 @@ import axios, { type AxiosInstance } from "axios";
 import apiClient from "../config/apiClient";
 import type { JobRole } from "../models/jobRole";
 import { fallbackJobRoles } from "../mocks/jobRoles";
-
-export type JobRoleServiceErrorCode =
-  | "NOT_FOUND"
-  | "BACKEND_ERROR"
-  | "NETWORK_ERROR"
-  | "UNKNOWN_ERROR";
-
-export class JobRoleServiceError extends Error {
-  readonly code: JobRoleServiceErrorCode;
-  readonly status: number | undefined;
-
-  constructor(message: string, code: JobRoleServiceErrorCode, status?: number) {
-    super(message);
-    this.name = "JobRoleServiceError";
-    this.code = code;
-    this.status = status;
-  }
-}
+import { JobRoleServiceError } from "./jobRoleServiceError";
 
 export class JobRoleService {
   constructor(
