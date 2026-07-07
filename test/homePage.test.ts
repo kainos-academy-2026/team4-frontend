@@ -4,7 +4,7 @@ import nunjucks from "nunjucks";
 import { describe, expect, it } from "vitest";
 
 describe("home page template", () => {
-  it("renders the Hello World message", () => {
+  it("renders the branded home page contract", () => {
     const viewsPath = path.join(process.cwd(), "src/views");
     const environment = nunjucks.configure(viewsPath, {
       autoescape: true,
@@ -14,5 +14,13 @@ describe("home page template", () => {
     const html = environment.render("index.njk");
 
     expect(html).toContain("Hello world");
+    expect(html).toContain("class=\"kainos-header\"");
+    expect(html).toContain("src=\"/images/kainoslogo.png\"");
+    expect(html).toContain("rel=\"icon\"");
+    expect(html).toContain("href=\"/images/favicon.png\"");
+    expect(html).toContain("href=\"/styles/branding.css\"");
+    expect(html).toContain("class=\"kainos-footer\"");
+    expect(html).toContain("careers@kainosjobs.example");
+    expect(html).toContain("+44 28 9000 0000");
   });
 });
