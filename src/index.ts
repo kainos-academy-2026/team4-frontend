@@ -1,7 +1,6 @@
 import app from "./app";
 
-const portFromEnv = Number(process.env.PORT);
-const port = Number.isFinite(portFromEnv) ? portFromEnv : 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.listen(port, () => {
 	// Keep startup logging minimal for local/dev verification.

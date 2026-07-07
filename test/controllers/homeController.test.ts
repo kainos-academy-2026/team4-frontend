@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 
-import { getHome } from "../src/controllers/homeController";
+import { getHome } from "../../src/controllers/homeController";
 
 describe("getHome", () => {
   it("renders the index view", () => {

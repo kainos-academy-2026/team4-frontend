@@ -1,0 +1,83 @@
+import { describe, expect, it, vi } from "vitest";
+import type { AxiosInstance } from "axios";
+
+import { JobRoleService } from "../../src/services/jobRoleService";
+import type { JobRole } from "../../src/models/jobRole";
+
+const apiData: JobRole[] = [
+  {
+    id: "1",
+    roleName: "Software Engineer",
+    location: "Belfast",
+    capability: "Engineering",
+    band: "Associate",
+    closingDate: "2026-08-01",
+    status: "open",
+  },
+  {
+    id: "2",
+    roleName: "Data Analyst",
+    location: "Gdansk",
+    capability: "Data",
+    band: "Associate",
+    closingDate: "2026-08-08",
+    status: "closed",
+  },
+];
+
+const fallbackData: JobRole[] = [
+  {
+    id: "3",
+    roleName: "Test Engineer",
+    location: "Dublin",
+    capability: "Quality Engineering",
+    band: "Senior Associate",
+    closingDate: "2026-08-12",
+    status: "open",
+  },
+];
+
+describe("JobRoleService", () => {
+  it("returns only open job roles from API response", async () => {
+    const mockGet = vi.fn().mockResolvedValue({ data: apiData });
+    const service = new JobRoleService({ get: mockGet } as unknown as AxiosInstance);
+
+    const result = await service.getOpenJobRoles();
+
+    expect(mockGet).toHaveBeenCalledWith("/job-roles");
+    expect(result).toEqual([apiData[0]]);
+  });
+
+  it("returns fallback open roles when backend request fails and fallback is enabled", async () => {
+    const mockGet = vi.fn().mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 503 },
+    });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      true,
+    );
+
+    const result = await service.getOpenJobRoles();
+
+    expect(result).toEqual(fallbackData);
+  });
+
+  it("throws mapped service error when backend request fails and fallback is disabled", async () => {
+    const mockGet = vi.fn().mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 404 },
+    });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await expect(service.getOpenJobRoles()).rejects.toMatchObject({
+      code: "NOT_FOUND",
+      status: 404,
+    });
+  });
+});
