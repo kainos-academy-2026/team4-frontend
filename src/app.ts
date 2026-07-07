@@ -8,8 +8,8 @@ import router from "./routes";
 
 const app: Express = express();
 const viewsPath = path.join(__dirname, "views");
-const distPublicPath = path.join(__dirname, "..", "dist", "public");
-const sourcePublicPath = path.join(__dirname, "..", "public");
+const distPublicPath = path.join(process.cwd(), "dist", "public");
+const sourcePublicPath = path.join(process.cwd(), "public");
 
 export const resolvePublicPath = (
 	distPath: string,

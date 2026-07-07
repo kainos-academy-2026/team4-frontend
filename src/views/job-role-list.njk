@@ -4,9 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Open Job Roles</title>
-    <link rel="stylesheet" href="/css/job-role-list.css" />
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/branding.css" />
   </head>
-  <body>
+  <body class="kainos-page">
+    <header class="kainos-header" aria-label="Kainos brand banner">
+      <img
+        class="kainos-logo"
+        src="/images/kainoslogo.png"
+        alt="Kainos logo"
+      />
+    </header>
+
     <main class="page">
       <h1>Open Job Roles at Kainos</h1>
       <p class="subtitle">View current roles that are open for applications.</p>
@@ -50,5 +59,10 @@
       </section>
       {% endif %}
     </main>
+
+    <footer class="kainos-footer" aria-label="Contact information">
+      <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
+      <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+    </footer>
   </body>
 </html>
