@@ -4,7 +4,7 @@
 	"description": "Team4 Frontend",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc -p tsconfig.json && cp -r src/views dist/views",
+		"build": "tsc -p tsconfig.json && cp -r src/views dist/views && cp -r public dist/public",
 		"dev": "tsx watch src/index.ts",
 		"start": "node dist/index.js",
 		"lint": "biome check .",
