@@ -9,9 +9,8 @@ const app: Express = express();
 const viewsPath = path.join(__dirname, "views");
 const distPublicPath = path.join(__dirname, "public");
 const sourcePublicPath = path.join(__dirname, "..", "public");
-const publicPath = fs.existsSync(distPublicPath)
-	? distPublicPath
-	: sourcePublicPath;
+ const distBrandingCssPath = path.join(distPublicPath, "styles", "branding.css");
+ const publicPath = fs.existsSync(distBrandingCssPath) ? distPublicPath : sourcePublicPath;
 
 nunjucks.configure(viewsPath, {
 	autoescape: true,
