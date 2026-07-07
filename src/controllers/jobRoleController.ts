@@ -30,14 +30,15 @@ export class JobRoleController {
           ? error.message
           : "Unable to load job roles at the moment.";
 
-       const statusCode =
-         error instanceof JobRoleServiceError && error.code === "NOT_FOUND"
-           ? error.status ?? 404
-           : 502;
-       res.status(statusCode).render("job-role-list", {
-         errorMessage,
-         jobRoles: [],
-       } satisfies JobRoleListViewModel);
+      const statusCode =
+        error instanceof JobRoleServiceError && error.code === "NOT_FOUND"
+          ? error.status ?? 404
+          : 502;
+
+      res.status(statusCode).render("job-role-list", {
+        errorMessage,
+        jobRoles: [],
+      } satisfies JobRoleListViewModel);
     }
   }
 }
