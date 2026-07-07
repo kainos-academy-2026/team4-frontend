@@ -42,7 +42,9 @@ npm run lint
 
 ```bash
 npm run lint:fix
-- Run tests:
+```
+
+- Run tests from the `test/` directory:
 
 ```bash
 npm test
