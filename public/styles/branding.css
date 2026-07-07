@@ -1,0 +1,99 @@
+:root {
+  --kainos-primary-blue: #2e36a5;
+  --kainos-surface: #ffffff;
+  --kainos-text-navy: #1f2b4d;
+  --kainos-page-bg: #f6f8fd;
+  --kainos-shadow-soft: 0 10px 30px rgba(24, 38, 97, 0.12);
+  --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.2);
+  --kainos-radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.kainos-page {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  color: var(--kainos-text-navy);
+  font-family: "Inter", "Poppins", "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.kainos-header {
+  width: 100%;
+  background: var(--kainos-surface);
+  padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(1.8rem, 4.5vw, 3.5rem);
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+.kainos-logo {
+  display: block;
+  width: clamp(84px, 10vw, 118px);
+  height: auto;
+}
+
+.kainos-hero {
+  flex: 1;
+  margin: 0;
+  background: #ffffff;
+  min-height: clamp(360px, 68vh, 760px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(2rem, 9vw, 7rem) clamp(1rem, 6vw, 4rem);
+}
+
+.kainos-hero h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6.4vw, 5.25rem);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--kainos-text-navy);
+}
+
+.kainos-footer {
+  width: 100%;
+  background: #313147;
+  padding: 1rem clamp(1.2rem, 4vw, 3rem) 1.2rem;
+  text-align: center;
+  border-top: 0;
+}
+
+.kainos-footer p {
+  margin: 0.2rem 0;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.kainos-footer a {
+  color: #dfe4ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.kainos-footer a:hover,
+.kainos-footer a:focus-visible {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .kainos-hero {
+    min-height: clamp(320px, 62vh, 620px);
+  }
+}
+
+@media (max-width: 540px) {
+  .kainos-header {
+    padding-inline: 1rem;
+  }
+
+  .kainos-hero {
+    min-height: clamp(300px, 58vh, 500px);
+  }
+}
