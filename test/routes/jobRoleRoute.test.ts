@@ -2,7 +2,8 @@ import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import app from "../../src/app";
-import { JobRoleService, JobRoleServiceError } from "../../src/services/jobRoleService";
+import { JobRoleService } from "../../src/services/jobRoleService";
+import { JobRoleServiceError } from "../../src/services/jobRoleServiceError";
 
 describe("GET /job-roles", () => {
   afterEach(() => {
