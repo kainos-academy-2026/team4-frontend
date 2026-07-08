@@ -14,14 +14,7 @@ export class JobRoleController {
 
 			const viewModel: JobRoleListViewModel = {
 				errorMessage: null,
-				jobRoles: jobRoles.map((jobRole) => ({
-					roleName: jobRole.roleName,
-					location: jobRole.location,
-					capability: jobRole.capability,
-					band: jobRole.band,
-					closingDate: jobRole.closingDate,
-					status: jobRole.status,
-				})),
+				jobRoles,
 			};
 
 			res.render("job-role-list", viewModel);
