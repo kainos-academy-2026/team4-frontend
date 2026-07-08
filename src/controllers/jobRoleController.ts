@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
+import type { JobRoleListViewModel } from "../models/jobRoleListViewModel";
 import { JobRoleService } from "../services/jobRoleService";
 import { JobRoleServiceError } from "../services/jobRoleServiceError";
-import type { JobRoleListViewModel } from "./jobRoleListViewModel";
 
 export class JobRoleController {
 	constructor(
