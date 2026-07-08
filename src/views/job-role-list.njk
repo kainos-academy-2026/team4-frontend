@@ -24,13 +24,9 @@
       <div class="alert alert-error" role="alert">{{ errorMessage }}</div>
       {% endif %}
 
-      {% if not jobRoles.length and not errorMessage %}
-      <section class="empty-state" aria-live="polite">
-        <p>No open job roles are available right now.</p>
-      </section>
-      {% endif %}
+      {% set roles = jobRoles or [] %}
 
-      {% if jobRoles.length %}
+      {% if roles.length > 0 %}
       <section class="table-wrapper" aria-label="Open job roles list">
         <table>
           <thead>
@@ -44,7 +40,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for jobRole in jobRoles %}
+            {% for jobRole in roles %}
             <tr>
               <td>{{ jobRole.roleName }}</td>
               <td>{{ jobRole.location }}</td>
@@ -56,6 +52,10 @@
             {% endfor %}
           </tbody>
         </table>
+      </section>
+      {% elif not errorMessage %}
+      <section class="empty-state" aria-live="polite">
+        <p>No open job roles are available right now.</p>
       </section>
       {% endif %}
     </main>
