@@ -47,7 +47,19 @@ npm run lint:fix
 - Run tests from the repository root:
 
 ```bash
-npm test
+npm run test
+```
+
+Run tests with coverage output:
+
+```bash
+npm run test:coverage
+```
+
+Run tests with the Vitest UI:
+
+```bash
+npm run test:ui
 ```
 
 Default local port is `3000`. Override with `PORT`, for example:
