@@ -1,7 +1,6 @@
-import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-describe("app module coverage", () => {
+describe("app module public static path selection", () => {
   afterEach(() => {
     vi.doUnmock("node:fs");
     vi.resetModules();
@@ -12,17 +11,42 @@ describe("app module coverage", () => {
       const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
       return {
         ...actual,
-        default: {
-          ...(actual as unknown as { default?: Record<string, unknown> }).default,
-          existsSync: vi.fn(() => true),
-        },
+        default: { ...actual, existsSync: vi.fn(() => true) },
         existsSync: vi.fn(() => true),
       };
     });
 
-    const { default: app } = await import("../src/app");
-    const response = await request(app).get("/");
+    const { resolvePublicPath } = await import("../src/app");
+    const distPath = "/tmp/dist/public";
+    const sourcePath = "/tmp/source/public";
+    const fsModule = await import("node:fs");
 
-    expect(response.status).toBe(200);
+    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
+
+    expect(selectedPath).toBe(distPath);
+    expect(fsModule.existsSync).toHaveBeenCalledTimes(1);
+    expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
+  });
+
+  it("falls back to the source public path when dist branding.css does not exist", async () => {
+    vi.doMock("node:fs", async () => {
+      const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
+      return {
+        ...actual,
+        default: { ...actual, existsSync: vi.fn(() => false) },
+        existsSync: vi.fn(() => false),
+      };
+    });
+
+    const { resolvePublicPath } = await import("../src/app");
+    const distPath = "/tmp/dist/public";
+    const sourcePath = "/tmp/source/public";
+    const fsModule = await import("node:fs");
+
+    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
+
+    expect(selectedPath).toBe(sourcePath);
+    expect(fsModule.existsSync).toHaveBeenCalledTimes(1);
+    expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
   });
 });
