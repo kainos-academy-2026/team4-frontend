@@ -1,3 +1,4 @@
+ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("app module public static path selection", () => {
@@ -24,7 +25,7 @@ describe("app module public static path selection", () => {
     const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
 
     expect(selectedPath).toBe(distPath);
-    expect(fsModule.existsSync).toHaveBeenCalledTimes(1);
+    expect(fsModule.existsSync).toHaveBeenCalledWith(path.join(distPath, "styles", "branding.css"));
     expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
   });
 
@@ -46,7 +47,7 @@ describe("app module public static path selection", () => {
     const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
 
     expect(selectedPath).toBe(sourcePath);
-    expect(fsModule.existsSync).toHaveBeenCalledTimes(1);
+    expect(fsModule.existsSync).toHaveBeenCalledWith(path.join(distPath, "styles", "branding.css"));
     expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
   });
 });
