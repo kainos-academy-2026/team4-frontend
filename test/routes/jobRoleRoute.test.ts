@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import app from "../../src/app";
 import { JobRoleService } from "../../src/services/jobRoleService";
-import { JobRoleServiceError } from "../../src/services/jobRoleServiceError";
 
 describe("GET /job-roles", () => {
   afterEach(() => {
@@ -41,7 +40,7 @@ describe("GET /job-roles", () => {
 
   it("renders error state when service throws", async () => {
     vi.spyOn(JobRoleService.prototype, "getOpenJobRoles").mockRejectedValue(
-      new JobRoleServiceError("Backend service is currently unavailable.", "BACKEND_ERROR", 503),
+      new Error("Backend service is currently unavailable."),
     );
 
     const response = await request(app).get("/job-roles");

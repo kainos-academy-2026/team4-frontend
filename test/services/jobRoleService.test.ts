@@ -64,7 +64,7 @@ describe("JobRoleService", () => {
     expect(result).toEqual(fallbackData);
   });
 
-  it("throws mapped service error when backend request fails and fallback is disabled", async () => {
+  it("returns an empty list when backend responds with 404", async () => {
     const mockGet = vi.fn().mockRejectedValue({
       isAxiosError: true,
       response: { status: 404 },
@@ -75,9 +75,6 @@ describe("JobRoleService", () => {
       false,
     );
 
-    await expect(service.getOpenJobRoles()).rejects.toMatchObject({
-      code: "NOT_FOUND",
-      status: 404,
-    });
+    await expect(service.getOpenJobRoles()).resolves.toEqual([]);
   });
 });
