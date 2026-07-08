@@ -1,10 +1,10 @@
 {
-  "name": "team4-frontend",
-  "version": "1.0.0",
-  "description": "Team4 Frontend",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc -p tsconfig.json && cp -r src/views dist/views && cp -r public dist/public",
+	"name": "team4-frontend",
+	"version": "1.0.0",
+	"description": "Team4 Frontend",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc -p tsconfig.json && cp -r src/views dist/views && cp -r public dist/public",
 		"dev": "tsx watch src/index.ts",
 		"start": "node dist/index.js",
 		"lint": "biome check .",
@@ -14,34 +14,34 @@
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage"
 	},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kainos-academy-2026/team4-frontend.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kainos-academy-2026/team4-frontend/issues"
-  },
-  "homepage": "https://github.com/kainos-academy-2026/team4-frontend#readme",
-  "dependencies": {
-    "axios": "^1.18.1",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "nunjucks": "^3.2.4"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.1.0",
-    "@types/nunjucks": "^3.2.6",
-    "@types/supertest": "^7.2.0",
-    "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/ui": "^4.1.10",
-    "supertest": "^7.2.2",
-    "tsx": "^4.23.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
-  }
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kainos-academy-2026/team4-frontend.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/kainos-academy-2026/team4-frontend/issues"
+	},
+	"homepage": "https://github.com/kainos-academy-2026/team4-frontend#readme",
+	"dependencies": {
+		"axios": "^1.18.1",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1",
+		"nunjucks": "^3.2.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.2",
+		"@types/express": "^5.0.6",
+		"@types/node": "^26.1.0",
+		"@types/nunjucks": "^3.2.6",
+		"@types/supertest": "^7.2.0",
+		"@vitest/coverage-v8": "^4.1.10",
+		"@vitest/ui": "^4.1.10",
+		"supertest": "^7.2.2",
+		"tsx": "^4.23.0",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.10"
+	}
 }
