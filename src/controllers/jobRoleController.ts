@@ -5,7 +5,7 @@ import type { JobRoleListViewModel } from "./jobRoleListViewModel";
 
 export class JobRoleController {
 	constructor(
-		private readonly jobRoleService: JobRoleService = new JobRoleService(),
+		private readonly jobRoleService: JobRoleService,
 	) {}
 
 	async getAll(_req: Request, res: Response): Promise<void> {
