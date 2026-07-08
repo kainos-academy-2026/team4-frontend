@@ -6,6 +6,7 @@
     <title>Kainos | Home</title>
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="stylesheet" href="/styles/branding.css" />
+    <script src="/scripts/auth-session.js" defer></script>
   </head>
   <body class="kainos-page">
     <header class="kainos-header" aria-label="Kainos brand banner">
@@ -14,15 +15,22 @@
         src="/images/kainoslogo.png"
         alt="Kainos logo"
       />
+      <nav class="kainos-navbar" aria-label="Primary navigation">
+        <a class="kainos-nav-link" href="/login" data-auth-signed-out-link>Log in</a>
+        <span class="kainos-auth-email" data-auth-signed-in-state hidden data-session-email-note></span>
+        <button class="kainos-nav-link kainos-nav-button" type="button" data-logout-action hidden>
+          Log out
+        </button>
+      </nav>
     </header>
 
     <main class="kainos-hero" aria-label="Home">
-      <h1>Hello world</h1>
+      <h1>Hello World</h1>
     </main>
 
     <footer class="kainos-footer" aria-label="Contact information">
-      <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
-      <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+      <p>Contact: support@kainos.com</p>
+      <p>Phone: +44 28 9089 0000</p>
     </footer>
   </body>
 </html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kainos | Log in</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/branding.css" />
+    <script src="/scripts/auth-session.js" defer></script>
+  </head>
+  <body class="kainos-page">
+    <header class="kainos-header" aria-label="Kainos brand banner">
+      <img
+        class="kainos-logo"
+        src="/images/kainoslogo.png"
+        alt="Kainos logo"
+      />
+      <nav class="kainos-navbar" aria-label="Primary navigation">
+        <a class="kainos-nav-link" href="/">Home</a>
+      </nav>
+    </header>
+
+    <main class="kainos-hero kainos-auth-shell" aria-label="Log in">
+      <section class="kainos-auth-card" aria-labelledby="login-title">
+        <h1 id="login-title">Log in</h1>
+
+        <form class="kainos-auth-form" action="/login" method="post" data-login-form>
+          <label class="kainos-field" for="email">
+            <span>Email</span>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </label>
+
+          <label class="kainos-field" for="password">
+            <span>Password</span>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+
+          <button class="kainos-button" type="submit">Log in</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="kainos-footer" aria-label="Contact information">
+      <p>Contact: support@kainos.com</p>
+      <p>Phone: +44 28 9089 0000</p>
+    </footer>
+  </body>
+</html>

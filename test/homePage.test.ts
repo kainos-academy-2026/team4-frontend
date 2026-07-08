@@ -13,14 +13,20 @@ describe("home page template", () => {
 
     const html = environment.render("index.njk");
 
-    expect(html).toContain("Hello world");
+    expect(html).toContain("Hello World");
     expect(html).toContain("class=\"kainos-header\"");
+    expect(html).toContain("class=\"kainos-navbar\"");
+    expect(html).toContain("href=\"/login\"");
+    expect(html).toContain("data-auth-signed-out-link");
+    expect(html).toContain("data-auth-signed-in-state");
+    expect(html).toContain("data-logout-action");
     expect(html).toContain("src=\"/images/kainoslogo.png\"");
     expect(html).toContain("rel=\"icon\"");
     expect(html).toContain("href=\"/images/favicon.png\"");
     expect(html).toContain("href=\"/styles/branding.css\"");
+    expect(html).toContain("/scripts/auth-session.js");
     expect(html).toContain("class=\"kainos-footer\"");
-    expect(html).toContain("careers@kainosjobs.example");
-    expect(html).toContain("+44 28 9000 0000");
+    expect(html).toContain("Contact: support@kainos.com");
+    expect(html).toContain("Phone: +44 28 9089 0000");
   });
 });

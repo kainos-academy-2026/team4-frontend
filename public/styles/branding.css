@@ -1,11 +1,17 @@
 :root {
   --kainos-primary-blue: #2e36a5;
+  --kainos-primary-blue-dark: #232976;
+  --kainos-sky: #e8ecff;
   --kainos-surface: #ffffff;
+  --kainos-surface-elevated: rgba(255, 255, 255, 0.94);
   --kainos-text-navy: #1f2b4d;
   --kainos-page-bg: #f6f8fd;
+  --kainos-page-accent: linear-gradient(145deg, #f6f8fd 0%, #eef2ff 48%, #f8fbff 100%);
   --kainos-shadow-soft: 0 10px 30px rgba(24, 38, 97, 0.12);
   --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.2);
+  --kainos-shadow-auth: 0 24px 64px rgba(26, 34, 88, 0.16);
   --kainos-radius: 14px;
+  --kainos-radius-lg: 24px;
 }
 
 * {
@@ -17,7 +23,7 @@ body.kainos-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--kainos-page-accent);
   color: var(--kainos-text-navy);
   font-family: "Inter", "Poppins", "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -28,6 +34,10 @@ body.kainos-page {
   padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(1.8rem, 4.5vw, 3.5rem);
   border-bottom: 0;
   box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .kainos-logo {
@@ -36,16 +46,212 @@ body.kainos-page {
   height: auto;
 }
 
+.kainos-navbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kainos-auth-email {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-weight: 600;
+  color: var(--kainos-primary-blue);
+}
+
+.kainos-auth-email:empty {
+  display: none;
+}
+
+.kainos-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(46, 54, 165, 0.16);
+  color: var(--kainos-primary-blue);
+  background: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.kainos-nav-button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.kainos-nav-link:hover,
+.kainos-nav-link:focus-visible {
+  background: var(--kainos-sky);
+}
+
+.kainos-nav-link.is-active,
+.kainos-nav-link[aria-current="page"] {
+  background: linear-gradient(135deg, var(--kainos-primary-blue), var(--kainos-primary-blue-dark));
+  color: #ffffff;
+  border-color: transparent;
+}
+
 .kainos-hero {
   flex: 1;
   margin: 0;
-  background: #ffffff;
+  background: transparent;
   min-height: clamp(360px, 68vh, 760px);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: clamp(2rem, 9vw, 7rem) clamp(1rem, 6vw, 4rem);
+}
+
+.kainos-auth-shell {
+  position: relative;
+}
+
+.kainos-auth-card {
+  position: relative;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border-radius: var(--kainos-radius-lg);
+  background: var(--kainos-surface-elevated);
+  box-shadow: var(--kainos-shadow-auth);
+  backdrop-filter: blur(16px);
+  text-align: left;
+  animation: kainos-rise-in 420ms ease-out both;
+}
+
+.kainos-eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--kainos-primary-blue);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.kainos-auth-card h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 1;
+  color: var(--kainos-text-navy);
+}
+
+.kainos-auth-copy {
+  margin: 1rem 0 0;
+  max-width: 56ch;
+  font-size: 1.04rem;
+  line-height: 1.6;
+}
+
+.kainos-auth-panel {
+  margin-top: 1.75rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.kainos-auth-state {
+  padding: 1.25rem 1.35rem;
+  border-radius: 18px;
+  background: rgba(232, 236, 255, 0.58);
+  border: 1px solid rgba(46, 54, 165, 0.16);
+}
+
+.kainos-auth-state h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+}
+
+.kainos-auth-state p {
+  margin: 0.25rem 0 0;
+  line-height: 1.55;
+}
+
+.kainos-auth-form {
+  margin-top: 1.6rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.kainos-field {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--kainos-text-navy);
+  font-weight: 600;
+}
+
+.kainos-field span {
+  font-size: 0.96rem;
+}
+
+.kainos-field input {
+  width: 100%;
+  border: 1px solid rgba(31, 43, 77, 0.18);
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+  font: inherit;
+  color: var(--kainos-text-navy);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.kainos-field input:focus {
+  outline: 3px solid rgba(46, 54, 165, 0.18);
+  border-color: var(--kainos-primary-blue);
+}
+
+.kainos-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: fit-content;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.95rem 1.4rem;
+  background: linear-gradient(135deg, var(--kainos-primary-blue), var(--kainos-primary-blue-dark));
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(46, 54, 165, 0.24);
+}
+
+.kainos-button:hover,
+.kainos-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.kainos-button-secondary {
+  background: #ffffff;
+  color: var(--kainos-primary-blue);
+  border: 1px solid rgba(46, 54, 165, 0.18);
+  box-shadow: none;
+}
+
+.kainos-token-note,
+.kainos-auth-footnote {
+  margin-top: 1rem;
+  color: rgba(31, 43, 77, 0.84);
+  font-size: 0.96rem;
+}
+
+@keyframes kainos-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kainos-hero h1 {
@@ -82,6 +288,10 @@ body.kainos-page {
   text-decoration: underline;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 @media (max-width: 900px) {
   .kainos-hero {
     min-height: clamp(320px, 62vh, 620px);
@@ -91,9 +301,19 @@ body.kainos-page {
 @media (max-width: 540px) {
   .kainos-header {
     padding-inline: 1rem;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .kainos-hero {
     min-height: clamp(300px, 58vh, 500px);
+  }
+
+  .kainos-auth-card {
+    padding: 1.5rem;
+  }
+
+  .kainos-button {
+    width: 100%;
   }
 }
