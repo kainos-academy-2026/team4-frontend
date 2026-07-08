@@ -47,6 +47,6 @@ describe("GET /job-roles", () => {
     const response = await request(app).get("/job-roles");
 
     expect(response.status).toBe(502);
-    expect(response.text).toContain("Backend service is currently unavailable.");
+    expect(response.text).toContain("Something went wrong. Please try again later.");
   });
 });

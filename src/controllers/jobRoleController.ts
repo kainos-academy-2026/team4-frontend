@@ -19,10 +19,11 @@ export class JobRoleController {
 
 			res.render("job-role-list", viewModel);
 		} catch (error) {
-			const errorMessage =
-				error instanceof JobRoleServiceError
+			console.error(
+				error instanceof Error
 					? error.message
-					: "Unable to load job roles at the moment.";
+					: "Unexpected error while loading job roles.",
+			);
 
 			const statusCode =
 				error instanceof JobRoleServiceError && error.code === "NOT_FOUND"
@@ -30,7 +31,7 @@ export class JobRoleController {
 					: 502;
 
 			res.status(statusCode).render("job-role-list", {
-				errorMessage,
+				errorMessage: "Something went wrong. Please try again later.",
 				jobRoles: [],
 			} satisfies JobRoleListViewModel);
 		}
