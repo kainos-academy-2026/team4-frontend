@@ -1,5 +1,5 @@
-import path from "node:path";
 import fs from "node:fs";
+import path from "node:path";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
 
@@ -9,8 +9,17 @@ const app: Express = express();
 const viewsPath = path.join(__dirname, "views");
 const distPublicPath = path.join(__dirname, "public");
 const sourcePublicPath = path.join(__dirname, "..", "public");
- const distBrandingCssPath = path.join(distPublicPath, "styles", "branding.css");
- const publicPath = fs.existsSync(distBrandingCssPath) ? distPublicPath : sourcePublicPath;
+
+export const resolvePublicPath = (
+	distPath: string,
+	sourcePath: string,
+	fsModule: Pick<typeof fs, "existsSync"> = fs,
+): string => {
+	const distBrandingCssPath = path.join(distPath, "styles", "branding.css");
+	return fsModule.existsSync(distBrandingCssPath) ? distPath : sourcePath;
+};
+
+const publicPath = resolvePublicPath(distPublicPath, sourcePublicPath);
 
 nunjucks.configure(viewsPath, {
 	autoescape: true,
