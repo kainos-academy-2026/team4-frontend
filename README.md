@@ -50,13 +50,13 @@ npm run lint:fix
 npm run test
 ```
 
-Run tests with coverage output:
+- Run tests with coverage output:
 
 ```bash
 npm run test:coverage
 ```
 
-Run tests with the Vitest UI:
+- Run tests with the Vitest UI:
 
 ```bash
 npm run test:ui
