@@ -1,16 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AxiosInstance } from "axios";
 
+import type { JobRoleApiResponse } from "../../src/mappers/jobRoleMapper";
 import { JobRoleService } from "../../src/services/jobRoleService";
 import type { JobRole } from "../../src/models/jobRole";
 
-const apiData: JobRole[] = [
+const apiData: JobRoleApiResponse[] = [
   {
     id: "1",
     roleName: "Software Engineer",
     location: "Belfast",
     capability: "Engineering",
+    capabilityId: "1",
     band: "Associate",
+    bandId: "1",
     closingDate: "2026-08-01",
     status: "open",
   },
@@ -19,7 +22,9 @@ const apiData: JobRole[] = [
     roleName: "Data Analyst",
     location: "Gdansk",
     capability: "Data",
+    capabilityId: "2",
     band: "Associate",
+    bandId: "2",
     closingDate: "2026-08-08",
     status: "closed",
   },
@@ -32,7 +37,7 @@ const fallbackData: JobRole[] = [
     location: "Dublin",
     capability: "Quality Engineering",
     band: "Senior Associate",
-    closingDate: "2026-08-12",
+    closingDate: new Date("2026-08-12"),
     status: "open",
   },
 ];
@@ -45,7 +50,17 @@ describe("JobRoleService", () => {
     const result = await service.getOpenJobRoles();
 
     expect(mockGet).toHaveBeenCalledWith("/job-roles");
-    expect(result).toEqual([apiData[0]]);
+    expect(result).toEqual([
+      {
+        id: "1",
+        roleName: "Software Engineer",
+        location: "Belfast",
+        capability: "Engineering",
+        band: "Associate",
+        closingDate: new Date("2026-08-01"),
+        status: "open",
+      },
+    ]);
   });
 
   it("returns fallback open roles when backend request fails and fallback is enabled", async () => {

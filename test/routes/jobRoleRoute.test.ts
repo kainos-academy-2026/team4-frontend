@@ -17,7 +17,7 @@ describe("GET /job-roles", () => {
         location: "Belfast",
         capability: "Engineering",
         band: "Associate",
-        closingDate: "2026-08-01",
+        closingDate: new Date("2026-08-01"),
         status: "open",
       },
     ]);
