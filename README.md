@@ -87,3 +87,14 @@ Example health response:
 7. Request `http://localhost:3000/health` and confirm `status` + `time`.
 8. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
 9. Run `npm ci` and `npm run build` again to confirm reproducibility.
+
+## STEPS FOR DEMO
+1. Run 'ENABLE_DEMO_AUTH=true npm run dev' to enter test mode.
+2. Navigate to login page
+3. *OPTIONAL* Enter invalid credentials first 
+	e.g - email without an @
+	e.g - random login details (random@test.com, password)
+	e.g - correct email, wrong password (test@test.com, test)
+4. Enter valid credentials (test@test.com, passwordtest)
+5. Renavigate to home page to show welcome message
+6. Click logout button
