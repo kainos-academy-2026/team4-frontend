@@ -9,6 +9,8 @@ describe("getHome", () => {
 
     getHome({} as Request, { render } as unknown as Response);
 
-    expect(render).toHaveBeenCalledWith("index");
+    expect(render).toHaveBeenCalledWith("index", {
+      demoAuthEnabled: false,
+    });
   });
 });

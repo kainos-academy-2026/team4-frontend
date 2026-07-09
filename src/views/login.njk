@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kainos | Home</title>
+    <title>Kainos | Log In</title>
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="stylesheet" href="/styles/branding.css" />
   </head>
   <body
     class="kainos-page"
-    data-page="home"
+    data-page="login"
     data-demo-auth-enabled="{{ demoAuthEnabled | dump | safe }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
@@ -18,16 +18,25 @@
         src="/images/kainoslogo.png"
         alt="Kainos logo"
       />
-      <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
-        <a class="kainos-header-link" href="/login">Log in</a>
+      <nav class="kainos-header-actions" aria-label="Page navigation">
+        <a class="kainos-header-link" href="/">Home</a>
       </nav>
     </header>
 
-    <main class="kainos-hero" aria-label="Home">
-      <div class="kainos-home-copy">
-        <h1>Hello world</h1>
-        <p class="kainos-greeting" data-auth-greeting hidden></p>
-      </div>
+    <main class="kainos-hero" aria-label="Log in">
+      <form class="kainos-auth-card" data-login-form>
+        <h1 class="kainos-auth-title">Log in</h1>
+        <label class="kainos-field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label class="kainos-field">
+          <span>Password</span>
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <p class="kainos-form-error" data-login-error aria-live="polite" hidden></p>
+        <button class="kainos-primary-action" type="submit">Log in</button>
+      </form>
     </main>
 
     <footer class="kainos-footer" aria-label="Contact information">
