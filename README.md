@@ -53,9 +53,19 @@ PORT=4000 npm run start
 ## Endpoints
 
 - `GET /` renders a hello-world HTML page.
+- `GET /login` renders the demo login page.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
 	- `time`: current timestamp in ISO-8601 format
+
+## Demo Login
+
+- Set `ENABLE_DEMO_AUTH=true` to enable the frontend-only demo login flow.
+- Demo credentials:
+	- Email: `test@test.com`
+	- Password: `passwordtest`
+- On successful login, a fake JWT-shaped token and the user email are stored in `sessionStorage`.
+- This is a frontend-only demo flow and does not call a backend or validate real password hashes.
 
 Example health response:
 
@@ -70,6 +80,21 @@ Example health response:
 
 1. Run `npm run build` and confirm `dist` is created.
 2. Run `npm run dev` and open `http://localhost:3000/`.
-3. Request `http://localhost:3000/health` and confirm `status` + `time`.
-4. Stop dev, run `npm run start`, and re-check `/` and `/health`.
-5. Run `npm ci` and `npm run build` again to confirm reproducibility.
+3. Click `Log in` and confirm `http://localhost:3000/login` renders the branded login form.
+4. Submit invalid credentials and confirm the page stays on `/login` and shows an error.
+5. Submit `test@test.com` and `passwordtest` with `ENABLE_DEMO_AUTH=true` and confirm the app redirects to `/`, shows `Welcome back, test@test.com`, and swaps `Log in` for `Log out`.
+6. Click `Log out` and confirm the session is cleared and the home page returns to the logged-out state.
+7. Request `http://localhost:3000/health` and confirm `status` + `time`.
+8. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
+9. Run `npm ci` and `npm run build` again to confirm reproducibility.
+
+## STEPS FOR DEMO
+1. Run 'ENABLE_DEMO_AUTH=true npm run dev' to enter test mode.
+2. Navigate to login page
+3. *OPTIONAL* Enter invalid credentials first 
+	e.g - email without an @
+	e.g - random login details (random@test.com, password)
+	e.g - correct email, wrong password (test@test.com, test)
+4. Enter valid credentials (test@test.com, passwordtest)
+5. Renavigate to home page to show welcome message
+6. Click logout button

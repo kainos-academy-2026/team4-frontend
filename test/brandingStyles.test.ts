@@ -11,6 +11,9 @@ describe("branding stylesheet contract", () => {
     expect(css).toContain("--kainos-primary-blue: #2e36a5;");
     expect(css).toContain("--kainos-text-navy: #1f2b4d;");
     expect(css).toContain("font-family: \"Inter\", \"Poppins\", \"Montserrat\"");
+    expect(css).toContain(".kainos-header-actions");
+    expect(css).toContain(".kainos-auth-card");
+    expect(css).toContain(".kainos-greeting");
     expect(css).toContain(".kainos-footer");
     expect(css).toContain("background: #313147;");
     expect(css).toContain("@media (max-width: 900px)");
