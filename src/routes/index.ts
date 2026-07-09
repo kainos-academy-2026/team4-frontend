@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import { getHealth } from "../controllers/healthController";
 import { getHome } from "../controllers/homeController";
-import { getLogin } from "../controllers/loginController";
 import { JobRoleController } from "../controllers/jobRoleController";
+import { getLogin } from "../controllers/loginController";
 import { JobRoleService } from "../services/jobRoleService";
 
 const router = Router();

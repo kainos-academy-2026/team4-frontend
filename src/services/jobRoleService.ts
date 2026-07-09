@@ -2,8 +2,8 @@ import axios, { type AxiosInstance } from "axios";
 
 import apiClient from "../config/apiClient";
 import {
-	mapJobRoleApiResponseToJobRole,
 	type JobRoleApiResponse,
+	mapJobRoleApiResponseToJobRole,
 } from "../mappers/jobRoleMapper";
 import { fallbackJobRoles } from "../mocks/jobRoles";
 import type { JobRole } from "../models/jobRole";
@@ -18,8 +18,11 @@ export class JobRoleService {
 
 	async getOpenJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await this.client.get<JobRoleApiResponse[]>("/job-roles");
-			return this.toOpenJobRoles(response.data.map(mapJobRoleApiResponseToJobRole));
+			const response =
+				await this.client.get<JobRoleApiResponse[]>("/job-roles");
+			return this.toOpenJobRoles(
+				response.data.map(mapJobRoleApiResponseToJobRole),
+			);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 404) {
 				return [];
