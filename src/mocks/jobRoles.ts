@@ -7,7 +7,7 @@ export const fallbackJobRoles: JobRole[] = [
 		location: "Belfast",
 		capability: "Engineering",
 		band: "Associate",
-		closingDate: "2026-08-01",
+		closingDate: new Date("2026-08-01"),
 		status: "open",
 	},
 	{
@@ -16,7 +16,7 @@ export const fallbackJobRoles: JobRole[] = [
 		location: "Dublin",
 		capability: "Quality Engineering",
 		band: "Senior Associate",
-		closingDate: "2026-08-12",
+		closingDate: new Date("2026-08-12"),
 		status: "open",
 	},
 	{
@@ -25,7 +25,7 @@ export const fallbackJobRoles: JobRole[] = [
 		location: "Gdansk",
 		capability: "Data",
 		band: "Associate",
-		closingDate: "2026-07-15",
+		closingDate: new Date("2026-07-15"),
 		status: "closed",
 	},
 ];

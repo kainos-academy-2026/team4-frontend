@@ -16,7 +16,7 @@ describe("mapJobRoleApiResponseToJobRole", () => {
 				bandId: 3,
 				bandName: "Associate",
 			},
-			closingDate: "2026-08-01",
+			closingDate: new Date("2026-08-01"),
 			status: "open",
 		});
 
@@ -26,7 +26,7 @@ describe("mapJobRoleApiResponseToJobRole", () => {
 			location: "Belfast",
 			capability: "Engineering",
 			band: "Associate",
-			closingDate: "2026-08-01",
+			closingDate: new Date("2026-08-01"),
 			status: "open",
 		});
 	});
@@ -38,7 +38,7 @@ describe("mapJobRoleApiResponseToJobRole", () => {
 			location: "Gdansk",
 			capability: "Data",
 			band: "Senior Associate",
-			closingDate: "2026-08-15",
+			closingDate: new Date("2026-08-15"),
 			status: "open",
 		});
 
@@ -53,7 +53,7 @@ describe("mapJobRoleApiResponseToJobRole", () => {
 			location: "Dublin",
 			capabilityId: 8,
 			bandId: 2,
-			closingDate: "2026-08-20",
+			closingDate: new Date("2026-08-20"),
 			status: "open",
 		});
 

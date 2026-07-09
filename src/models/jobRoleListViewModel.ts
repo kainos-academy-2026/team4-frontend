@@ -3,7 +3,7 @@ export type JobRoleListItemViewModel = {
 	location: string;
 	capability: string;
 	band: string;
-	closingDate: string;
+	closingDate: Date;
 	status: string;
 };
 

@@ -4,20 +4,20 @@ export type JobRoleApiResponse = {
 	id: number | string;
 	roleName: string;
 	location: string;
-	capability?:
+	capability:
 		| {
 				capabilityId: number | string;
 				capabilityName: string;
 		  }
 		| string;
-	capabilityId?: number | string;
-	band?:
+	capabilityId: number | string;
+	band:
 		| {
 				bandId: number | string;
 				bandName: string;
 		  }
 		| string;
-	bandId?: number | string;
+	bandId: number | string;
 	closingDate: string;
 	status: string;
 };
@@ -34,7 +34,7 @@ export const mapJobRoleApiResponseToJobRole = (
 		location: jobRole.location,
 		capability: capabilityName,
 		band: bandName,
-		closingDate: jobRole.closingDate,
+		closingDate: new Date(jobRole.closingDate),
 		status: jobRole.status,
 	};
 };
