@@ -17,6 +17,10 @@ export class JobRoleService {
 	) {}
 
 	async getOpenJobRoles(): Promise<JobRole[]> {
+		if(this.useFallbackMock) {
+			return this.toOpenJobRoles(this.fallbackData);
+		}
+
 		try {
 			const response =
 				await this.client.get<JobRoleApiResponse[]>("/job-roles");
@@ -27,11 +31,7 @@ export class JobRoleService {
 			if (axios.isAxiosError(error) && error.response?.status === 404) {
 				return [];
 			}
-
-			if (this.useFallbackMock) {
-				return this.toOpenJobRoles(this.fallbackData);
-			}
-
+			
 			throw error;
 		}
 	}
