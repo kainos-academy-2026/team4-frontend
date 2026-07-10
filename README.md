@@ -44,10 +44,36 @@ npm run lint
 npm run lint:fix
 ```
 
+- Run tests from the repository root:
+
+```bash
+npm run test
+```
+
+- Run tests with coverage output:
+
+```bash
+npm run test:coverage
+```
+
+- Run tests with the Vitest UI:
+
+```bash
+npm run test:ui
+```
+
 Default local port is `3000`. Override with `PORT`, for example:
 
 ```bash
 PORT=4000 npm run start
+```
+
+Frontend API connection values can be set in `.env`:
+
+```ini
+PORT=3000
+API_BASE_URL=http://localhost:4000
+USE_JOB_ROLE_FALLBACK_MOCK=true
 ```
 
 ## Endpoints
@@ -57,6 +83,9 @@ PORT=4000 npm run start
 - `GET /health` returns JSON with:
 	- `status`: `UP`
 	- `time`: current timestamp in ISO-8601 format
+- `GET /job-roles` renders open job roles.
+  - Calls backend `GET /job-roles` using Axios.
+  - Falls back to frontend mock data when backend is unavailable and `USE_JOB_ROLE_FALLBACK_MOCK=true`.
 
 ## Demo Login
 

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Job Roles</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/branding.css" />
+  </head>
+  <body class="kainos-page">
+    <header class="kainos-header" aria-label="Kainos brand banner">
+      <img
+        class="kainos-logo"
+        src="/images/kainoslogo.png"
+        alt="Kainos logo"
+      />
+    </header>
+
+    <main class="page">
+      <h1>Open Job Roles at Kainos</h1>
+      <p class="subtitle">View current roles that are open for applications.</p>
+
+      {% if errorMessage %}
+      <div class="alert alert-error" role="alert">{{ errorMessage }}</div>
+      {% endif %}
+
+      {% set roles = jobRoles or [] %}
+
+      {% if roles.length > 0 %}
+      <section class="table-wrapper" aria-label="Open job roles list">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Role Name</th>
+              <th scope="col">Location</th>
+              <th scope="col">Capability</th>
+              <th scope="col">Band</th>
+              <th scope="col">Closing Date</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for jobRole in roles %}
+            <tr>
+              <td>{{ jobRole.roleName }}</td>
+              <td>{{ jobRole.location }}</td>
+              <td>{{ jobRole.capability }}</td>
+              <td>{{ jobRole.band }}</td>
+              <td>{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}</td>
+              <td><span class="badge">{{ jobRole.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      {% elif not errorMessage %}
+      <section class="empty-state" aria-live="polite">
+        <p>No open job roles are available right now.</p>
+      </section>
+      {% endif %}
+    </main>
+
+    <footer class="kainos-footer" aria-label="Contact information">
+      <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
+      <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+    </footer>
+  </body>
+</html>

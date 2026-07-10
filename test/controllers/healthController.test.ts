@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getHealth } from "../src/controllers/healthController";
+import { getHealth } from "../../src/controllers/healthController";
 
 describe("getHealth", () => {
   afterEach(() => {
