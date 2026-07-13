@@ -2,7 +2,7 @@ import type { JobRole } from "../models/jobRole";
 
 export const fallbackJobRoles: JobRole[] = [
 	{
-		id: "1",
+		id: 1,
 		roleName: "Software Engineer",
 		location: "Belfast",
 		capability: "Engineering",
@@ -11,7 +11,7 @@ export const fallbackJobRoles: JobRole[] = [
 		status: "open",
 	},
 	{
-		id: "2",
+		id: 2,
 		roleName: "Test Engineer",
 		location: "Dublin",
 		capability: "Quality Engineering",
@@ -20,7 +20,7 @@ export const fallbackJobRoles: JobRole[] = [
 		status: "open",
 	},
 	{
-		id: "3",
+		id: 3,
 		roleName: "Data Analyst",
 		location: "Gdansk",
 		capability: "Data",

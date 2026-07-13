@@ -12,13 +12,17 @@ describe("GET /job-roles", () => {
   it("renders open job roles when service returns data", async () => {
     vi.spyOn(JobRoleService.prototype, "getOpenJobRoles").mockResolvedValue([
       {
-        id: "1",
+        id: 1,
         roleName: "Software Engineer",
         location: "Belfast",
         capability: "Engineering",
         band: "Associate",
         closingDate: new Date("2026-08-01"),
         status: "open",
+        description: "Build services",
+        responsibilities: "Ship features",
+        sharepointUrl: "https://example.com/role/1",
+        numberOfOpenPositions: 2,
       },
     ]);
 
