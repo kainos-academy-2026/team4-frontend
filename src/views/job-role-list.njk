@@ -42,7 +42,9 @@
           <tbody>
             {% for jobRole in roles %}
             <tr>
-              <td>{{ jobRole.roleName }}</td>
+              <td>
+                <a href="/job-roles/{{ jobRole.id }}">{{ jobRole.roleName }}</a>
+              </td>
               <td>{{ jobRole.location }}</td>
               <td>{{ jobRole.capability }}</td>
               <td>{{ jobRole.band }}</td>

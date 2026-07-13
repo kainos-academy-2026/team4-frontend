@@ -9,6 +9,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-08-01"),
 		status: "open",
+		description: "Design and build backend services.",
+		responsibilities: "Deliver features, review code, and support releases.",
+		sharepointUrl: "https://example.com/roles/software-engineer",
+		numberOfOpenPositions: 2,
 	},
 	{
 		id: 2,
@@ -18,6 +22,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Senior Associate",
 		closingDate: new Date("2026-08-12"),
 		status: "open",
+		description: "Own test strategy across products.",
+		responsibilities: "Build automation and improve quality gates.",
+		sharepointUrl: "https://example.com/roles/test-engineer",
+		numberOfOpenPositions: 1,
 	},
 	{
 		id: 3,
@@ -27,5 +35,9 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-07-15"),
 		status: "closed",
+		description: "Analyse operational and product datasets.",
+		responsibilities: "Create dashboards and report insights.",
+		sharepointUrl: "https://example.com/roles/data-analyst",
+		numberOfOpenPositions: 0,
 	},
 ];

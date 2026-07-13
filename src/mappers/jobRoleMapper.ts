@@ -20,7 +20,6 @@ export type JobRoleApiResponse = {
 export const mapJobRoleApiResponseToJobRole = (
 	jobRole: JobRoleApiResponse,
 ): JobRole => {
-
 	return {
 		id: Number(jobRole.id),
 		roleName: jobRole.roleName,
@@ -37,24 +36,39 @@ export const mapJobRoleApiResponseToJobRole = (
 };
 
 export type JobRoleListApiResponse = {
-  id: number;
-  roleName: string;
-  location: string;
-  capabilityName: string;
-  bandName: string;
-  closingDate: string | Date;
-  status: string;
+	id: number;
+	roleName: string;
+	location: string;
+	capabilityName: string;
+	bandName: string;
+	closingDate: string | Date;
+	status: string;
 };
 
 export const mapJobRoleApiResponseToJobRoleListItem = (
-  jobRole: JobRoleListApiResponse,
+	jobRole: JobRoleListApiResponse,
 ): JobRoleListItemViewModel => {
-  return {
-    roleName: jobRole.roleName,
-    location: jobRole.location,
-    capability: jobRole.capabilityName,
-    band: jobRole.bandName,
-    closingDate: new Date(jobRole.closingDate),
-    status: jobRole.status,
-  };
+	return {
+		id: jobRole.id,
+		roleName: jobRole.roleName,
+		location: jobRole.location,
+		capability: jobRole.capabilityName,
+		band: jobRole.bandName,
+		closingDate: new Date(jobRole.closingDate),
+		status: jobRole.status,
+	};
+};
+
+export const mapJobRoleToJobRoleListItem = (
+	jobRole: JobRole,
+): JobRoleListItemViewModel => {
+	return {
+		id: jobRole.id,
+		roleName: jobRole.roleName,
+		location: jobRole.location,
+		capability: jobRole.capability,
+		band: jobRole.band,
+		closingDate: new Date(jobRole.closingDate),
+		status: jobRole.status,
+	};
 };

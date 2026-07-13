@@ -24,4 +24,36 @@ export class JobRoleController {
 			} satisfies JobRoleListViewModel);
 		}
 	}
+
+	async getById(_req: Request, res: Response): Promise<void> {
+		try {
+			const id = Number(_req.params.id);
+
+			if (Number.isNaN(id)) {
+				res.status(400).render("job-role-detail", {
+					errorMessage: "Invalid job role id.",
+					jobRole: null,
+				});
+				return;
+			}
+
+			const jobRole = await this.jobRoleService.getJobRolesById(id);
+
+			if (!jobRole) {
+				res.status(404).render("job-role-detail", {
+					errorMessage: "Job role not found.",
+					jobRole: null,
+				});
+				return;
+			}
+
+			res.render("job-role-detail", { jobRole });
+		} catch (error) {
+			console.error(error);
+			res.status(502).render("job-role-detail", {
+				errorMessage: "Something went wrong. Please try again later.",
+				jobRole: null,
+			});
+		}
+	}
 }

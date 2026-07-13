@@ -1,4 +1,5 @@
 export type JobRoleListItemViewModel = {
+	id: number;
 	roleName: string;
 	location: string;
 	capability: string;

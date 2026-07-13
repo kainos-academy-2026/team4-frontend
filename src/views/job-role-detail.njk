@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Job Role Detail</title>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="stylesheet" href="/styles/branding.css" />
+	</head>
+	<body class="kainos-page">
+		<header class="kainos-header" aria-label="Kainos brand banner">
+			<img
+				class="kainos-logo"
+				src="/images/kainoslogo.png"
+				alt="Kainos logo"
+			/>
+		</header>
+
+		<main class="page">
+			<a class="kainos-primary-action" href="/job-roles">Back to job roles</a>
+
+			{% if jobRole %}
+			<h1>{{ jobRole.roleName }}</h1>
+			<p class="subtitle">Review the role details and continue to apply.</p>
+
+			<section class="empty-state" aria-label="Job role detail">
+				<p><strong>Location:</strong> {{ jobRole.location }}</p>
+				<p><strong>Capability:</strong> {{ jobRole.capability }}</p>
+				<p><strong>Band:</strong> {{ jobRole.band }}</p>
+				<p>
+					<strong>Closing Date:</strong>
+					{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}
+				</p>
+				<p><strong>Status:</strong> <span class="badge">{{ jobRole.status }}</span></p>
+				<p><strong>Open Positions:</strong> {{ jobRole.numberOfOpenPositions }}</p>
+				<h2>Description</h2>
+				<p>{{ jobRole.description }}</p>
+				<h2>Responsibilities</h2>
+				<p>{{ jobRole.responsibilities }}</p>
+				<p>
+					<a class="kainos-primary-action" href="{{ jobRole.sharepointUrl }}">
+						Apply on SharePoint
+					</a>
+				</p>
+			</section>
+			{% else %}
+			<h1>Job Role Detail</h1>
+			<p class="subtitle">View more information about an open role.</p>
+
+			{% if errorMessage %}
+			<div class="alert alert-error" role="alert">{{ errorMessage }}</div>
+			{% endif %}
+			{% endif %}
+		</main>
+
+		<footer class="kainos-footer" aria-label="Contact information">
+			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
+			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+		</footer>
+	</body>
+</html>
