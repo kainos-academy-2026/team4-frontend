@@ -10,7 +10,6 @@
   <body
     class="kainos-page"
     data-page="home"
-    data-demo-auth-enabled="{{ demoAuthEnabled | dump | safe }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
       <img
@@ -19,14 +18,24 @@
         alt="Kainos logo"
       />
       <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
+        {% if isAuthenticated %}
+        <form method="post" action="/logout">
+          <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
+        </form>
+        {% else %}
         <a class="kainos-header-link" href="/login">Log in</a>
+        {% endif %}
       </nav>
     </header>
 
     <main class="kainos-hero" aria-label="Home">
       <div class="kainos-home-copy">
         <h1>Hello world</h1>
+        {% if isAuthenticated and userEmail %}
+        <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
+        {% else %}
         <p class="kainos-greeting" data-auth-greeting hidden></p>
+        {% endif %}
       </div>
     </main>
 
@@ -34,7 +43,5 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
-
-    <script src="/scripts/auth.js"></script>
   </body>
 </html>
