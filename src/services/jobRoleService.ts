@@ -16,14 +16,18 @@ export class JobRoleService {
 			.USE_JOB_ROLE_FALLBACK_MOCK !== "false",
 	) {}
 
-	async getOpenJobRoles(): Promise<JobRole[]> {
+	async getOpenJobRoles(token: string): Promise<JobRole[]> {
 		if(this.useFallbackMock) {
 			return this.toOpenJobRoles(this.fallbackData);
 		}
 
 		try {
 			const response =
-				await this.client.get<JobRoleApiResponse[]>("/job-roles");
+				await this.client.get<JobRoleApiResponse[]>("/job-roles", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
 			return this.toOpenJobRoles(
 				response.data.map(mapJobRoleApiResponseToJobRole),
 			);

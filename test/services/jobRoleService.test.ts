@@ -7,24 +7,24 @@ import type { JobRole } from "../../src/models/jobRole";
 
 const apiData: JobRoleApiResponse[] = [
   {
-    id: "1",
+    id: 1,
     roleName: "Software Engineer",
     location: "Belfast",
-    capability: "Engineering",
-    capabilityId: "1",
-    band: "Associate",
-    bandId: "1",
+    capabilityName: "Engineering",
+    capabilityId: 1,
+    bandName: "Associate",
+    bandId: 1,
     closingDate: "2026-08-01",
     status: "open",
   },
   {
-    id: "2",
+    id: 2,
     roleName: "Data Analyst",
     location: "Gdansk",
-    capability: "Data",
-    capabilityId: "2",
-    band: "Associate",
-    bandId: "2",
+    capabilityName: "Data",
+    capabilityId: 2,
+    bandName: "Associate",
+    bandId: 2,
     closingDate: "2026-08-08",
     status: "closed",
   },
@@ -45,11 +45,19 @@ const fallbackData: JobRole[] = [
 describe("JobRoleService", () => {
   it("returns only open job roles from API response", async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: apiData });
-    const service = new JobRoleService({ get: mockGet } as unknown as AxiosInstance);
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
 
-    const result = await service.getOpenJobRoles();
+    const result = await service.getOpenJobRoles("test-token");
 
-    expect(mockGet).toHaveBeenCalledWith("/job-roles");
+    expect(mockGet).toHaveBeenCalledWith("/job-roles", {
+      headers: {
+        Authorization: "Bearer test-token",
+      },
+    });
     expect(result).toEqual([
       {
         id: "1",
@@ -74,7 +82,7 @@ describe("JobRoleService", () => {
       true,
     );
 
-    const result = await service.getOpenJobRoles();
+    const result = await service.getOpenJobRoles("test-token");
 
     expect(result).toEqual(fallbackData);
   });
@@ -90,6 +98,6 @@ describe("JobRoleService", () => {
       false,
     );
 
-    await expect(service.getOpenJobRoles()).resolves.toEqual([]);
+    await expect(service.getOpenJobRoles("test-token")).resolves.toEqual([]);
   });
 });

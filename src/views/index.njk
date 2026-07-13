@@ -10,6 +10,8 @@
   <body
     class="kainos-page"
     data-page="home"
+    data-auth-email="{{ authEmail }}"
+    data-authenticated="{{ isAuthenticated | dump | safe }}"
     data-demo-auth-enabled="{{ demoAuthEnabled | dump | safe }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
@@ -19,14 +21,18 @@
         alt="Kainos logo"
       />
       <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
+        {% if isAuthenticated %}
+        <button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>
+        {% else %}
         <a class="kainos-header-link" href="/login">Log in</a>
+        {% endif %}
       </nav>
     </header>
 
     <main class="kainos-hero" aria-label="Home">
       <div class="kainos-home-copy">
         <h1>Hello world</h1>
-        <p class="kainos-greeting" data-auth-greeting hidden></p>
+        <p class="kainos-greeting" data-auth-greeting {% if not isAuthenticated %}hidden{% endif %}>{% if isAuthenticated %}Welcome back, {{ authEmail }}{% endif %}</p>
       </div>
     </main>
 

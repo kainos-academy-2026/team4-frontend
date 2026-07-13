@@ -2,10 +2,20 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 
 import app from "../src/app";
+import { createDemoToken } from "../src/auth/session";
 
 describe("home branding integration", () => {
-  it("serves branded home markup at /", async () => {
+  it("redirects unauthenticated users from / to /login", async () => {
     const response = await request(app).get("/");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login");
+  });
+
+  it("serves branded home markup for authenticated users", async () => {
+    const response = await request(app)
+      .get("/")
+      .set("Cookie", [`demoAuthToken=${createDemoToken("test@test.com", "applicant")}`]);
 
     expect(response.status).toBe(200);
     expect(response.headers["content-type"]).toContain("text/html");
@@ -14,8 +24,8 @@ describe("home branding integration", () => {
     expect(response.text).toContain("href=\"/images/favicon.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
     expect(response.text).toContain("data-home-auth-action");
-    expect(response.text).toContain('href="/login"');
     expect(response.text).toContain("data-auth-greeting");
+    expect(response.text).toContain("Welcome back, test@test.com");
     expect(response.text).toContain("careers@kainosjobs.example");
     expect(response.text).toContain("+44 28 9000 0000");
   });

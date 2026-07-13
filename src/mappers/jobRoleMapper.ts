@@ -1,21 +1,20 @@
 import type { JobRole } from "../models/jobRole";
 
 export type JobRoleApiResponse = {
-	id: string;
+	id: number;
 	roleName: string;
 	location: string;
 	capabilityName: string;
-	capabilityId: string;
+	capabilityId: number;
 	bandName: string;
-	bandId: string;
-	closingDate: Date;
+	bandId: number;
+	closingDate: string;
 	status: string;
 };
 
 export const mapJobRoleApiResponseToJobRole = (
 	jobRole: JobRoleApiResponse,
 ): JobRole => {
-
 	return {
 		id: String(jobRole.id),
 		roleName: jobRole.roleName,

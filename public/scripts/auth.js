@@ -1,6 +1,7 @@
 (function () {
 	const demoAuthStorageKeys = {
 		email: "demoAuthEmail",
+		role: "demoAuthRole",
 		token: "demoAuthToken",
 	};
 
@@ -10,6 +11,8 @@
 	}
 
 	const page = body.dataset.page;
+	const authEmail = body.dataset.authEmail ?? "";
+	const isAuthenticated = body.dataset.authenticated === "true";
 	const demoAuthEnabled = body.dataset.demoAuthEnabled === "true";
 	const homeAction = document.querySelector("[data-home-auth-action]");
 	const greeting = document.querySelector("[data-auth-greeting]");
@@ -21,19 +24,8 @@
 
 	const clearSession = () => {
 		window.sessionStorage.removeItem(demoAuthStorageKeys.email);
+		window.sessionStorage.removeItem(demoAuthStorageKeys.role);
 		window.sessionStorage.removeItem(demoAuthStorageKeys.token);
-	};
-
-	const createFakeJwt = (email) => {
-		const header = window.btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-		const payload = window.btoa(
-			JSON.stringify({
-				email,
-				exp: Math.floor(Date.now() / 1000) + 60 * 60,
-			})
-		);
-
-		return `${header}.${payload}.demo-signature`;
 	};
 
 	const setError = (message) => {
@@ -51,10 +43,12 @@
 			return;
 		}
 
-		const { email, token } = getSession();
-		const isAuthenticated = Boolean(email && token);
+		const session = getSession();
+		const activeEmail = session.email || authEmail;
+		const activeToken = session.token;
+		const hasSession = Boolean((activeEmail && activeToken) || isAuthenticated);
 
-		if (!isAuthenticated) {
+		if (!hasSession) {
 			homeAction.innerHTML = '<a class="kainos-header-link" href="/login">Log in</a>';
 			greeting.hidden = true;
 			greeting.textContent = "";
@@ -64,13 +58,14 @@
 		homeAction.innerHTML =
 			'<button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
 		greeting.hidden = false;
-		greeting.textContent = `Welcome back, ${email}`;
+		greeting.textContent = `Welcome back, ${activeEmail}`;
 
 		const logoutTrigger = document.querySelector("[data-logout-trigger]");
 		if (logoutTrigger) {
-			logoutTrigger.addEventListener("click", () => {
+			logoutTrigger.addEventListener("click", async () => {
+				await window.fetch("/logout", { method: "POST" });
 				clearSession();
-				renderHomeState();
+				window.location.assign("/login");
 			});
 		}
 	};
@@ -81,7 +76,7 @@
 			return;
 		}
 
-		form.addEventListener("submit", (event) => {
+		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			setError("");
 
@@ -95,15 +90,28 @@
 			const email = String(formData.get("email") ?? "").trim();
 			const password = String(formData.get("password") ?? "");
 
-			if (email !== "test@test.com" || password !== "passwordtest") {
+			const response = await window.fetch("/login", {
+				body: JSON.stringify({ email, password }),
+				headers: {
+					"Content-Type": "application/json",
+				},
+				method: "POST",
+			});
+
+			if (!response.ok) {
 				clearSession();
-				setError("Invalid email or password. Please try again.");
+				const payload = await response
+					.json()
+					.catch(() => ({ message: "Unable to log in." }));
+				setError(payload.message ?? "Unable to log in.");
 				return;
 			}
 
-			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
-			window.sessionStorage.setItem(demoAuthStorageKeys.token, createFakeJwt(email));
-			window.location.assign("/");
+			const payload = await response.json();
+			window.sessionStorage.setItem(demoAuthStorageKeys.email, payload.email);
+			window.sessionStorage.setItem(demoAuthStorageKeys.role, payload.role);
+			window.sessionStorage.setItem(demoAuthStorageKeys.token, payload.token);
+			window.location.assign(payload.redirectTo ?? "/");
 		});
 	};
 
