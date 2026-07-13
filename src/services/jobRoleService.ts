@@ -64,13 +64,13 @@ export class JobRoleService {
 	}
 
 	private getFallbackOpenRoles(): JobRoleListItem[] {
-		return this.filterOpenRoles(
-			this.fallbackData.map(mapJobRoleToListItem),
-		);
+		return this.filterOpenRoles(this.fallbackData.map(mapJobRoleToListItem));
 	}
 
 	private getFallbackJobRoleById(jobRoleId: number): JobRole | null {
-		return this.fallbackData.find((jobRole) => jobRole.id === jobRoleId) ?? null;
+		return (
+			this.fallbackData.find((jobRole) => jobRole.id === jobRoleId) ?? null
+		);
 	}
 
 	private filterOpenRoles(
