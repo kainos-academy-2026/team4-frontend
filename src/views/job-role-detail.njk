@@ -31,7 +31,12 @@
 					<strong>Closing Date:</strong>
 					{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}
 				</p>
-				<p><strong>Status:</strong> <span class="badge">{{ jobRole.status }}</span></p>
+				<p>
+					<strong>Status:</strong>
+					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
+						{{ jobRole.status }}
+					</span>
+				</p>
 				<p><strong>Open Positions:</strong> {{ jobRole.numberOfOpenPositions }}</p>
 				<h2>Description</h2>
 				<p>{{ jobRole.description }}</p>

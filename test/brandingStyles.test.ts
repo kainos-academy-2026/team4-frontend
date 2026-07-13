@@ -16,6 +16,9 @@ describe("branding stylesheet contract", () => {
     expect(css).toContain(".kainos-greeting");
     expect(css).toContain(".kainos-footer");
     expect(css).toContain("background: #313147;");
+    expect(css).toContain(".badge--closed");
+    expect(css).toContain("background: #fff4e6;");
+    expect(css).toContain("color: #c2410c;");
     expect(css).toContain("@media (max-width: 900px)");
     expect(css).toContain("@media (max-width: 540px)");
   });

@@ -294,6 +294,12 @@ tbody tr:last-child td {
   text-transform: capitalize;
 }
 
+.badge--closed {
+  background: #fff4e6;
+  color: #c2410c;
+  border-color: #fdba74;
+}
+
 @media (max-width: 540px) {
   .page {
     width: min(100%, calc(100% - 1rem));
