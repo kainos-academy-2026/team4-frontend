@@ -44,8 +44,19 @@ describe("auth routes", () => {
 		expect(response.headers["set-cookie"]?.[0]).toContain("demoAuthToken=");
 	});
 
-	it("logs out and clears the auth cookie", async () => {
+	it("returns 401 for unauthenticated logout requests", async () => {
 		const response = await request(app).post("/logout");
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Authentication required." });
+	});
+
+	it("logs out and clears the auth cookie for authenticated users", async () => {
+		const response = await request(app)
+			.post("/logout")
+			.set("Cookie", [
+				`demoAuthToken=${createDemoToken("test@test.com", "applicant")}`,
+			]);
 
 		expect(response.status).toBe(204);
 		expect(response.headers["set-cookie"]?.[0]).toContain("demoAuthToken=");

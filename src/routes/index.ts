@@ -13,7 +13,7 @@ const readAccessRoles = ["applicant", "recruitment_admin"] as const;
 
 router.get("/login", getLogin);
 router.post("/login", postLogin);
-router.post("/logout", postLogout);
+router.post("/logout", requireAuth("json"), postLogout);
 
 router.get("/", requireRole(readAccessRoles, "html"), getHome);
 router.get("/health", requireAuth("json"), getHealth);
