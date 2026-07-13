@@ -1,4 +1,4 @@
-export type JobRoleListItemViewModel = {
+export type JobRoleListItem = {
 	id: number;
 	roleName: string;
 	location: string;
@@ -8,7 +8,7 @@ export type JobRoleListItemViewModel = {
 	status: string;
 };
 
-export type JobRoleListViewModel = {
+export type JobRoleListPage = {
 	errorMessage: string | null;
-	jobRoles: JobRoleListItemViewModel[];
+	jobRoles: JobRoleListItem[];
 };

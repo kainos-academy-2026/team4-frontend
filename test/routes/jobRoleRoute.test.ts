@@ -10,7 +10,7 @@ describe("GET /job-roles", () => {
   });
 
   it("renders open job roles when service returns data", async () => {
-    vi.spyOn(JobRoleService.prototype, "getOpenJobRoles").mockResolvedValue([
+    vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockResolvedValue([
       {
         id: 1,
         roleName: "Software Engineer",
@@ -34,7 +34,7 @@ describe("GET /job-roles", () => {
   });
 
   it("renders empty state when service returns no open roles", async () => {
-    vi.spyOn(JobRoleService.prototype, "getOpenJobRoles").mockResolvedValue([]);
+    vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockResolvedValue([]);
 
     const response = await request(app).get("/job-roles");
 
@@ -43,7 +43,7 @@ describe("GET /job-roles", () => {
   });
 
   it("renders error state when service throws", async () => {
-    vi.spyOn(JobRoleService.prototype, "getOpenJobRoles").mockRejectedValue(
+    vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockRejectedValue(
       new Error("Backend service is currently unavailable."),
     );
 
@@ -60,7 +60,7 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("renders the job role detail page when the service returns a role", async () => {
-    vi.spyOn(JobRoleService.prototype, "getJobRolesById").mockResolvedValue({
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
       id: 1,
       roleName: "Software Engineer",
       location: "Belfast",
@@ -91,7 +91,7 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("renders a not found error page when no role exists", async () => {
-    vi.spyOn(JobRoleService.prototype, "getJobRolesById").mockResolvedValue(null);
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
 
     const response = await request(app).get("/job-roles/999");
 
@@ -100,7 +100,7 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("renders an error page when the service throws", async () => {
-    vi.spyOn(JobRoleService.prototype, "getJobRolesById").mockRejectedValue(
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockRejectedValue(
       new Error("Backend service is currently unavailable."),
     );
 

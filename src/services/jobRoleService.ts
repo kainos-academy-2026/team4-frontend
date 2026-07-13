@@ -2,15 +2,15 @@ import axios, { type AxiosInstance } from "axios";
 
 import apiClient from "../config/apiClient";
 import {
-	type JobRoleApiResponse,
-	type JobRoleListApiResponse,
-	mapJobRoleApiResponseToJobRole,
-	mapJobRoleApiResponseToJobRoleListItem,
-	mapJobRoleToJobRoleListItem,
+	type JobRoleDetailApi,
+	type JobRoleListApi,
+	mapJobRoleDetailApiToModel,
+	mapJobRoleListApiToItem,
+	mapJobRoleToListItem,
 } from "../mappers/jobRoleMapper";
 import { fallbackJobRoles } from "../mocks/jobRoles";
 import type { JobRole } from "../models/jobRole";
-import type { JobRoleListItemViewModel } from "../models/jobRoleListViewModel";
+import type { JobRoleListItem } from "../models/jobRoleListModels";
 
 export class JobRoleService {
 	constructor(
@@ -20,67 +20,63 @@ export class JobRoleService {
 			.USE_JOB_ROLE_FALLBACK_MOCK !== "false",
 	) {}
 
-	async getOpenJobRoles(): Promise<JobRoleListItemViewModel[]> {
+	async getOpenRoles(): Promise<JobRoleListItem[]> {
 		if (this.useFallbackMock) {
-			return this.getFallbackOpenJobRoles();
+			return this.getFallbackOpenRoles();
 		}
 
 		try {
-			const response =
-				await this.client.get<JobRoleListApiResponse[]>("/job-roles");
-			return this.toOpenJobRoles(
-				response.data.map(mapJobRoleApiResponseToJobRoleListItem),
+			const jobRoleListResponse =
+				await this.client.get<JobRoleListApi[]>("/job-roles");
+			return this.filterOpenRoles(
+				jobRoleListResponse.data.map(mapJobRoleListApiToItem),
 			);
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 404) {
+		} catch (requestError) {
+			if (
+				axios.isAxiosError(requestError) &&
+				requestError.response?.status === 404
+			) {
 				return [];
 			}
-
-			if (this.useFallbackMock) {
-				return this.getFallbackOpenJobRoles();
-			}
-
-			throw error;
+			throw requestError;
 		}
 	}
 
-	async getJobRolesById(id: number): Promise<JobRole | null> {
+	async getRoleById(jobRoleId: number): Promise<JobRole | null> {
 		if (this.useFallbackMock) {
-			return this.getFallbackJobRoleById(id);
+			return this.getFallbackJobRoleById(jobRoleId);
 		}
 
 		try {
-			const response = await this.client.get<JobRoleApiResponse>(
-				`/job-roles/${id}`,
+			const jobRoleDetailResponse = await this.client.get<JobRoleDetailApi>(
+				`/job-roles/${jobRoleId}`,
 			);
-			return mapJobRoleApiResponseToJobRole(response.data);
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 404) {
+			return mapJobRoleDetailApiToModel(jobRoleDetailResponse.data);
+		} catch (requestError) {
+			if (
+				axios.isAxiosError(requestError) &&
+				requestError.response?.status === 404
+			) {
 				return null;
 			}
-
-			if (this.useFallbackMock) {
-				return this.getFallbackJobRoleById(id);
-			}
-
-			throw error;
+			throw requestError;
 		}
 	}
 
-	private getFallbackOpenJobRoles(): JobRoleListItemViewModel[] {
-		return this.toOpenJobRoles(
-			this.fallbackData.map(mapJobRoleToJobRoleListItem),
+	private getFallbackOpenRoles(): JobRoleListItem[] {
+		return this.filterOpenRoles(
+			this.fallbackData.map(mapJobRoleToListItem),
 		);
 	}
 
-	private getFallbackJobRoleById(id: number): JobRole | null {
-		return this.fallbackData.find((jobRole) => jobRole.id === id) ?? null;
+	private getFallbackJobRoleById(jobRoleId: number): JobRole | null {
+		return this.fallbackData.find((jobRole) => jobRole.id === jobRoleId) ?? null;
 	}
 
-	private toOpenJobRoles(
-		jobRoles: JobRoleListItemViewModel[],
-	): JobRoleListItemViewModel[] {
-		return jobRoles.filter(
+	private filterOpenRoles(
+		jobRoleListItems: JobRoleListItem[],
+	): JobRoleListItem[] {
+		return jobRoleListItems.filter(
 			(jobRole) => jobRole.status.toLowerCase() === "open",
 		);
 	}

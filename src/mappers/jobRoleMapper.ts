@@ -1,7 +1,7 @@
 import type { JobRole } from "../models/jobRole";
-import type { JobRoleListItemViewModel } from "../models/jobRoleListViewModel";
+import type { JobRoleListItem } from "../models/jobRoleListModels";
 
-export type JobRoleApiResponse = {
+export type JobRoleDetailApi = {
 	id: number;
 	roleName: string;
 	location: string;
@@ -17,25 +17,25 @@ export type JobRoleApiResponse = {
 	numberOfOpenPositions: number;
 };
 
-export const mapJobRoleApiResponseToJobRole = (
-	jobRole: JobRoleApiResponse,
+export const mapJobRoleDetailApiToModel = (
+	jobRoleDetailApi: JobRoleDetailApi,
 ): JobRole => {
 	return {
-		id: Number(jobRole.id),
-		roleName: jobRole.roleName,
-		location: jobRole.location,
-		capability: jobRole.capabilityName,
-		band: jobRole.bandName,
-		closingDate: new Date(jobRole.closingDate),
-		status: jobRole.status,
-		description: jobRole.description,
-		responsibilities: jobRole.responsibilities,
-		sharepointUrl: jobRole.sharepointUrl,
-		numberOfOpenPositions: jobRole.numberOfOpenPositions,
+		id: Number(jobRoleDetailApi.id),
+		roleName: jobRoleDetailApi.roleName,
+		location: jobRoleDetailApi.location,
+		capability: jobRoleDetailApi.capabilityName,
+		band: jobRoleDetailApi.bandName,
+		closingDate: new Date(jobRoleDetailApi.closingDate),
+		status: jobRoleDetailApi.status,
+		description: jobRoleDetailApi.description,
+		responsibilities: jobRoleDetailApi.responsibilities,
+		sharepointUrl: jobRoleDetailApi.sharepointUrl,
+		numberOfOpenPositions: jobRoleDetailApi.numberOfOpenPositions,
 	};
 };
 
-export type JobRoleListApiResponse = {
+export type JobRoleListApi = {
 	id: number;
 	roleName: string;
 	location: string;
@@ -45,30 +45,30 @@ export type JobRoleListApiResponse = {
 	status: string;
 };
 
-export const mapJobRoleApiResponseToJobRoleListItem = (
-	jobRole: JobRoleListApiResponse,
-): JobRoleListItemViewModel => {
+export const mapJobRoleListApiToItem = (
+	jobRoleListApi: JobRoleListApi,
+): JobRoleListItem => {
 	return {
-		id: jobRole.id,
-		roleName: jobRole.roleName,
-		location: jobRole.location,
-		capability: jobRole.capabilityName,
-		band: jobRole.bandName,
-		closingDate: new Date(jobRole.closingDate),
-		status: jobRole.status,
+		id: jobRoleListApi.id,
+		roleName: jobRoleListApi.roleName,
+		location: jobRoleListApi.location,
+		capability: jobRoleListApi.capabilityName,
+		band: jobRoleListApi.bandName,
+		closingDate: new Date(jobRoleListApi.closingDate),
+		status: jobRoleListApi.status,
 	};
 };
 
-export const mapJobRoleToJobRoleListItem = (
-	jobRole: JobRole,
-): JobRoleListItemViewModel => {
+export const mapJobRoleToListItem = (
+	jobRoleDetail: JobRole,
+): JobRoleListItem => {
 	return {
-		id: jobRole.id,
-		roleName: jobRole.roleName,
-		location: jobRole.location,
-		capability: jobRole.capability,
-		band: jobRole.band,
-		closingDate: new Date(jobRole.closingDate),
-		status: jobRole.status,
+		id: jobRoleDetail.id,
+		roleName: jobRoleDetail.roleName,
+		location: jobRoleDetail.location,
+		capability: jobRoleDetail.capability,
+		band: jobRoleDetail.band,
+		closingDate: new Date(jobRoleDetail.closingDate),
+		status: jobRoleDetail.status,
 	};
 };

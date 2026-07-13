@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { mapJobRoleApiResponseToJobRole } from "../../src/mappers/jobRoleMapper";
+import { mapJobRoleDetailApiToModel } from "../../src/mappers/jobRoleMapper";
 
-describe("mapJobRoleApiResponseToJobRole", () => {
+describe("mapJobRoleDetailApiToModel", () => {
 	it("maps API fields into a JobRole", () => {
-		const result = mapJobRoleApiResponseToJobRole({
+		const result = mapJobRoleDetailApiToModel({
 			id: 1,
 			roleName: "Software Engineer",
 			location: "Belfast",
@@ -36,7 +36,7 @@ describe("mapJobRoleApiResponseToJobRole", () => {
 	});
 
 	it("keeps id as a number", () => {
-		const result = mapJobRoleApiResponseToJobRole({
+		const result = mapJobRoleDetailApiToModel({
 			id: 2,
 			roleName: "Data Analyst",
 			location: "Gdansk",

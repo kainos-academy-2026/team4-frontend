@@ -1,8 +1,8 @@
 import app from "./app";
 
-const port = Number(process.env.PORT) || 3000;
+const serverPort = Number(process.env.PORT) || 3000;
 
-app.listen(port, () => {
+app.listen(serverPort, () => {
 	// Keep startup logging minimal for local/dev verification.
-	console.log(`Server listening on http://localhost:${port}`);
+	console.log(`Server listening on http://localhost:${serverPort}`);
 });

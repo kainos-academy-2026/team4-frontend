@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { AxiosInstance } from "axios";
 
 import type {
-  JobRoleApiResponse,
-  JobRoleListApiResponse,
+  JobRoleDetailApi,
+  JobRoleListApi,
 } from "../../src/mappers/jobRoleMapper";
 import { JobRoleService } from "../../src/services/jobRoleService";
 import type { JobRole } from "../../src/models/jobRole";
 
-const listApiData: JobRoleListApiResponse[] = [
+const listApiData: JobRoleListApi[] = [
   {
     id: 1,
     roleName: "Software Engineer",
@@ -29,7 +29,7 @@ const listApiData: JobRoleListApiResponse[] = [
   },
 ];
 
-const detailApiData: JobRoleApiResponse = {
+const detailApiData: JobRoleDetailApi = {
   id: 1,
   roleName: "Software Engineer",
   location: "Belfast",
@@ -70,7 +70,7 @@ describe("JobRoleService", () => {
       false,
     );
 
-    const result = await service.getOpenJobRoles();
+    const result = await service.getOpenRoles();
 
     expect(mockGet).toHaveBeenCalledWith("/job-roles");
     expect(result).toEqual([
@@ -94,7 +94,7 @@ describe("JobRoleService", () => {
       true,
     );
 
-    const result = await service.getOpenJobRoles();
+    const result = await service.getOpenRoles();
 
     expect(mockGet).not.toHaveBeenCalled();
     expect(result).toEqual([
@@ -121,7 +121,7 @@ describe("JobRoleService", () => {
       false,
     );
 
-    await expect(service.getOpenJobRoles()).resolves.toEqual([]);
+    await expect(service.getOpenRoles()).resolves.toEqual([]);
   });
 
   it("returns full job role details from API by id", async () => {
@@ -132,7 +132,7 @@ describe("JobRoleService", () => {
       false,
     );
 
-    const result = await service.getJobRolesById(1);
+    const result = await service.getRoleById(1);
 
     expect(mockGet).toHaveBeenCalledWith("/job-roles/1");
     expect(result).toEqual({
