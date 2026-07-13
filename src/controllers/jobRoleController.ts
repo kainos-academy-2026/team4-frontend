@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { jobRoleIdSchema } from "../models/jobRole";
 import type { JobRoleListPage } from "../models/jobRoleListModels";
 import type { JobRoleService } from "../services/jobRoleService";
 
@@ -18,7 +19,7 @@ export class JobRoleController {
 		} catch (controllerError) {
 			console.error(controllerError);
 
-			response.status(502).render("job-role-list", {
+			response.render("job-role-list", {
 				errorMessage: "Something went wrong. Please try again later.",
 				jobRoles: [],
 			} satisfies JobRoleListPage);
@@ -27,30 +28,29 @@ export class JobRoleController {
 
 	async renderDetailPage(request: Request, response: Response): Promise<void> {
 		try {
-			const jobRoleId = Number(request.params.id);
+			const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
 
-			if (Number.isNaN(jobRoleId)) {
-				response.status(400).render("job-role-detail", {
+			if (!parsedJobRoleId.success) {
+				response.render("job-role-detail", {
 					errorMessage: "Invalid job role id.",
 					jobRole: null,
 				});
 				return;
 			}
 
-			const jobRole = await this.jobRoleService.getRoleById(jobRoleId);
+			const jobRole = await this.jobRoleService.getRoleById(
+				parsedJobRoleId.data,
+			);
 
 			if (!jobRole) {
-				response.status(404).render("job-role-detail", {
-					errorMessage: "Job role not found.",
-					jobRole: null,
-				});
+				response.redirect("/404");
 				return;
 			}
 
 			response.render("job-role-detail", { jobRole });
 		} catch (controllerError) {
 			console.error(controllerError);
-			response.status(502).render("job-role-detail", {
+			response.render("job-role-detail", {
 				errorMessage: "Something went wrong. Please try again later.",
 				jobRole: null,
 			});

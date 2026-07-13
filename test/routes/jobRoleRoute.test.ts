@@ -49,7 +49,7 @@ describe("GET /job-roles", () => {
 
     const response = await request(app).get("/job-roles");
 
-    expect(response.status).toBe(502);
+    expect(response.status).toBe(200);
     expect(response.text).toContain("Something went wrong. Please try again later.");
   });
 });
@@ -85,18 +85,18 @@ describe("GET /job-roles/:id", () => {
   it("renders an invalid id error page", async () => {
     const response = await request(app).get("/job-roles/not-a-number");
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(200);
     expect(response.text).toContain("Job Role Detail");
     expect(response.text).toContain("Invalid job role id.");
   });
 
-  it("renders a not found error page when no role exists", async () => {
+  it("redirects to the dedicated not found page when no role exists", async () => {
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
 
     const response = await request(app).get("/job-roles/999");
 
-    expect(response.status).toBe(404);
-    expect(response.text).toContain("Job role not found.");
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/404");
   });
 
   it("renders an error page when the service throws", async () => {
@@ -106,7 +106,18 @@ describe("GET /job-roles/:id", () => {
 
     const response = await request(app).get("/job-roles/1");
 
-    expect(response.status).toBe(502);
+    expect(response.status).toBe(200);
     expect(response.text).toContain("Something went wrong. Please try again later.");
+  });
+});
+
+describe("GET /404", () => {
+  it("renders the dedicated not-found page", async () => {
+    const response = await request(app).get("/404");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("404");
+    expect(response.text).toContain("Page not found");
+    expect(response.text).toContain("The page you requested does not exist.");
   });
 });
