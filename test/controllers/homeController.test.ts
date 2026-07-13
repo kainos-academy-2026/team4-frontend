@@ -4,13 +4,36 @@ import { describe, expect, it, vi } from "vitest";
 import { getHome } from "../../src/controllers/homeController";
 
 describe("getHome", () => {
-  it("renders the index view", () => {
+  it("renders logged-out state when no auth cookie is present", () => {
     const render = vi.fn();
 
-    getHome({} as Request, { render } as unknown as Response);
+    getHome({ headers: {} } as Request, { render } as unknown as Response);
 
     expect(render).toHaveBeenCalledWith("index", {
-      demoAuthEnabled: false,
+      isAuthenticated: false,
+      userEmail: null,
+    });
+  });
+
+  it("renders logged-in state when access token cookie is present", () => {
+    const render = vi.fn();
+    const jwtPayload = Buffer.from(
+      JSON.stringify({ email: "test@example.com" }),
+    ).toString("base64url");
+    const token = `header.${jwtPayload}.signature`;
+
+    getHome(
+      {
+        headers: {
+          cookie: `access_token=${token}`,
+        },
+      } as Request,
+      { render } as unknown as Response,
+    );
+
+    expect(render).toHaveBeenCalledWith("index", {
+      isAuthenticated: true,
+      userEmail: "test@example.com",
     });
   });
 });
