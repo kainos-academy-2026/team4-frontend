@@ -7,13 +7,16 @@
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="stylesheet" href="/styles/branding.css" />
   </head>
-  <body class="kainos-page">
-    <header class="kainos-header" aria-label="Kainos brand banner">
+  <body class="kainos-page" data-page="job-role-list">
+    <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
       <a href="/"><img
         class="kainos-logo"
         src="/images/kainoslogo.png"
         alt="Kainos home"
       /></a>
+      <nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+        <a class="kainos-header-link" href="/login">Log in</a>
+      </nav>
     </header>
 
     <main class="page">
@@ -70,5 +73,6 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
+    <script src="/scripts/auth.js"></script>
   </body>
 </html>

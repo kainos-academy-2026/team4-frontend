@@ -18,6 +18,9 @@ describe("home page template", () => {
       errorMessage: null,
    ,
       userEmail: null,
+   ,
+      jobRoles: [],
+      errorMessage: null,
     });
 
     expect(html).toContain("Welcome to Kainos Careers");

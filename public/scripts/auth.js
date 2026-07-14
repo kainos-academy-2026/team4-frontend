@@ -107,6 +107,12 @@
 			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
 		}
 
+		const params = new URLSearchParams(window.location.search);
+		const returnTo = params.get("returnTo") || "/";
+
+		const params = new URLSearchParams(window.location.search);
+		const returnTo = params.get("returnTo") || "/";
+
 		if (demoAuthEnabled) {
 			const emailInput = form.querySelector('input[name="email"]');
 			const passwordInput = form.querySelector('input[name="password"]');
@@ -189,8 +195,8 @@
 			}
 
 			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
-			window.sessionStorage.setItem(demoAuthStorageKeys.token, token);
-			window.location.assign(returnTo);
+			window.sessionStorage.setItem(demoAuthStorageKeys.token, createFakeJwt(email));
+			window.location.assign("/");
 		});
 	};
 
