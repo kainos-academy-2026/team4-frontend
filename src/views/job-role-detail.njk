@@ -7,7 +7,7 @@
 		<link rel="icon" type="image/png" href="/images/favicon.png" />
 		<link rel="stylesheet" href="/styles/branding.css" />
 	</head>
-	<body class="kainos-page" data-page="job-role-detail">
+	<body class="kainos-page" data-page="job-role-detail" data-page="job-role-detail">
 		<header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
 			<a href="/"><img
 				class="kainos-logo"
@@ -70,6 +70,23 @@
 					</p>
 				</section>
 				{% endif %}
+				{% if showApplyForRole %}
+				<section class="empty-state" aria-label="Apply for this role">
+					<h2>Apply for this role</h2>
+					<p>Applicants can upload a CV and start an application.</p>
+					<a
+						class="kainos-primary-action"
+						href="/job-roles/{{ jobRole.id }}/apply"
+						data-role-apply-cta
+						hidden
+					>
+						Apply now
+					</a>
+					<p class="kainos-form-error" data-role-apply-login-message>
+						Log in as an applicant to apply.
+					</p>
+				</section>
+				{% endif %}
 				<p>
 					<a class="kainos-primary-action" href="{{ jobRole.sharepointUrl }}">
 						Apply on SharePoint
@@ -91,6 +108,7 @@
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
 		<script src="/scripts/auth.js"></script>
+		<script src="/scripts/job-application.js"></script>
 		<script src="/scripts/job-application.js"></script>
 	</body>
 </html>
