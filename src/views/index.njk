@@ -100,22 +100,60 @@
     <script src="/scripts/auth.js"></script>
     <script src="/scripts/scroll-reveal.js"></script>
     <script>
-      document.querySelector('.kainos-scroll-cta').addEventListener('click', function(e) {
-        e.preventDefault();
-        var target = document.getElementById('roles');
-        var start = window.scrollY;
-        var end = target.getBoundingClientRect().top + start;
-        var duration = 1200;
-        var startTime = null;
-        function ease(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
-        function step(now) {
-          if (!startTime) startTime = now;
-          var progress = Math.min((now - startTime) / duration, 1);
-          window.scrollTo(0, start + (end - start) * ease(progress));
-          if (progress < 1) requestAnimationFrame(step);
+      (function () {
+        if ("scrollRestoration" in window.history) {
+          window.history.scrollRestoration = "manual";
         }
-        requestAnimationFrame(step);
-      });
+
+        window.addEventListener("load", function () {
+          var navEntries = window.performance.getEntriesByType("navigation");
+          var isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+
+          if (isReload) {
+            window.scrollTo(0, 0);
+
+            if (window.location.hash === "#roles") {
+              window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            }
+          }
+        });
+
+        var cta = document.querySelector(".kainos-scroll-cta");
+        if (!cta) {
+          return;
+        }
+
+        cta.addEventListener("click", function (e) {
+          e.preventDefault();
+          var target = document.getElementById("roles");
+          if (!target) {
+            return;
+          }
+
+          var start = window.scrollY;
+          var end = target.getBoundingClientRect().top + start;
+          var duration = 1200;
+          var startTime = null;
+
+          function ease(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+          }
+
+          function step(now) {
+            if (!startTime) {
+              startTime = now;
+            }
+
+            var progress = Math.min((now - startTime) / duration, 1);
+            window.scrollTo(0, start + (end - start) * ease(progress));
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+
+          window.requestAnimationFrame(step);
+        });
+      })();
     </script>
   </body>
 </html>
