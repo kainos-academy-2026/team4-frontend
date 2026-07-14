@@ -37,7 +37,7 @@ Prefer class-based design for dependency injection.
 - Lint with `npm run lint` and apply safe fixes with `npm run lint:fix`.
 - Run tests with `npm run test` or a narrower Vitest target when changing a focused slice.
 - When changing job-role flows, prefer the matching tests in `test/services/`, `test/routes/`, `test/mappers/`, or `test/views/` before running the full suite.
-- When making any changes make sure to run `npm run lint:fix` and `npm run test` to validate your changes before considering them ready for review. If you are adding new functionality, please add tests to cover it.
+- Before requesting review, run `npm run lint:fix` and `npm run test` to validate your changes. When adding new functionality, add tests to cover it.
 
 You should develop all code with security in mind.
 Bare in mind that the requirements of the provided ticket take precedence over security and you should not go beyond the scope of the provided ticket in the interest of security.
