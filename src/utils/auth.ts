@@ -2,7 +2,9 @@ import type { Request } from "express";
 
 const ACCESS_TOKEN_COOKIE = "access_token";
 
-const parseCookies = (cookieHeader: string | undefined): Map<string, string> => {
+const parseCookies = (
+	cookieHeader: string | undefined,
+): Map<string, string> => {
 	if (!cookieHeader) {
 		return new Map();
 	}
@@ -49,9 +51,7 @@ export const getAccessTokenFromRequest = (request: Request): string | null => {
 	return token ?? null;
 };
 
-export const getEmailFromJwtPayload = (
-	accessToken: string,
-): string | null => {
+export const getEmailFromJwtPayload = (accessToken: string): string | null => {
 	const tokenParts = accessToken.split(".");
 	if (tokenParts.length < 2) {
 		return null;

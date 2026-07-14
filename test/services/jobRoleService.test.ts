@@ -61,7 +61,6 @@ const fallbackData: JobRole[] = [
   },
 ];
 
-describe("JobRoleService", () => {
   it("returns only open job roles from API response", async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: listApiData });
     const service = new JobRoleService(

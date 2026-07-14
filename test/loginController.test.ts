@@ -1,13 +1,18 @@
 import type { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-	getLogin,
-	postLogin,
-	postLogout,
-} from "../src/controllers/loginController";
+import { LoginController } from "../src/controllers/loginController";
+import { LoginServiceError } from "../src/services/loginService";
 
 describe("login controller", () => {
+	const createController = (authenticate = vi.fn()) => {
+		const loginService = {
+			authenticate,
+		} as never;
+
+		return new LoginController(loginService);
+	};
+
 	afterEach(() => {
 		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
@@ -15,8 +20,9 @@ describe("login controller", () => {
 
 	it("renders the login view", () => {
 		const render = vi.fn();
+		const controller = createController();
 
-		getLogin({} as Request, { render } as unknown as Response);
+		controller.getLogin({} as Request, { render } as unknown as Response);
 
 		expect(render).toHaveBeenCalledWith("login", {
 			errorMessage: null,
@@ -24,57 +30,48 @@ describe("login controller", () => {
 	});
 
 	it("sets token cookie and redirects on successful login", async () => {
-		const json = vi.fn().mockResolvedValue({ accessToken: "token-123" });
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json,
-			}),
-		);
+		const authenticate = vi.fn().mockResolvedValue("token-123");
+		const controller = createController(authenticate);
 
 		const setHeader = vi.fn();
 		const redirect = vi.fn();
-		const status = vi.fn(() => ({ render: vi.fn() }));
 
-		await postLogin(
+		await controller.postLogin(
 			{
 				body: {
 					email: "test@example.com",
 					password: "Password123!",
 				},
 			} as Request,
-			{ setHeader, redirect, status } as unknown as Response,
+			{ setHeader, redirect } as unknown as Response,
 		);
 
-		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining("/auth/login"),
-			expect.objectContaining({
-				method: "POST",
-			}),
-		);
+		expect(authenticate).toHaveBeenCalledWith({
+			email: "test@example.com",
+			password: "Password123!",
+		});
 		expect(setHeader).toHaveBeenCalledWith(
 			"Set-Cookie",
 			expect.stringContaining("access_token=token-123"),
 		);
 		expect(redirect).toHaveBeenCalledWith("/");
-		expect(status).not.toHaveBeenCalled();
 	});
 
 	it("renders 401 error when backend returns invalid credentials", async () => {
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: false,
-				status: 401,
-			}),
-		);
+		const authenticate = vi
+			.fn()
+			.mockRejectedValue(
+				new LoginServiceError(
+					401,
+					"Invalid email or password. Please try again.",
+				),
+			);
+		const controller = createController(authenticate);
 
 		const render = vi.fn();
 		const status = vi.fn(() => ({ render }));
 
-		await postLogin(
+		await controller.postLogin(
 			{
 				body: {
 					email: "test@example.com",
@@ -90,31 +87,35 @@ describe("login controller", () => {
 		});
 	});
 
-	it("renders 400 error when form fields are missing", async () => {
+	it("renders a generic 500 error for unexpected service failures", async () => {
+		const authenticate = vi.fn().mockRejectedValue(new Error("boom"));
+		const controller = createController(authenticate);
+
 		const render = vi.fn();
 		const status = vi.fn(() => ({ render }));
 
-		await postLogin(
+		await controller.postLogin(
 			{
 				body: {
-					email: "",
-					password: "",
+					email: "test@example.com",
+					password: "Password123!",
 				},
 			} as Request,
 			{ status } as unknown as Response,
 		);
 
-		expect(status).toHaveBeenCalledWith(400);
+		expect(status).toHaveBeenCalledWith(500);
 		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Please enter both your email and password.",
+			errorMessage: "Something went wrong. Please try again.",
 		});
 	});
 
 	it("clears token cookie and redirects on logout", () => {
 		const setHeader = vi.fn();
 		const redirect = vi.fn();
+		const controller = createController();
 
-		postLogout(
+		controller.postLogout(
 			{} as Request,
 			{ setHeader, redirect } as unknown as Response,
 		);
