@@ -67,6 +67,7 @@
 					const response = await window.fetch("/logout", { method: "POST" });
 					if (!response.ok) {
 						console.error("Failed to log out", response.status);
+						window.alert("Unable to log out right now. Please try again.");
 						return;
 					}
 
@@ -74,6 +75,7 @@
 					window.location.assign("/login");
 				} catch (error) {
 					console.error("Failed to log out", error);
+					window.alert("Unable to log out right now. Please try again.");
 				}
 			});
 		}
