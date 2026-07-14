@@ -1,25 +1,10 @@
 import type { Request, Response } from "express";
 
-import { isDemoAuthEnabled } from "../config/auth";
+import type { LoginResponseDto } from "../dto/loginDto";
 import {
 	clearAccessTokenCookieHeader,
 	setAccessTokenCookieHeader,
 } from "../utils/auth";
-
-type LoginResponseDto = {
-	accessToken: string;
-};
-
-const renderLoginWithError = (
-	response: Response,
-	statusCode: number,
-	errorMessage: string,
-): void => {
-	response.status(statusCode).render("login", {
-		demoAuthEnabled: isDemoAuthEnabled(),
-		errorMessage,
-	});
-};
 
 export const getLogin = (_request: Request, response: Response): void => {
 	response.render("login", {
@@ -35,11 +20,9 @@ export const postLogin = async (
 	const password = String(request.body?.password ?? "");
 
 	if (!email || !password) {
-		renderLoginWithError(
-			response,
-			400,
-			"Please enter both your email and password.",
-		);
+		response.status(400).render("login", {
+			errorMessage: "Please enter both your email and password.",
+		});
 		return;
 	}
 
@@ -55,38 +38,30 @@ export const postLogin = async (
 			body: JSON.stringify({ email, password }),
 		});
 	} catch {
-		renderLoginWithError(
-			response,
-			502,
-			"We could not reach the login service. Please try again.",
-		);
+		response.status(502).render("login", {
+			errorMessage: "We could not reach the login service. Please try again.",
+		});
 		return;
 	}
 
 	if (apiResponse.status === 401) {
-		renderLoginWithError(
-			response,
-			401,
-			"Invalid email or password. Please try again.",
-		);
+		response.status(401).render("login", {
+			errorMessage: "Invalid email or password. Please try again.",
+		});
 		return;
 	}
 
 	if (apiResponse.status === 400) {
-		renderLoginWithError(
-			response,
-			400,
-			"Please enter a valid email and password.",
-		);
+		response.status(400).render("login", {
+			errorMessage: "Please enter a valid email and password.",
+		});
 		return;
 	}
 
 	if (!apiResponse.ok) {
-		renderLoginWithError(
-			response,
-			502,
-			"The login service returned an unexpected response.",
-		);
+		response.status(502).render("login", {
+			errorMessage: "The login service returned an unexpected response.",
+		});
 		return;
 	}
 
@@ -95,11 +70,9 @@ export const postLogin = async (
 		typeof payload.accessToken !== "string" ||
 		payload.accessToken.length === 0
 	) {
-		renderLoginWithError(
-			response,
-			502,
-			"The login response was invalid. Please try again.",
-		);
+		response.status(502).render("login", {
+			errorMessage: "The login response was invalid. Please try again.",
+		});
 		return;
 	}
 

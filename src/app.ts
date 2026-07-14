@@ -4,6 +4,7 @@ import "dotenv/config";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
 
+import { setAuthContext } from "./middleware/authContext";
 import router from "./routes";
 
 const app: Express = express();
@@ -34,6 +35,7 @@ app.set("views", viewsPath);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(publicPath));
+app.use(setAuthContext);
 
 app.use(router);
 

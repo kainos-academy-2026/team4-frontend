@@ -7,7 +7,16 @@ describe("getHome", () => {
   it("renders logged-out state when no auth cookie is present", () => {
     const render = vi.fn();
 
-    getHome({ headers: {} } as Request, { render } as unknown as Response);
+    getHome(
+      { headers: {} } as Request,
+      {
+        locals: {
+          isAuthenticated: false,
+          userEmail: null,
+        },
+        render,
+      } as unknown as Response,
+    );
 
     expect(render).toHaveBeenCalledWith("index", {
       isAuthenticated: false,
@@ -28,7 +37,13 @@ describe("getHome", () => {
           cookie: `access_token=${token}`,
         },
       } as Request,
-      { render } as unknown as Response,
+      {
+        locals: {
+          isAuthenticated: true,
+          userEmail: "test@example.com",
+        },
+        render,
+      } as unknown as Response,
     );
 
     expect(render).toHaveBeenCalledWith("index", {
