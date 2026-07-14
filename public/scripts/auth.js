@@ -99,6 +99,12 @@ import {
 			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
 		}
 
+		const params = new URLSearchParams(window.location.search);
+		const returnTo = params.get("returnTo") || "/";
+
+		const params = new URLSearchParams(window.location.search);
+		const returnTo = params.get("returnTo") || "/";
+
 		if (demoAuthEnabled) {
 			const emailInput = form.querySelector('input[name="email"]');
 			const passwordInput = form.querySelector('input[name="password"]');
