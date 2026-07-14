@@ -1,27 +1,14 @@
 import type { Request, Response } from "express";
 
-import type { LoginRequestDto } from "../dto/loginDto";
 import { type LoginService, LoginServiceError } from "../services/loginService";
 
-const ACCESS_TOKEN_COOKIE = "access_token";
-
-const serializeTokenCookie = (
-	value: string,
-	maxAgeSeconds: number,
-	env: NodeJS.ProcessEnv = process.env,
-): string => {
-	const secureFlag = env.NODE_ENV === "production" ? "; Secure" : "";
-	return `${ACCESS_TOKEN_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}${secureFlag}`;
+const clearAccessTokenCookieHeader = (): string => {
+	return "access_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
 };
 
-const clearAccessTokenCookieHeader = (
-	env: NodeJS.ProcessEnv = process.env,
-): string => serializeTokenCookie("", 0, env);
-
-const setAccessTokenCookieHeader = (
-	accessToken: string,
-	env: NodeJS.ProcessEnv = process.env,
-): string => serializeTokenCookie(accessToken, 60 * 60, env);
+const setAccessTokenCookieHeader = (accessToken: string): string => {
+	return `access_token=${encodeURIComponent(accessToken)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`;
+};
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
@@ -33,7 +20,7 @@ export class LoginController {
 	};
 
 	postLogin = async (request: Request, response: Response): Promise<void> => {
-		const { email, password } = request.body as LoginRequestDto;
+		const { email, password } = request.body as Record<string, unknown>;
 
 		try {
 			const accessToken = await this.loginService.authenticate({
@@ -44,8 +31,8 @@ export class LoginController {
 			response.setHeader("Set-Cookie", setAccessTokenCookieHeader(accessToken));
 			response.redirect("/");
 		} catch (error) {
-			if (error instanceof LoginServiceError && error.statusCode === 401) {
-				response.status(401).render("login", {
+			if (error instanceof LoginServiceError) {
+				response.status(error.statusCode).render("login", {
 					errorMessage: error.message,
 				});
 				return;
@@ -62,3 +49,15 @@ export class LoginController {
 		response.redirect("/");
 	};
 }
+
+// Export handler functions for routing
+export const getLogin = (_request: Request, response: Response): void => {
+	response.render("login", {
+		errorMessage: null,
+	});
+};
+
+export const postLogout = (_request: Request, response: Response): void => {
+	response.setHeader("Set-Cookie", clearAccessTokenCookieHeader());
+	response.redirect("/");
+};
