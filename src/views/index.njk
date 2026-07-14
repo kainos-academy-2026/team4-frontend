@@ -12,7 +12,7 @@
     data-page="home"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
-      <a href="/"><img
+      <a href="/"><a href="/"><img
         class="kainos-logo"
         src="/images/kainoslogo.png"
         alt="Kainos home"
@@ -96,7 +96,8 @@
             <p>No open job roles are available right now.</p>
           </div>
           {% endif %}
-          {% endif %}
+          <a class="kainos-primary-action" href="/job-roles">Browse open roles</a>
+        {% endif %}
       </div>
       </section>
     </main>
