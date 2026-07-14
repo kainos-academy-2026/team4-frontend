@@ -3,7 +3,7 @@
 ## Stack And Structure
 
 - This project is a TypeScript Node 22 Express app with Nunjucks views and static assets served from `public/` or `dist/public/`.
-- App wiring lives in `src/app.ts` and `src/index.ts`.
+- App wiring lives in `src/app.ts`.
 - Route registration lives in `src/routes/`.
 - Request handling should follow the existing layering: route -> controller -> service -> mapper/model -> view.
 - Keep tests mirrored by concern under `test/`, matching the source area being changed.
@@ -31,6 +31,7 @@
 - Lint with `npm run lint` and apply safe fixes with `npm run lint:fix`.
 - Run tests with `npm run test` or a narrower Vitest target when changing a focused slice.
 - When changing job-role flows, prefer the matching tests in `test/services/`, `test/routes/`, `test/mappers/`, or `test/views/` before running the full suite.
+- When making any changes make sure to run `npm run lint:fix` and `npm run test` to validate your changes before considering them ready for review. If you are adding new functionality, please add tests to cover it.
 
 ## Environment Notes
 
