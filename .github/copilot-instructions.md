@@ -10,6 +10,7 @@
 
 ## Conventions
 
+- Never manually make changes to `dist/` or `public/` files; they are generated from `src/` and `public/` respectively, instead delete and run commands to regenerate them.
 - Keep changes narrow and consistent with the existing file you are editing rather than introducing new patterns.
 - Prefer strict TypeScript types and existing model/view-model shapes over ad hoc objects.
 - For job roles, keep fallback mock data as full `JobRole` objects and map to list items in the service/mapper path when needed.
@@ -17,6 +18,7 @@
 - Demo auth is frontend-only. Do not add backend authentication assumptions to the login flow unless the task explicitly requires that change.
 - Preserve existing Nunjucks rendering patterns: controllers prepare view models, views remain presentation-focused, and user-facing failures render friendly states instead of throwing.
 - Follow the existing import style in the touched file. This repo uses `moduleResolution: "Node16"`, and some runtime-facing relative imports intentionally use `.js` suffixes.
+- Enums should never be mapped in the database layer. Instead, map them in the service/mapper layer to avoid coupling the database schema to the application code.
 
 ## Views And Assets
 

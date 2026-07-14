@@ -9,6 +9,9 @@ const jobRoleController = new JobRoleController(new JobRoleService());
 jobRoleRouter.get("/job-roles", (request, response) =>
 	jobRoleController.renderListPage(request, response),
 );
+jobRoleRouter.get("/job-roles/:id/apply", (request, response) =>
+	jobRoleController.renderApplicationPage(request, response),
+);
 jobRoleRouter.get("/job-roles/:id", (request, response) =>
 	jobRoleController.renderDetailPage(request, response),
 );
