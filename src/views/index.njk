@@ -13,11 +13,11 @@
     data-demo-auth-enabled="{{ demoAuthEnabled | dump | safe }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
-      <img
+      <a href="/"><img
         class="kainos-logo"
         src="/images/kainoslogo.png"
-        alt="Kainos logo"
-      />
+        alt="Kainos home"
+      /></a>
       <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
         <a class="kainos-header-link" href="/login">Log in</a>
       </nav>
@@ -27,6 +27,7 @@
       <div class="kainos-home-copy">
         <h1>Hello world</h1>
         <p class="kainos-greeting" data-auth-greeting hidden></p>
+        <a class="kainos-primary-action" href="/job-roles">Browse open roles</a>
       </div>
     </main>
 

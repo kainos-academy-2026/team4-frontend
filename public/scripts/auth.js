@@ -81,6 +81,13 @@
 			return;
 		}
 
+		if (demoAuthEnabled) {
+			const emailInput = form.querySelector('input[name="email"]');
+			const passwordInput = form.querySelector('input[name="password"]');
+			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
+			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
+		}
+
 		form.addEventListener("submit", (event) => {
 			event.preventDefault();
 			setError("");

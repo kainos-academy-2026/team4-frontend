@@ -10,7 +10,7 @@
 
 ## Conventions
 
-- Never manually make changes to `dist/` or `public/` files; they are generated from `src/` and `public/` respectively, instead delete and run commands to regenerate them.
+- Never manually make changes to `dist/` or `dist/public/` files; they are generated from `src/` and `public/` respectively, instead delete and run commands to regenerate them.
 - Keep changes narrow and consistent with the existing file you are editing rather than introducing new patterns.
 - Prefer strict TypeScript types and existing model/view-model shapes over ad hoc objects.
 - For job roles, keep fallback mock data as full `JobRole` objects and map to list items in the service/mapper path when needed.
@@ -23,7 +23,7 @@
 ## Views And Assets
 
 - Nunjucks templates live in `src/views/` and are copied to `dist/views/` during build.
-- Static branding assets live under `public/`; branding styles are in `public/styles/branding.css`.
+- Static branding assets in `public/` are source files and may be edited directly. Only `dist/public/` is generated and must not be manually edited.
 - If a change affects rendered HTML, static assets, or page text, update or add the nearest integration/view test.
 
 ## Build And Validation
