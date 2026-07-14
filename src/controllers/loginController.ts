@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 
 import { isDemoAuthEnabled } from "../config/auth";
-import { getApiBaseUrl } from "../config/api";
 import {
 	clearAccessTokenCookieHeader,
 	setAccessTokenCookieHeader,
@@ -44,7 +43,7 @@ export const postLogin = async (
 		return;
 	}
 
-	const apiBaseUrl = getApiBaseUrl();
+	const apiBaseUrl = process.env.API_BASE_URL;
 
 	let apiResponse: globalThis.Response;
 	try {
@@ -92,7 +91,10 @@ export const postLogin = async (
 	}
 
 	const payload = (await apiResponse.json()) as Partial<LoginResponseDto>;
-	if (typeof payload.accessToken !== "string" || payload.accessToken.length === 0) {
+	if (
+		typeof payload.accessToken !== "string" ||
+		payload.accessToken.length === 0
+	) {
 		renderLoginWithError(
 			response,
 			502,
