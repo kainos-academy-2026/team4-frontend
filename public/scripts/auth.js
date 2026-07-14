@@ -65,7 +65,7 @@
 			logoutTrigger.addEventListener("click", async () => {
 				try {
 					const response = await window.fetch("/logout", { method: "POST" });
-					if (!response.ok) {
+					if (response.status !== 204) {
 						console.error("Failed to log out", response.status);
 						window.alert("Unable to log out right now. Please try again.");
 						return;
