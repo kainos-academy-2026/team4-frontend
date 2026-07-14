@@ -2,10 +2,26 @@ import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
 import { type LoginService, LoginServiceError } from "../services/loginService";
-import {
-	clearAccessTokenCookieHeader,
-	setAccessTokenCookieHeader,
-} from "../utils/auth";
+
+const ACCESS_TOKEN_COOKIE = "access_token";
+
+const serializeTokenCookie = (
+	value: string,
+	maxAgeSeconds: number,
+	env: NodeJS.ProcessEnv = process.env,
+): string => {
+	const secureFlag = env.NODE_ENV === "production" ? "; Secure" : "";
+	return `${ACCESS_TOKEN_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}${secureFlag}`;
+};
+
+const clearAccessTokenCookieHeader = (
+	env: NodeJS.ProcessEnv = process.env,
+): string => serializeTokenCookie("", 0, env);
+
+const setAccessTokenCookieHeader = (
+	accessToken: string,
+	env: NodeJS.ProcessEnv = process.env,
+): string => serializeTokenCookie(accessToken, 60 * 60, env);
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
