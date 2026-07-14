@@ -1,10 +1,12 @@
 :root {
   --kainos-primary-blue: #2e36a5;
-  --kainos-surface: #ffffff;
   --kainos-text-navy: #1f2b4d;
-  --kainos-page-bg: #efedf7;
-  --kainos-shadow-soft: 0 10px 30px rgba(24, 38, 97, 0.12);
-  --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.2);
+  --kainos-surface: #ffffff;
+  --kainos-page-bg: #f3f6fb;
+  --kainos-accent-green: #00bf63;
+  --kainos-border-soft: #d4dceb;
+  --kainos-shadow-soft: 0 12px 28px rgba(20, 37, 94, 0.11);
+  --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.12);
   --kainos-radius: 14px;
 }
 
@@ -40,17 +42,23 @@ body.kainos-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--kainos-page-bg);
   color: var(--kainos-text-navy);
   font-family: "Inter", "Poppins", "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(0, 191, 99, 0.13), transparent 42%),
+    linear-gradient(180deg, #f7faff 0%, var(--kainos-page-bg) 56%, #eef3fb 100%);
 }
 
 .kainos-header {
   width: 100%;
-  background: var(--kainos-surface);
-  padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(1.8rem, 4.5vw, 3.5rem);
-  border-bottom: 0;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.95);
+  padding: clamp(0.45rem, 1vw, 0.65rem) clamp(1.2rem, 4.5vw, 3.5rem);
+  box-shadow: var(--kainos-shadow-header);
+  border-bottom: 1px solid rgba(31, 43, 77, 0.08);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .kainos-header--with-actions {
@@ -62,24 +70,15 @@ body.kainos-page {
 
 .kainos-logo {
   display: block;
-  width: clamp(84px, 10vw, 118px);
+  width: clamp(92px, 11vw, 126px);
   height: auto;
-}
-
-a:has(> .kainos-logo) {
-  display: contents;
-  outline-offset: 4px;
-}
-
-a:has(> .kainos-logo):focus-visible {
-  outline: 2px solid var(--kainos-primary-blue);
-  border-radius: 4px;
 }
 
 .kainos-header-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 0.55rem;
 }
 
 .kainos-header-link,
@@ -88,7 +87,7 @@ a:has(> .kainos-logo):focus-visible {
   appearance: none;
   border: 0;
   border-radius: 999px;
-  background: var(--kainos-primary-blue);
+  background: linear-gradient(120deg, #253db0 0%, var(--kainos-primary-blue) 100%);
   color: #ffffff;
   cursor: pointer;
   display: inline-flex;
@@ -96,11 +95,11 @@ a:has(> .kainos-logo):focus-visible {
   justify-content: center;
   font: inherit;
   font-weight: 700;
-  margin-block: 0.75rem;
   min-height: 2.8rem;
   padding: 0.7rem 1.4rem;
   text-decoration: none;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+  box-shadow: 0 8px 20px rgba(31, 43, 77, 0.22);
 }
 
 .kainos-header-link:hover,
@@ -109,32 +108,33 @@ a:has(> .kainos-logo):focus-visible {
 .kainos-header-button:focus-visible,
 .kainos-primary-action:hover,
 .kainos-primary-action:focus-visible {
-  box-shadow: var(--kainos-shadow-soft);
+  box-shadow: 0 10px 26px rgba(11, 28, 89, 0.3);
   outline: none;
   transform: translateY(-1px);
+  filter: saturate(1.05);
 }
 
 .kainos-secondary-action {
   appearance: none;
   border: 2px solid var(--kainos-primary-blue);
   border-radius: 999px;
-  background: transparent;
+  background: #ffffff;
   color: var(--kainos-primary-blue);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font: inherit;
-  font-weight: 600;
+  font-weight: 650;
   min-height: 2.8rem;
-  padding: 0.65rem 1.4rem;
+  padding: 0.65rem 1.2rem;
   text-decoration: none;
   transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 .kainos-secondary-action:hover,
 .kainos-secondary-action:focus-visible {
-  background: rgba(46, 54, 165, 0.07);
+  background: rgba(46, 54, 165, 0.06);
   box-shadow: var(--kainos-shadow-soft);
   outline: none;
   transform: translateY(-1px);
@@ -144,7 +144,7 @@ a:has(> .kainos-logo):focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin-bottom: 1.5rem;
 }
 
@@ -155,21 +155,20 @@ a:has(> .kainos-logo):focus-visible {
 }
 
 .kainos-breadcrumb-current {
-  font-weight: 600;
+  font-weight: 650;
   color: var(--kainos-text-navy);
-  opacity: 0.6;
-  padding: 0.65rem 0.25rem;
+  opacity: 0.75;
+  padding: 0.55rem 0.2rem;
 }
 
 .kainos-hero {
-  min-height: 100svh;
   margin: 0;
-  background: var(--kainos-page-bg);
+  min-height: calc(100svh - 4.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: clamp(2rem, 9vw, 7rem) clamp(1rem, 6vw, 4rem);
+  padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 6vw, 4rem);
 }
 
 .kainos-home-copy {
@@ -181,11 +180,12 @@ a:has(> .kainos-logo):focus-visible {
 
 .kainos-hero h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 6.4vw, 5.25rem);
-  line-height: 1.05;
+  font-size: clamp(2.5rem, 6.5vw, 5.4rem);
+  line-height: 0.98;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: var(--kainos-text-navy);
+  color: #182146;
+  text-wrap: balance;
 }
 
 .kainos-greeting {
@@ -197,27 +197,28 @@ a:has(> .kainos-logo):focus-visible {
 
 .kainos-hero-subtitle {
   margin: 0;
-  color: var(--kainos-text-navy);
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  opacity: 0.7;
-  max-width: 42ch;
+  color: #2b3e68;
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  line-height: 1.45;
+  max-width: 44ch;
 }
 
 .kainos-scroll-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.7rem 1.6rem;
-  background: var(--kainos-primary-blue);
+  margin-top: 0.65rem;
+  padding: 0.74rem 1.5rem;
+  background: #0f245f;
   color: #ffffff;
   border-radius: 999px;
-  font-weight: 700;
   font: inherit;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 9px 24px rgba(11, 29, 93, 0.25);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 .kainos-scroll-cta:visited {
@@ -226,7 +227,8 @@ a:has(> .kainos-logo):focus-visible {
 
 .kainos-scroll-cta:hover,
 .kainos-scroll-cta:focus-visible {
-  box-shadow: var(--kainos-shadow-soft);
+  background: #122b71;
+  box-shadow: 0 12px 28px rgba(11, 29, 93, 0.34);
   outline: none;
   transform: translateY(-1px);
 }
@@ -235,11 +237,11 @@ a:has(> .kainos-logo):focus-visible {
   flex-shrink: 0;
 }
 
-/* Roles panel — pulls up from below the hero on scroll */
 .kainos-roles-panel {
   background: var(--kainos-surface);
-  border-radius: 2rem 2rem 0 0;
-  box-shadow: 0 -12px 40px rgba(24, 38, 97, 0.14);
+  border-radius: 2.2rem 2.2rem 0 0;
+  box-shadow: 0 -14px 42px rgba(24, 38, 97, 0.14);
+  border-top: 3px solid var(--kainos-accent-green);
   position: relative;
   z-index: 1;
   margin-top: -2rem;
@@ -251,9 +253,16 @@ a:has(> .kainos-logo):focus-visible {
   padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
 }
 
+.kainos-roles-inner h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  line-height: 1.05;
+  color: var(--kainos-text-navy);
+}
+
 .kainos-login-note {
   margin: 0 0 1.25rem;
-  color: var(--kainos-primary-blue);
+  color: #24549d;
   font-size: 0.95rem;
   font-weight: 600;
 }
@@ -262,17 +271,10 @@ a:has(> .kainos-logo):focus-visible {
   text-decoration: underline;
 }
 
-
-  margin: 0 0 0.75rem;
-  font-size: clamp(2rem, 4.5vw, 3.2rem);
-  line-height: 1.05;
-  color: var(--kainos-text-navy);
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .kainos-roles-panel {
     opacity: 0;
-    transform: translateY(60px);
+    transform: translateY(56px);
     transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
@@ -283,13 +285,13 @@ a:has(> .kainos-logo):focus-visible {
 }
 
 .kainos-auth-card {
-  width: min(100%, 28rem);
+  width: min(100%, 30rem);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: clamp(1.5rem, 4vw, 2.25rem);
+  padding: clamp(1.5rem, 4vw, 2.4rem);
   background: #ffffff;
-  border: 1px solid rgba(31, 43, 77, 0.12);
+  border: 1px solid rgba(31, 43, 77, 0.15);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
   text-align: left;
@@ -338,13 +340,13 @@ a:has(> .kainos-logo):focus-visible {
 .kainos-footer {
   width: 100%;
   background: #313147;
-  padding: 1rem clamp(1.2rem, 4vw, 3rem) 1.2rem;
+  padding: 1.1rem clamp(1.2rem, 4vw, 3rem) 1.25rem;
   text-align: center;
-  border-top: 0;
+  border-top: 3px solid var(--kainos-accent-green);
 }
 
 .kainos-footer p {
-  margin: 0.2rem 0;
+  margin: 0.25rem 0;
   color: #ffffff;
   font-size: 0.95rem;
 }
@@ -358,30 +360,6 @@ a:has(> .kainos-logo):focus-visible {
 .kainos-footer a:hover,
 .kainos-footer a:focus-visible {
   text-decoration: underline;
-}
-
-@media (max-width: 900px) {
-  .kainos-hero {
-    min-height: 100svh;
-  }
-}
-
-@media (max-width: 540px) {
-  .kainos-header {
-    padding-inline: 1rem;
-  }
-
-  .kainos-header--with-actions {
-    flex-wrap: wrap;
-  }
-
-  .kainos-hero {
-    min-height: 100svh;
-  }
-
-  .kainos-auth-card {
-    width: 100%;
-  }
 }
 
 .page {
@@ -417,7 +395,7 @@ a:has(> .kainos-logo):focus-visible {
 
 .empty-state {
   background: var(--kainos-surface);
-  border: 1px solid #d9e2ec;
+  border: 1px solid var(--kainos-border-soft);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
   padding: 1rem 1.25rem;
@@ -426,7 +404,7 @@ a:has(> .kainos-logo):focus-visible {
 .table-wrapper {
   overflow-x: auto;
   background: var(--kainos-surface);
-  border: 1px solid #d9e2ec;
+  border: 1px solid var(--kainos-border-soft);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
 }
@@ -471,7 +449,38 @@ tbody tr:last-child td {
   border-color: #fdba74;
 }
 
+@media (max-width: 900px) {
+  .kainos-header {
+    position: static;
+  }
+
+  .kainos-hero {
+    min-height: 100svh;
+  }
+}
+
 @media (max-width: 540px) {
+  .kainos-header {
+    padding-inline: 1rem;
+  }
+
+  .kainos-header--with-actions {
+    flex-wrap: wrap;
+  }
+
+  .kainos-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .kainos-hero {
+    min-height: 100svh;
+  }
+
+  .kainos-auth-card {
+    width: 100%;
+  }
+
   .page {
     width: min(100%, calc(100% - 1rem));
     padding-top: 1.5rem;
