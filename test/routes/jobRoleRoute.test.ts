@@ -161,6 +161,17 @@ describe("GET /job-roles/:id/apply", () => {
     expect(response.text).toContain("Something went wrong");
     expect(response.text).toContain("Please try again later.");
   });
+
+  it("renders an error page when application lookup throws", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockRejectedValue(
+      new Error("Backend service is currently unavailable."),
+    );
+
+    const response = await request(app).get("/job-roles/1/apply");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Something went wrong. Please try again later.");
+  });
 });
 
 describe("GET /404", () => {

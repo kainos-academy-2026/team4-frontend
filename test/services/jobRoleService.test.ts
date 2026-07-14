@@ -125,6 +125,22 @@ describe("JobRoleService", () => {
     await expect(service.getOpenRoles()).resolves.toEqual([]);
   });
 
+  it("rethrows non-404 errors when listing roles", async () => {
+    const requestError = {
+      isAxiosError: true,
+      response: { status: 500 },
+      message: "Server error",
+    };
+    const mockGet = vi.fn().mockRejectedValue(requestError);
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await expect(service.getOpenRoles()).rejects.toBe(requestError);
+  });
+
   it("returns full job role details from API by id", async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: detailApiData });
     const service = new JobRoleService(
@@ -208,5 +224,48 @@ describe("JobRoleService", () => {
     );
 
     await expect(service.getRoleById(5)).rejects.toThrow("Gateway timeout");
+  });
+
+  it("returns null when detail endpoint responds with 404", async () => {
+    const mockGet = vi.fn().mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 404 },
+    });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await expect(service.getRoleById(999)).resolves.toBeNull();
+  });
+
+  it("rethrows non-404 errors when loading role details", async () => {
+    const requestError = {
+      isAxiosError: true,
+      response: { status: 500 },
+      message: "Server error",
+    };
+    const mockGet = vi.fn().mockRejectedValue(requestError);
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await expect(service.getRoleById(1)).rejects.toBe(requestError);
+  });
+
+  it("returns fallback role details by id when fallback mode is enabled", async () => {
+    const mockGet = vi.fn();
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      true,
+    );
+
+    await expect(service.getRoleById(3)).resolves.toEqual(fallbackData[0]);
+    await expect(service.getRoleById(404)).resolves.toBeNull();
+    expect(mockGet).not.toHaveBeenCalled();
   });
 });
