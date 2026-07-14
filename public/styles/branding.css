@@ -25,6 +25,11 @@ a.kainos-primary-action:visited {
   color: #ffffff;
 }
 
+a.kainos-header-link,
+a.kainos-header-link:visited {
+  color: #ffffff;
+}
+
 a.kainos-secondary-action,
 a.kainos-secondary-action:visited {
   color: var(--kainos-primary-blue);
@@ -157,10 +162,9 @@ a:has(> .kainos-logo):focus-visible {
 }
 
 .kainos-hero {
-  flex: 1;
+  min-height: 100svh;
   margin: 0;
   background: var(--kainos-page-bg);
-  min-height: clamp(360px, 68vh, 760px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,6 +193,93 @@ a:has(> .kainos-logo):focus-visible {
   color: var(--kainos-primary-blue);
   font-size: clamp(1.1rem, 2.4vw, 1.4rem);
   font-weight: 700;
+}
+
+.kainos-hero-subtitle {
+  margin: 0;
+  color: var(--kainos-text-navy);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  opacity: 0.7;
+  max-width: 42ch;
+}
+
+.kainos-scroll-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  background: var(--kainos-primary-blue);
+  color: #ffffff;
+  border-radius: 999px;
+  font-weight: 700;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.kainos-scroll-cta:visited {
+  color: #ffffff;
+}
+
+.kainos-scroll-cta:hover,
+.kainos-scroll-cta:focus-visible {
+  box-shadow: var(--kainos-shadow-soft);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kainos-scroll-cta svg {
+  flex-shrink: 0;
+}
+
+/* Roles panel — pulls up from below the hero on scroll */
+.kainos-roles-panel {
+  background: var(--kainos-surface);
+  border-radius: 2rem 2rem 0 0;
+  box-shadow: 0 -12px 40px rgba(24, 38, 97, 0.14);
+  position: relative;
+  z-index: 1;
+  margin-top: -2rem;
+}
+
+.kainos-roles-inner {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
+}
+
+.kainos-login-note {
+  margin: 0 0 1.25rem;
+  color: var(--kainos-primary-blue);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.kainos-login-note a {
+  text-decoration: underline;
+}
+
+
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  line-height: 1.05;
+  color: var(--kainos-text-navy);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kainos-roles-panel {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .kainos-roles-panel.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kainos-auth-card {
@@ -271,7 +362,7 @@ a:has(> .kainos-logo):focus-visible {
 
 @media (max-width: 900px) {
   .kainos-hero {
-    min-height: clamp(320px, 62vh, 620px);
+    min-height: 100svh;
   }
 }
 
@@ -285,7 +376,7 @@ a:has(> .kainos-logo):focus-visible {
   }
 
   .kainos-hero {
-    min-height: clamp(300px, 58vh, 500px);
+    min-height: 100svh;
   }
 
   .kainos-auth-card {

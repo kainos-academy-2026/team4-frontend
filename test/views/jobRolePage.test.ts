@@ -34,6 +34,8 @@ describe("job role page templates", () => {
 
 		expect(listHtml).toContain('class="badge badge--closed"');
 		expect(detailHtml).toContain('class="badge badge--closed"');
+		expect(detailHtml).not.toContain('Log in here.');
+		expect(detailHtml).toContain('href="/#roles"');
 	});
 
 	it("renders the apply CTA only when role is open and has open positions", () => {
@@ -70,9 +72,16 @@ describe("job role page templates", () => {
 			showApplyForRole: false,
 		});
 
+		const applicationHtml = environment.render("job-role-application.njk", {
+			jobRole: openRole,
+			canApply: true,
+			errorMessage: null,
+		});
+
 		expect(htmlWithApply).toContain('href="/job-roles/5/apply"');
-		expect(htmlWithApply).toContain("data-role-apply-cta");
 		expect(htmlWithoutApply).not.toContain('href="/job-roles/5/apply"');
+		expect(applicationHtml).not.toContain('Log in here.');
+		expect(applicationHtml).toContain('href="/#roles"');
 	});
 
 	it("renders the job application page contract", () => {

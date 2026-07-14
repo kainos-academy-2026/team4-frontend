@@ -8,17 +8,20 @@
 		<link rel="stylesheet" href="/styles/branding.css" />
 	</head>
 	<body class="kainos-page" data-page="job-role-detail">
-		<header class="kainos-header" aria-label="Kainos brand banner">
+		<header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
 			<a href="/"><img
 				class="kainos-logo"
 				src="/images/kainoslogo.png"
 				alt="Kainos home"
 			/></a>
+			<nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+				<a class="kainos-header-link" href="/login">Log in</a>
+			</nav>
 		</header>
 
 		<main class="page">
 			<nav class="kainos-page-nav" aria-label="Breadcrumb">
-				<a class="kainos-secondary-action" href="/job-roles">Job roles</a>
+				<a class="kainos-secondary-action" href="/#roles">Job roles</a>
 				{% if jobRole %}
 				<span class="kainos-breadcrumb-sep" aria-hidden="true">›</span>
 				<span class="kainos-breadcrumb-current">{{ jobRole.roleName }}</span>
@@ -80,6 +83,7 @@
 			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
+		<script src="/scripts/auth.js"></script>
 		<script src="/scripts/job-application.js"></script>
 	</body>
 </html>
