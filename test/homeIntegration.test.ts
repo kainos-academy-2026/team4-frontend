@@ -76,6 +76,14 @@ describe("home branding integration", () => {
     expect(scrollRevealResponse.status).toBe(200);
     expect(scrollRevealResponse.headers["content-type"]).toContain("javascript");
 
+    const scriptResponse = await request(app).get("/scripts/auth.js");
+    expect(scriptResponse.status).toBe(200);
+    expect(scriptResponse.headers["content-type"]).toContain("javascript");
+
+    const applicationScriptResponse = await request(app).get("/scripts/job-application.js");
+    expect(applicationScriptResponse.status).toBe(200);
+    expect(applicationScriptResponse.headers["content-type"]).toContain("javascript");
+
     const logoResponse = await request(app).get("/images/kainoslogo.png");
     expect(logoResponse.status).toBe(200);
     expect(logoResponse.headers["content-type"]).toContain("image/png");

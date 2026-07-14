@@ -26,6 +26,9 @@ jobRoleRouter.get("/job-roles/:id/applications/me", (request, response) =>
 jobRoleRouter.get("/job-roles/:id/apply", (request, response) =>
 	jobRoleController.renderApplicationPage(request, response),
 );
+jobRoleRouter.get("/job-roles/:id/apply", (request, response) =>
+	jobRoleController.renderApplicationPage(request, response),
+);
 jobRoleRouter.get("/job-roles/:id", (request, response) =>
 	jobRoleController.renderDetailPage(request, response),
 );
