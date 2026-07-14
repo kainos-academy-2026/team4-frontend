@@ -17,7 +17,7 @@
         src="/images/kainoslogo.png"
         alt="Kainos home"
       /></a>
-      <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
+      <nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
         {% if isAuthenticated %}
         <form method="post" action="/logout">
           <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
@@ -32,11 +32,8 @@
     <main class="kainos-hero" aria-label="Home">
       <div class="kainos-home-copy">
         <h1>Hello world</h1>
-        {% if isAuthenticated and userEmail %}
-        <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
-        {% else %}
         <p class="kainos-greeting" data-auth-greeting hidden></p>
-        {% endif %}
+        <a class="kainos-primary-action" href="/job-roles">Browse open roles</a>
       </div>
     </main>
 
@@ -44,5 +41,7 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
+
+    <script src="/scripts/auth.js"></script>
   </body>
 </html>

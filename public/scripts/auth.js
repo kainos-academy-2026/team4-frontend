@@ -15,7 +15,7 @@ import {
 
 	const page = body.dataset.page;
 	const demoAuthEnabled = body.dataset.demoAuthEnabled === "true";
-	const homeAction = document.querySelector("[data-home-auth-action]");
+	const authAction = document.querySelector("[data-auth-action]");
 	const greeting = document.querySelector("[data-auth-greeting]");
 
 	const getSession = () => ({
@@ -28,32 +28,51 @@ import {
 		window.sessionStorage.removeItem(demoAuthStorageKeys.token);
 	};
 
-	const renderHomeState = () => {
-		if (!homeAction || !greeting) {
+	const renderAuthState = () => {
+		if (!authAction) {
 			return;
 		}
 
+		errorRegion.textContent = message;
+		errorRegion.hidden = message.length === 0;
+	};
+
+	const renderAuthState = () => {
+		if (!authAction) {
+			return;
+		}
+
+		const loginPrompts = document.querySelectorAll("[data-login-prompt]");
 		const { email, token } = getSession();
 		const isAuthenticated = Boolean(email && token);
+		const returnTo = encodeURIComponent(window.location.pathname);
 
 		if (!isAuthenticated) {
-			homeAction.innerHTML =
-				'<a class="kainos-header-link" href="/register">Register</a><a class="kainos-header-link" href="/login">Log in</a>';
-			greeting.hidden = true;
-			greeting.textContent = "";
+			authAction.innerHTML =
+				`<a class="kainos-header-link" href="/register">Register</a><a class="kainos-header-link" href="/login?returnTo=${returnTo}">Log in</a>`;
+			loginPrompts.forEach(function (el) { el.hidden = false; });
+
+			if (greeting) {
+				greeting.hidden = true;
+				greeting.textContent = "";
+			}
 			return;
 		}
 
-		homeAction.innerHTML =
+		authAction.innerHTML =
 			'<a class="kainos-header-link" href="/job-roles">View job roles</a><button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
-		greeting.hidden = false;
-		greeting.textContent = `Welcome back, ${email}`;
+		loginPrompts.forEach(function (el) { el.hidden = true; });
 
-		const logoutTrigger = document.querySelector("[data-logout-trigger]");
+		if (greeting) {
+			greeting.hidden = false;
+			greeting.textContent = `Welcome back, ${email}`;
+		}
+
+		const logoutTrigger = authAction.querySelector("[data-logout-trigger]");
 		if (logoutTrigger) {
 			logoutTrigger.addEventListener("click", () => {
 				clearSession();
-				renderHomeState();
+				window.location.reload();
 			});
 		}
 	};
@@ -70,6 +89,9 @@ import {
 			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
 			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
 		}
+
+		const params = new URLSearchParams(window.location.search);
+		const returnTo = params.get("returnTo") || "/";
 
 		form.addEventListener("submit", (event) => {
 			event.preventDefault();
@@ -126,8 +148,8 @@ import {
 		});
 	};
 
-	if (page === "home") {
-		renderHomeState();
+	if (page !== "login") {
+		renderAuthState();
 	}
 
 	if (page === "register") {

@@ -1,9 +1,13 @@
 import { Router } from "express";
 
-import { getHome } from "../controllers/homeController";
+import { HomeController } from "../controllers/homeController.js";
+import { JobRoleService } from "../services/jobRoleService.js";
 
 const homeRouter = Router();
+const homeController = new HomeController(new JobRoleService());
 
-homeRouter.get("/", getHome);
+homeRouter.get("/", (request, response) =>
+	homeController.getHome(request, response),
+);
 
 export default homeRouter;
