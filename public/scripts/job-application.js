@@ -259,21 +259,6 @@
 		}
 	};
 
-	if (page === "job-role-detail") {
-		const applyCta = document.querySelector("[data-role-apply-cta]");
-		const loginMessage = document.querySelector("[data-role-apply-login-message]");
-
-		if (applyCta instanceof HTMLElement) {
-			const applicantAuthenticated = isApplicantAuthenticated();
-
-			applyCta.hidden = !applicantAuthenticated;
-
-			if (loginMessage instanceof HTMLElement) {
-				loginMessage.hidden = applicantAuthenticated;
-			}
-		}
-	}
-
 	if (page === "job-application") {
 		const form = document.querySelector("[data-job-application-form]");
 		if (!(form instanceof HTMLFormElement)) {

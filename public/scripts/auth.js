@@ -99,6 +99,20 @@ import {
 			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
 		}
 
+		if (demoAuthEnabled) {
+			const emailInput = form.querySelector('input[name="email"]');
+			const passwordInput = form.querySelector('input[name="password"]');
+			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
+			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
+		}
+
+		if (demoAuthEnabled) {
+			const emailInput = form.querySelector('input[name="email"]');
+			const passwordInput = form.querySelector('input[name="password"]');
+			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
+			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
+		}
+
 		const params = new URLSearchParams(window.location.search);
 		const returnTo = params.get("returnTo") || "/";
 
