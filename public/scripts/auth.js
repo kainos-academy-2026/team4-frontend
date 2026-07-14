@@ -61,11 +61,20 @@
 		greeting.textContent = `Welcome back, ${activeEmail}`;
 
 		const logoutTrigger = document.querySelector("[data-logout-trigger]");
-		if (logoutTrigger) {
+		if (logoutTrigger instanceof HTMLButtonElement) {
 			logoutTrigger.addEventListener("click", async () => {
-				await window.fetch("/logout", { method: "POST" });
-				clearSession();
-				window.location.assign("/login");
+				try {
+					const response = await window.fetch("/logout", { method: "POST" });
+					if (!response.ok) {
+						console.error("Failed to log out", response.status);
+						return;
+					}
+
+					clearSession();
+					window.location.assign("/login");
+				} catch (error) {
+					console.error("Failed to log out", error);
+				}
 			});
 		}
 	};
@@ -89,14 +98,22 @@
 			const formData = new FormData(form);
 			const email = String(formData.get("email") ?? "").trim();
 			const password = String(formData.get("password") ?? "");
+			let response;
 
-			const response = await window.fetch("/login", {
-				body: JSON.stringify({ email, password }),
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "POST",
-			});
+			try {
+				response = await window.fetch("/login", {
+					body: JSON.stringify({ email, password }),
+					headers: {
+						"Content-Type": "application/json",
+					},
+					method: "POST",
+				});
+			} catch (error) {
+				console.error("Failed to submit login request", error);
+				clearSession();
+				setError("Unable to log in right now. Please check your connection and try again.");
+				return;
+			}
 
 			if (!response.ok) {
 				clearSession();
