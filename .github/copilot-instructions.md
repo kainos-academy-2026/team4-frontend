@@ -8,7 +8,7 @@ Currently within Kainos there is not one source of truth to view job roles and t
 An online job application that serves both Kainos recruitment admin to retrieve and update job roles and their relevant information and applicants to apply for roles.
 
 - This project is a TypeScript Node 22 Express app with Nunjucks views and static assets served from `public/` or `dist/public/`.
-- App wiring lives in `src/app.ts`.
+- Express app wiring lives in `src/app.ts`, and the server entrypoint lives in `src/index.ts`.
 - Route registration lives in `src/routes/`.
 - Request handling should follow the existing layering: route -> controller -> service -> mapper/model -> view.
 - Keep tests mirrored by concern under `test/`, matching the source area being changed.
