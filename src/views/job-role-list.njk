@@ -42,12 +42,18 @@
           <tbody>
             {% for jobRole in roles %}
             <tr>
-              <td>{{ jobRole.roleName }}</td>
+              <td>
+                <a href="/job-roles/{{ jobRole.id }}">{{ jobRole.roleName }}</a>
+              </td>
               <td>{{ jobRole.location }}</td>
               <td>{{ jobRole.capability }}</td>
               <td>{{ jobRole.band }}</td>
               <td>{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}</td>
-              <td><span class="badge">{{ jobRole.status }}</span></td>
+              <td>
+                <span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
+                  {{ jobRole.status }}
+                </span>
+              </td>
             </tr>
             {% endfor %}
           </tbody>

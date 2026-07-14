@@ -1,17 +1,17 @@
 import { Router } from "express";
 
-import { getHealth } from "../controllers/healthController";
-import { getHome } from "../controllers/homeController";
-import { JobRoleController } from "../controllers/jobRoleController";
-import { getLogin } from "../controllers/loginController";
-import { JobRoleService } from "../services/jobRoleService";
+import healthRouter from "./healthRouter.js";
+import homeRouter from "./homeRouter.js";
+import jobRoleRouter from "./jobRoleRouter.js";
+import loginRouter from "./loginRouter.js";
+import notFoundRouter from "./notFoundRouter.js";
 
 const router = Router();
-const jobRoleController = new JobRoleController(new JobRoleService());
 
-router.get("/", getHome);
-router.get("/login", getLogin);
-router.get("/health", getHealth);
-router.get("/job-roles", (req, res) => jobRoleController.getAll(req, res));
+router.use(homeRouter);
+router.use(loginRouter);
+router.use(healthRouter);
+router.use(notFoundRouter);
+router.use(jobRoleRouter);
 
 export default router;

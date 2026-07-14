@@ -1,27 +1,59 @@
 import type { Request, Response } from "express";
-import type { JobRoleListViewModel } from "../models/jobRoleListViewModel";
+import { jobRoleIdSchema } from "../models/jobRole";
+import type { JobRoleListPage } from "../models/jobRoleListModels";
 import type { JobRoleService } from "../services/jobRoleService";
 
 export class JobRoleController {
 	constructor(private readonly jobRoleService: JobRoleService) {}
 
-	async getAll(_req: Request, res: Response): Promise<void> {
+	async renderListPage(_request: Request, response: Response): Promise<void> {
 		try {
-			const jobRoles = await this.jobRoleService.getOpenJobRoles();
+			const jobRoles = await this.jobRoleService.getOpenRoles();
 
-			const viewModel: JobRoleListViewModel = {
+			const viewModel: JobRoleListPage = {
 				errorMessage: null,
 				jobRoles,
 			};
 
-			res.render("job-role-list", viewModel);
-		} catch (error) {
-			console.error(error);
+			response.render("job-role-list", viewModel);
+		} catch (controllerError) {
+			console.error(controllerError);
 
-			res.status(502).render("job-role-list", {
+			response.render("job-role-list", {
 				errorMessage: "Something went wrong. Please try again later.",
 				jobRoles: [],
-			} satisfies JobRoleListViewModel);
+			} satisfies JobRoleListPage);
+		}
+	}
+
+	async renderDetailPage(request: Request, response: Response): Promise<void> {
+		try {
+			const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
+
+			if (!parsedJobRoleId.success) {
+				response.render("job-role-detail", {
+					errorMessage: "Invalid job role id.",
+					jobRole: null,
+				});
+				return;
+			}
+
+			const jobRole = await this.jobRoleService.getRoleById(
+				parsedJobRoleId.data,
+			);
+
+			if (!jobRole) {
+				response.redirect("/404");
+				return;
+			}
+
+			response.render("job-role-detail", { jobRole });
+		} catch (controllerError) {
+			console.error(controllerError);
+			response.render("job-role-detail", {
+				errorMessage: "Something went wrong. Please try again later.",
+				jobRole: null,
+			});
 		}
 	}
 }

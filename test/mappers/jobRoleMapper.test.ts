@@ -1,63 +1,59 @@
 import { describe, expect, it } from "vitest";
 
-import { mapJobRoleApiResponseToJobRole } from "../../src/mappers/jobRoleMapper";
+import { mapJobRoleDetailApiToModel } from "../../src/mappers/jobRoleMapper";
 
-describe("mapJobRoleApiResponseToJobRole", () => {
-	it("maps nested capability and band objects", () => {
-		const result = mapJobRoleApiResponseToJobRole({
+describe("mapJobRoleDetailApiToModel", () => {
+	it("maps API fields into a JobRole", () => {
+		const result = mapJobRoleDetailApiToModel({
 			id: 1,
 			roleName: "Software Engineer",
 			location: "Belfast",
-			capability: {
-				capabilityId: 12,
-				capabilityName: "Engineering",
-			},
-			band: {
-				bandId: 3,
-				bandName: "Associate",
-			},
+			capabilityName: "Engineering",
+			capabilityId: 12,
+			bandName: "Associate",
+			bandId: 3,
 			closingDate: new Date("2026-08-01"),
 			status: "open",
+			description: "Build services",
+			responsibilities: "Ship features",
+			sharepointUrl: "https://example.com/role/1",
+			numberOfOpenPositions: 2,
 		});
 
 		expect(result).toEqual({
-			id: "1",
+			id: 1,
 			roleName: "Software Engineer",
 			location: "Belfast",
 			capability: "Engineering",
 			band: "Associate",
 			closingDate: new Date("2026-08-01"),
 			status: "open",
+			description: "Build services",
+			responsibilities: "Ship features",
+			sharepointUrl: "https://example.com/role/1",
+			numberOfOpenPositions: 2,
 		});
 	});
 
-	it("maps string capability and band values", () => {
-		const result = mapJobRoleApiResponseToJobRole({
-			id: "2",
+	it("keeps id as a number", () => {
+		const result = mapJobRoleDetailApiToModel({
+			id: 2,
 			roleName: "Data Analyst",
 			location: "Gdansk",
-			capability: "Data",
-			band: "Senior Associate",
+			capabilityName: "Data",
+			capabilityId: 8,
+			bandName: "Senior Associate",
+			bandId: 4,
 			closingDate: new Date("2026-08-15"),
 			status: "open",
+			description: "Analyse data",
+			responsibilities: "Create reports",
+			sharepointUrl: "https://example.com/role/2",
+			numberOfOpenPositions: 1,
 		});
 
+		expect(result.id).toBe(2);
 		expect(result.capability).toBe("Data");
 		expect(result.band).toBe("Senior Associate");
-	});
-
-	it("falls back to id-based labels when names are missing", () => {
-		const result = mapJobRoleApiResponseToJobRole({
-			id: 3,
-			roleName: "QA Engineer",
-			location: "Dublin",
-			capabilityId: 8,
-			bandId: 2,
-			closingDate: new Date("2026-08-20"),
-			status: "open",
-		});
-
-		expect(result.capability).toBe("Capability 8");
-		expect(result.band).toBe("Band 2");
 	});
 });
