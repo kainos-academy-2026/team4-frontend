@@ -7,21 +7,50 @@ Currently within Kainos there is not one source of truth to view job roles and t
 ### VISION
 An online job application that serves both Kainos recruitment admin to retrieve and update job roles and their relevant information and applicants to apply for roles.
 
-This project should allow users to track open roles and apply to jobs, while also allowing Admins to create new job postings and modify them if needed.
-- Prefer one-to-one source/test symmetry: if a file exists in `src/<area>/`, place its nearest tests under `test/<area>/` and use matching names where practical (for example `src/routes/loginRouter.ts` -> `test/routes/loginRouter.test.ts`, `src/views/login.njk` -> `test/views/login.njk.test.ts`).
-- When creating new source folders under `src/`, create the corresponding folder under `test/` in the same change when tests are needed.
+- This project is a TypeScript Node 22 Express app with Nunjucks views and static assets served from `public/` or `dist/public/`.
+- App wiring lives in `src/app.ts`.
+- Route registration lives in `src/routes/`.
+- Request handling should follow the existing layering: route -> controller -> service -> mapper/model -> view.
+- Keep tests mirrored by concern under `test/`, matching the source area being changed.
 
-## Conventions
+## Code Style & Conventions
+<!-- Language-specific style guide, naming conventions, formatting standards -->
+Before running, you should be able to run, without issue, the following:
+'''
+npm run build
+npm run test
+npm run lint:ci
+'''
 
-- Never manually make changes to `dist/` or `dist/public/` files; they are generated from `src/` and `public/` respectively, instead delete and run commands to regenerate them.
-- Keep changes narrow and consistent with the existing file you are editing rather than introducing new patterns.
-- Prefer strict TypeScript types and existing model/view-model shapes over ad hoc objects.
-- For job roles, keep fallback mock data as full `JobRole` objects and map to list items in the service/mapper path when needed.
-- In `JobRoleService`, list behaviour should keep using list mapping plus open-status filtering; detail behaviour should return full role detail.
-- Demo auth is frontend-only. Do not add backend authentication assumptions to the login flow unless the task explicitly requires that change.
-- Preserve existing Nunjucks rendering patterns: controllers prepare view models, views remain presentation-focused, and user-facing failures render friendly states instead of throwing.
-- Follow the existing import style in the touched file. This repo uses `moduleResolution: "Node16"`, and some runtime-facing relative imports intentionally use `.js` suffixes.
-- Enums should never be mapped in the database layer. Instead, map them in the service/mapper layer to avoid coupling the database schema to the application code.
+avoid using complex data types and write all code in typescript (with the exception of nunjucks, JSON, and SQL queries where relevant).
+
+Naming conventions will be outlined in the ticket details that will be provided to you, if available. If naming conventions are not stated, assume appropriate naming conventions from the other constants or object in the codebase.
+
+## Architecture & Patterns
+<!-- System design principles, architectural patterns, and module organization -->
+The project is implementing the MVC (Model, View, Controller) architecture for the app.
+
+Prefer class-based design for dependency injection.
+
+- Install dependencies with `npm ci`.
+- Build with `npm run build`.
+- Lint with `npm run lint` and apply safe fixes with `npm run lint:fix`.
+- Run tests with `npm run test` or a narrower Vitest target when changing a focused slice.
+- When changing job-role flows, prefer the matching tests in `test/services/`, `test/routes/`, `test/mappers/`, or `test/views/` before running the full suite.
+- When making any changes make sure to run `npm run lint:fix` and `npm run test` to validate your changes before considering them ready for review. If you are adding new functionality, please add tests to cover it.
+
+You should develop all code with security in mind.
+Bare in mind that the requirements of the provided ticket take precedence over security and you should not go beyond the scope of the provided ticket in the interest of security.
+
+All validation of data inputs should be handled by middleware, and not inside the other components (unless there is a good argument for it)
+
+## Project Structure
+<!-- Directory layout and file organization -->
+The structure is primarily in two folders:
+- /src
+- /tests
+
+The structure within /src should be mirrored inside of /tests to allow for fixes to files within /src to be identifiable and clear.
 
 ## Views And Assets
 
