@@ -9,15 +9,23 @@
 	</head>
 	<body class="kainos-page" data-page="job-application">
 		<header class="kainos-header" aria-label="Kainos brand banner">
-			<img
+			<a href="/"><img
 				class="kainos-logo"
 				src="/images/kainoslogo.png"
-				alt="Kainos logo"
-			/>
+				alt="Kainos home"
+			/></a>
 		</header>
 
 		<main class="page">
-			<a class="kainos-primary-action" href="/job-roles">Back to job roles</a>
+			<nav class="kainos-page-nav" aria-label="Breadcrumb">
+				<a class="kainos-secondary-action" href="/job-roles">Job roles</a>
+				{% if jobRole %}
+				<span class="kainos-breadcrumb-sep" aria-hidden="true">›</span>
+				<a class="kainos-secondary-action" href="/job-roles/{{ jobRole.id }}">{{ jobRole.roleName }}</a>
+				<span class="kainos-breadcrumb-sep" aria-hidden="true">›</span>
+				<span class="kainos-breadcrumb-current">Apply</span>
+				{% endif %}
+			</nav>
 
 			{% if jobRole %}
 			<h1>Apply: {{ jobRole.roleName }}</h1>

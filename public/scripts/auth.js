@@ -64,71 +64,14 @@ import {
 			return;
 		}
 
-		const emailInput = form.querySelector("[data-register-email]");
-		const passwordInput = form.querySelector("[data-register-password]");
-		const emailError = form.querySelector("[data-register-email-error]");
-		const passwordError = form.querySelector("[data-register-password-error]");
-		const statusRegion = form.querySelector("[data-register-status]");
-		const submitButton = form.querySelector("[data-register-submit]");
-
-		if (
-			!(emailInput instanceof HTMLInputElement) ||
-			!(passwordInput instanceof HTMLInputElement) ||
-			!(emailError instanceof HTMLElement) ||
-			!(passwordError instanceof HTMLElement) ||
-			!(statusRegion instanceof HTMLElement) ||
-			!(submitButton instanceof HTMLButtonElement)
-		) {
-			return;
+		if (demoAuthEnabled) {
+			const emailInput = form.querySelector('input[name="email"]');
+			const passwordInput = form.querySelector('input[name="password"]');
+			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
+			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
 		}
 
-		let isSubmitting = false;
-
-		const renderFieldError = (target, message) => {
-			target.textContent = message;
-			target.hidden = message.length === 0;
-		};
-
-		const renderStatus = ({ variant, message, cta }) => {
-			statusRegion.textContent = message;
-			statusRegion.dataset.status = variant;
-			statusRegion.hidden = message.length === 0;
-
-			if (cta) {
-				statusRegion.textContent = "";
-				const messageSpan = document.createElement("span");
-				messageSpan.textContent = `${message} `;
-				const ctaLink = document.createElement("a");
-				ctaLink.href = cta.href;
-				ctaLink.textContent = cta.label;
-				statusRegion.append(messageSpan, ctaLink);
-			}
-		};
-
-		const registerUser = async (payload) => {
-			const response = await fetch("/auth/register", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-
-			let data = null;
-
-			try {
-				data = await response.json();
-			} catch (_error) {
-				data = null;
-			}
-
-			return {
-				status: response.status,
-				data,
-			};
-		};
-
-		form.addEventListener("submit", async (event) => {
+		form.addEventListener("submit", (event) => {
 			event.preventDefault();
 
 			if (isSubmitting) {
