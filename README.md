@@ -80,6 +80,7 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 
 - `GET /` renders the branded home page with open job roles.
 - `GET /login` renders the login page.
+- `POST /api/login` proxies login to the backend auth endpoint.
 - `POST /login` submits credentials to backend `POST /auth/login`.
 - `POST /logout` clears the frontend auth cookie.
 - `POST /api/login` proxies login to the backend auth endpoint.
@@ -93,6 +94,9 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 - `GET /job-roles/:id/apply` renders the job application page.
 - `POST /job-roles/:id/applications` uploads a CV for a role.
 - `GET /job-roles/:id/applications/me` fetches the logged-in user's application status.
+- `GET /job-roles/:id` renders the job role detail page.
+- `GET /job-roles/:id/apply` renders the job application page.
+- `POST /job-roles/:id/applications` uploads a CV for a role.
 
 ## Login Integration
 
