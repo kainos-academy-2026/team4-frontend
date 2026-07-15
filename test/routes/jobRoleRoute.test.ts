@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import app from "../../src/app";
 import { JobApplicationService } from "../../src/services/jobApplicationService";
+import { JobApplicationService } from "../../src/services/jobApplicationService";
 import { JobRoleService } from "../../src/services/jobRoleService";
 
 describe("GET /job-roles/:id", () => {
@@ -390,5 +391,96 @@ describe("POST /job-roles/:id/applications", () => {
 
     expect(response.status).toBe(502);
     expect(response.body).toEqual({ message: "CV upload failed. Please try again later." });
+  });
+});
+
+
+describe("POST /job-roles/:id/applications", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns 404 for an invalid role id", async () => {
+    const response = await request(app)
+      .post("/job-roles/not-a-number/applications")
+      .set("Authorization", "Bearer token")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "Job role not found." });
+  });
+
+  it("returns 401 when auth header is missing", async () => {
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ message: "Unauthorised." });
+  });
+
+  it("returns 400 when cvFile is missing", async () => {
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Authorization", "Bearer token");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: "No CV file provided." });
+  });
+
+  it("forwards backend success response", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
+      status: 201,
+      data: { id: 10, status: "in_progress" },
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Authorization", "Bearer token")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ id: 10, status: "in_progress" });
+  });
+});
+
+describe("GET /job-roles/:id/applications/me", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns 401 when auth header is missing", async () => {
+    const response = await request(app).get("/job-roles/1/applications/me");
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ message: "Unauthorised." });
+  });
+
+  it("returns current application status", async () => {
+    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockResolvedValue({
+      id: 10,
+      status: "in_progress",
+    });
+
+    const response = await request(app)
+      .get("/job-roles/1/applications/me")
+      .set("Authorization", "Bearer token");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ id: 10, status: "in_progress" });
+  });
+
+  it("maps backend 404 to no application found", async () => {
+    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 404 },
+    });
+
+    const response = await request(app)
+      .get("/job-roles/1/applications/me")
+      .set("Authorization", "Bearer token");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "No application found." });
   });
 });
