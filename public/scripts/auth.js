@@ -62,7 +62,7 @@
 		}
 
 		homeAction.innerHTML =
-			'<button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
+			'<a class="kainos-header-link" href="/job-roles">View job roles</a><button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
 		greeting.hidden = false;
 		greeting.textContent = `Welcome back, ${email}`;
 
@@ -81,29 +81,96 @@
 			return;
 		}
 
-		form.addEventListener("submit", (event) => {
+		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			setError("");
 
-			if (!demoAuthEnabled) {
-				clearSession();
-				setError("Demo login is currently unavailable.");
-				return;
+			const submitButton = form.querySelector('button[type="submit"]');
+			if (submitButton instanceof HTMLButtonElement) {
+				submitButton.disabled = true;
 			}
 
-			const formData = new FormData(form);
-			const email = String(formData.get("email") ?? "").trim();
-			const password = String(formData.get("password") ?? "");
+			const releaseSubmitButton = () => {
+				if (submitButton instanceof HTMLButtonElement) {
+					submitButton.disabled = false;
+				}
+			};
 
-			if (email !== "test@test.com" || password !== "passwordtest") {
+			try {
+				const formData = new FormData(form);
+				const email = String(formData.get("email") ?? "").trim();
+				const password = String(formData.get("password") ?? "");
+
+				if (!email || !password) {
+					clearSession();
+					setError("Please enter your email and password.");
+					return;
+				}
+
+				if (
+					demoAuthEnabled &&
+					email === "test@test.com" &&
+					password === "passwordtest"
+				) {
+					window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
+					window.sessionStorage.setItem(
+						demoAuthStorageKeys.token,
+						createFakeJwt(email),
+					);
+					window.location.assign("/");
+					return;
+				}
+
+				const response = await window.fetch("/auth/login", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ email, password }),
+				});
+
+				if (!response.ok) {
+					clearSession();
+
+					if (response.status === 400) {
+						setError("Invalid login details. Please check and try again.");
+						return;
+					}
+
+					if (response.status === 401) {
+						setError("Invalid email or password. Please try again.");
+						return;
+					}
+
+					setError("Something went wrong. Please try again in a moment.");
+					return;
+				}
+
+				const responseBody = await response
+					.json()
+					.catch(() => ({}));
+
+				const authenticatedEmail =
+					typeof responseBody.email === "string" && responseBody.email.length > 0
+						? responseBody.email
+						: email;
+				const authToken =
+					typeof responseBody.token === "string" && responseBody.token.length > 0
+						? responseBody.token
+						: createFakeJwt(authenticatedEmail);
+
+				window.sessionStorage.setItem(
+					demoAuthStorageKeys.email,
+					authenticatedEmail,
+				);
+				window.sessionStorage.setItem(demoAuthStorageKeys.token, authToken);
+				window.location.assign("/");
+			} catch (_error) {
 				clearSession();
-				setError("Invalid email or password. Please try again.");
-				return;
+				setError("Something went wrong. Please try again in a moment.");
+			} finally {
+				releaseSubmitButton();
 			}
-
-			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
-			window.sessionStorage.setItem(demoAuthStorageKeys.token, createFakeJwt(email));
-			window.location.assign("/");
 		});
 	};
 
