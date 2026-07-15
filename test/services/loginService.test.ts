@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import apiClient from "../../src/config/apiClient";
 import { LoginService } from "../../src/services/loginService";

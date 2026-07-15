@@ -1,11 +1,28 @@
+import axios, { type AxiosInstance } from "axios";
+
 import apiClient from "../config/apiClient";
 import type { LoginRequestDto, LoginResponseDto } from "../dto/loginDto";
 import { LoginServiceError } from "./loginServiceError";
 
+export interface LoginPayload {
+	email: string;
+	password: string;
+}
+
+export interface LoginResult {
+	token?: string;
+	email?: string;
+	[key: string]: unknown;
+}
+
+export { LoginServiceError } from "./loginServiceError";
+
 export class LoginService {
+	constructor(private readonly client: AxiosInstance = apiClient) {}
+
 	async authenticate(credentials: LoginRequestDto): Promise<string> {
 		try {
-			const response = await apiClient.post<Partial<LoginResponseDto>>(
+			const response = await this.client.post<Partial<LoginResponseDto>>(
 				"/auth/login",
 				credentials,
 			);
@@ -24,8 +41,30 @@ export class LoginService {
 				throw error;
 			}
 
-			// Generic error for all failures
 			throw new LoginServiceError(500, "Login failed. Please try again.");
+		}
+	}
+
+	async login(payload: LoginPayload): Promise<LoginResult> {
+		try {
+			const loginResponse = await this.client.post<LoginResult>(
+				"/auth/login",
+				payload,
+			);
+
+			return loginResponse.data;
+		} catch (requestError) {
+			if (axios.isAxiosError(requestError)) {
+				if (requestError.response?.status === 400) {
+					throw new LoginServiceError(400, "Invalid login payload");
+				}
+
+				if (requestError.response?.status === 401) {
+					throw new LoginServiceError(401, "Invalid email or password");
+				}
+			}
+
+			throw new LoginServiceError(500, "Internal server error");
 		}
 	}
 }
