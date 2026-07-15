@@ -65,6 +65,7 @@ const runScript = ({
 	pathname = "/job-roles/1/apply",
 	search = "",
 	sessionEntries = [],
+	fetchMock,
 }: {
 	page?: string;
 	demoAuthEnabled?: boolean;
@@ -77,6 +78,7 @@ const runScript = ({
 	pathname?: string;
 	search?: string;
 	sessionEntries?: Array<[string, string]>;
+	fetchMock?: ReturnType<typeof vi.fn>;
 }) => {
 	const sessionValues = new Map<string, string>(sessionEntries);
 	const loginPrompt = { hidden: true };
@@ -152,6 +154,7 @@ const runScript = ({
 					sessionValues.set(key, value);
 				},
 			},
+			fetch: fetchMock ?? vi.fn().mockRejectedValue(new Error("network unavailable")),
 		},
 		document: {
 			body: {
@@ -195,6 +198,7 @@ const runScript = ({
 		Math,
 		Date,
 		JSON,
+		Promise,
 		setTimeout,
 		clearTimeout,
 	};
@@ -355,7 +359,7 @@ describe("auth browser script", () => {
 		expect(result.form?.passwordInput.value).toBe("original-password");
 	});
 
-	it("shows unavailable message when demo auth is disabled", () => {
+	it("shows network error when login service is unavailable", async () => {
 		const form = createLoginForm("wrong@test.com", "wrong");
 
 		const result = runScript({
@@ -363,24 +367,23 @@ describe("auth browser script", () => {
 			demoAuthEnabled: false,
 			loginForm: form,
 			withErrorRegion: true,
-			sessionEntries: [
-				["demoAuthEmail", "existing@test.com"],
-				["demoAuthToken", "existing-token"],
-			],
+			fetchMock: vi.fn().mockRejectedValue(new Error("network unavailable")),
 		});
 
 		const preventDefault = vi.fn();
-		result.form?.submitHandler?.({ preventDefault });
+		await result.form?.submitHandler?.({ preventDefault });
 
 		expect(preventDefault).toHaveBeenCalledTimes(1);
 		expect(result.errorRegion.hidden).toBe(false);
-		expect(result.errorRegion.textContent).toBe("Demo login is currently unavailable.");
+		expect(result.errorRegion.textContent).toBe(
+			"Unable to reach the server. Please check your connection and try again.",
+		);
 		expect(result.sessionValues.get("demoAuthEmail")).toBeUndefined();
 		expect(result.sessionValues.get("demoAuthToken")).toBeUndefined();
 		expect(result.assign).not.toHaveBeenCalled();
 	});
 
-	it("shows invalid credentials message for wrong password", () => {
+	it("shows invalid credentials message for wrong password", async () => {
 		const form = createLoginForm("test@test.com", "wrong-password");
 
 		const result = runScript({
@@ -388,6 +391,11 @@ describe("auth browser script", () => {
 			demoAuthEnabled: true,
 			loginForm: form,
 			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: false,
+				status: 401,
+				json: async () => ({ message: "Invalid email or password." }),
+			}),
 		});
 
 		if (result.form) {
@@ -395,18 +403,18 @@ describe("auth browser script", () => {
 			result.form.passwordInput.value = "wrong-password";
 		}
 
-		result.form?.submitHandler?.({ preventDefault: () => undefined });
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
 
 		expect(result.errorRegion.hidden).toBe(false);
 		expect(result.errorRegion.textContent).toBe(
-			"Invalid email or password. Please try again.",
+			"Invalid email or password.",
 		);
 		expect(result.sessionValues.get("demoAuthEmail")).toBeUndefined();
 		expect(result.sessionValues.get("demoAuthToken")).toBeUndefined();
 		expect(result.assign).not.toHaveBeenCalled();
 	});
 
-	it("stores session and redirects to returnTo when credentials are valid", () => {
+	it("stores session and redirects to returnTo when credentials are valid", async () => {
 		const form = createLoginForm("test@test.com", "passwordtest");
 
 		const result = runScript({
@@ -415,14 +423,19 @@ describe("auth browser script", () => {
 			loginForm: form,
 			search: "?returnTo=%2Fjob-roles%2F5%2Fapply",
 			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: true,
+				status: 200,
+				json: async () => ({ accessToken: "header.payload.signature" }),
+			}),
 		});
 
-		result.form?.submitHandler?.({ preventDefault: () => undefined });
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
 
 		expect(result.errorRegion.hidden).toBe(true);
 		expect(result.errorRegion.textContent).toBe("");
 		expect(result.sessionValues.get("demoAuthEmail")).toBe("test@test.com");
-		expect(result.sessionValues.get("demoAuthToken")).toContain(".");
+		expect(result.sessionValues.get("demoAuthToken")).toBe("header.payload.signature");
 		expect(result.assign).toHaveBeenCalledWith("/job-roles/5/apply");
 	});
 

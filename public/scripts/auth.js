@@ -126,28 +126,56 @@
 			});
 		}
 
-		form.addEventListener("submit", (event) => {
+		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			setError("");
-
-			if (!demoAuthEnabled) {
-				clearSession();
-				setError("Demo login is currently unavailable.");
-				return;
-			}
 
 			const formData = new FormData(form);
 			const email = String(formData.get("email") ?? "").trim();
 			const password = String(formData.get("password") ?? "");
 
-			if (email !== "test@test.com" || password !== "passwordtest") {
-				clearSession();
-				setError("Invalid email or password. Please try again.");
+			let loginResponse;
+			try {
+				loginResponse = await window.fetch("/api/login", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ email, password }),
+				});
+			} catch {
+				setError("Unable to reach the server. Please check your connection and try again.");
+				return;
+			}
+
+			if (!loginResponse.ok) {
+				let message = "Invalid email or password. Please try again.";
+				try {
+					const body = await loginResponse.json();
+					if (typeof body.message === "string" && body.message.length > 0) {
+						message = body.message;
+					}
+				} catch {
+					// use default message
+				}
+				setError(message);
+				return;
+			}
+
+			let data;
+			try {
+				data = await loginResponse.json();
+			} catch {
+				setError("Login failed. Please try again.");
+				return;
+			}
+
+			const token = typeof data.accessToken === "string" ? data.accessToken : null;
+			if (!token) {
+				setError("Login failed. Please try again.");
 				return;
 			}
 
 			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
-			window.sessionStorage.setItem(demoAuthStorageKeys.token, createFakeJwt(email));
+			window.sessionStorage.setItem(demoAuthStorageKeys.token, token);
 			window.location.assign(returnTo);
 		});
 	};
