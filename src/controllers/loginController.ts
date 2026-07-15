@@ -1,9 +1,61 @@
 import type { Request, Response } from "express";
 
-import { isDemoAuthEnabled } from "../config/auth";
+import type { LoginRequestDto } from "../dto/loginDto";
+import type { LoginService } from "../services/loginService";
+import {
+	clearAccessTokenCookie,
+	setAccessTokenCookie,
+} from "../utils/cookieHelpers";
 
+export class LoginController {
+	constructor(private readonly loginService: LoginService) {}
+
+	getLogin = (_request: Request, response: Response): void => {
+		response.render("login", {
+			errorMessage: null,
+		});
+	};
+
+	postLogin = async (request: Request, response: Response): Promise<void> => {
+		// Check for errors from middleware
+		if (response.locals.errors) {
+			response.status(400).render("login", {
+				errorMessage: "Please enter both your email and password.",
+			});
+			return;
+		}
+
+		const { email, password } = request.body as LoginRequestDto;
+
+		try {
+			const accessToken = await this.loginService.authenticate({
+				email,
+				password,
+			});
+
+			setAccessTokenCookie(response, accessToken);
+			response.redirect("/");
+		} catch (_error) {
+			response.status(401).render("login", {
+				errorMessage: "Login failed. Please try again.",
+			});
+		}
+	};
+
+	postLogout = (_request: Request, response: Response): void => {
+		clearAccessTokenCookie(response);
+		response.redirect("/");
+	};
+}
+
+// Export handler functions for routing
 export const getLogin = (_request: Request, response: Response): void => {
 	response.render("login", {
-		demoAuthEnabled: isDemoAuthEnabled(),
+		errorMessage: null,
 	});
+};
+
+export const postLogout = (_request: Request, response: Response): void => {
+	clearAccessTokenCookie(response);
+	response.redirect("/");
 };
