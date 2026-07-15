@@ -1,16 +1,15 @@
 import axios from "axios";
-import type { AxiosInstance } from "axios";
-import FormData from "form-data";
 import type { Request, Response } from "express";
+
 import type { JobRole } from "../models/jobRole";
 import { jobRoleIdSchema } from "../models/jobRole";
-import apiClient from "../config/apiClient.js";
+import type { JobApplicationService } from "../services/jobApplicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 
 export class JobRoleController {
 	constructor(
 		private readonly jobRoleService: JobRoleService,
-		private readonly backendClient: AxiosInstance = apiClient,
+		private readonly jobApplicationService: JobApplicationService,
 	) {}
 
 	async renderDetailPage(request: Request, response: Response): Promise<void> {
@@ -85,10 +84,7 @@ export class JobRoleController {
 		}
 	}
 
-	async submitApplication(
-		request: Request,
-		response: Response,
-	): Promise<void> {
+	async submitApplication(request: Request, response: Response): Promise<void> {
 		const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
 		if (!parsedJobRoleId.success) {
 			response.status(404).json({ message: "Job role not found." });
@@ -108,19 +104,12 @@ export class JobRoleController {
 		}
 
 		try {
-			const formData = new FormData();
-			formData.append("cvFile", file.buffer, {
-				filename: file.originalname,
-				contentType: file.mimetype,
-				knownLength: file.size,
-			});
-
-			const backendResponse = await this.backendClient.post(
-				`/job-roles/${parsedJobRoleId.data}/applications`,
-				formData,
-				{ headers: { Authorization: authHeader, ...formData.getHeaders() } },
-			);
-
+			const backendResponse =
+				await this.jobApplicationService.submitApplication(
+					parsedJobRoleId.data,
+					authHeader,
+					file,
+				);
 			response.status(backendResponse.status).json(backendResponse.data);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -128,7 +117,9 @@ export class JobRoleController {
 				return;
 			}
 			console.error(error);
-			response.status(502).json({ message: "CV upload failed. Please try again later." });
+			response
+				.status(502)
+				.json({ message: "CV upload failed. Please try again later." });
 		}
 	}
 
@@ -149,11 +140,12 @@ export class JobRoleController {
 		}
 
 		try {
-			const backendResponse = await this.backendClient.get(
-				`/job-roles/${parsedJobRoleId.data}/applications/me`,
-				{ headers: { Authorization: authHeader } },
-			);
-			response.status(200).json(backendResponse.data);
+			const applicationStatus =
+				await this.jobApplicationService.getApplicationStatus(
+					parsedJobRoleId.data,
+					authHeader,
+				);
+			response.status(200).json(applicationStatus);
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
 				const status = error.response?.status;
@@ -167,7 +159,9 @@ export class JobRoleController {
 				}
 			}
 			console.error(error);
-			response.status(502).json({ message: "Unable to retrieve application status." });
+			response
+				.status(502)
+				.json({ message: "Unable to retrieve application status." });
 		}
 	}
 
@@ -178,4 +172,3 @@ export class JobRoleController {
 		);
 	}
 }
-

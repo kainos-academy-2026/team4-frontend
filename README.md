@@ -78,14 +78,16 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 
 ## Endpoints
 
-- `GET /` renders a hello-world HTML page.
+- `GET /` renders the branded home page with open job roles.
 - `GET /login` renders the demo login page.
+- `POST /api/login` proxies login to the backend auth endpoint.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
 	- `time`: current timestamp in ISO-8601 format
-- `GET /job-roles` renders open job roles.
-  - Calls backend `GET /job-roles` using Axios.
-  - Falls back to frontend mock data when backend is unavailable and `USE_JOB_ROLE_FALLBACK_MOCK=true`.
+- `GET /job-roles/:id` renders the job role detail page.
+- `GET /job-roles/:id/apply` renders the job application page.
+- `POST /job-roles/:id/applications` uploads a CV for a role.
+- `GET /job-roles/:id/applications/me` fetches the logged-in user's application status.
 
 ## Demo Login
 
