@@ -90,46 +90,6 @@ export class JobRoleController {
 		}
 	}
 
-	async renderApplicationPage(
-		request: Request,
-		response: Response,
-	): Promise<void> {
-		try {
-			const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
-
-			if (!parsedJobRoleId.success) {
-				response.redirect("/404");
-				return;
-			}
-
-			const jobRole = await this.jobRoleService.getRoleById(
-				parsedJobRoleId.data,
-			);
-
-			if (!jobRole) {
-				response.redirect("/404");
-				return;
-			}
-
-			const canApply = this.canAcceptApplications(jobRole);
-
-			response.render("job-role-application", {
-				errorMessage: canApply
-					? null
-					: "Applications are closed for this role.",
-				jobRole,
-				canApply,
-			});
-		} catch (controllerError) {
-			console.error(controllerError);
-			response.render("job-role-application", {
-				errorMessage: "Something went wrong. Please try again later.",
-				jobRole: null,
-				canApply: false,
-			});
-		}
-	}
-
 	private canAcceptApplications(jobRole: JobRole): boolean {
 		return (
 			jobRole.status.toLowerCase() === "open" &&

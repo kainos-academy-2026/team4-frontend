@@ -110,26 +110,6 @@
 		const params = new URLSearchParams(window.location.search);
 		const returnTo = params.get("returnTo") || "/";
 
-		const params = new URLSearchParams(window.location.search);
-		const returnTo = params.get("returnTo") || "/";
-
-		if (demoAuthEnabled) {
-			const emailInput = form.querySelector('input[name="email"]');
-			const passwordInput = form.querySelector('input[name="password"]');
-			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
-			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
-		}
-
-		if (demoAuthEnabled) {
-			const emailInput = form.querySelector('input[name="email"]');
-			const passwordInput = form.querySelector('input[name="password"]');
-			if (emailInput instanceof HTMLInputElement) emailInput.value = "test@test.com";
-			if (passwordInput instanceof HTMLInputElement) passwordInput.value = "passwordtest";
-		}
-
-		const params = new URLSearchParams(window.location.search);
-		const returnTo = params.get("returnTo") || "/";
-
 		const submitBtn = form.querySelector('[type="submit"]');
 		if (submitBtn) {
 			submitBtn.addEventListener("click", (event) => {
@@ -146,7 +126,7 @@
 			});
 		}
 
-		form.addEventListener("submit", async (event) => {
+		form.addEventListener("submit", (event) => {
 			event.preventDefault();
 			setError("");
 

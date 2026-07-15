@@ -75,7 +75,7 @@ a.kainos-primary-action:visited {
 
 a.kainos-header-link,
 a.kainos-header-link:visited {
-  color: #ffffff;
+  color: var(--kainos-primary-blue);
 }
 
 a.kainos-secondary-action,
@@ -117,6 +117,7 @@ body.kainos-page {
   display: block;
   width: clamp(85px, 12vw, 130px);
   height: auto;
+  margin-right: 5%;
   margin-right: 5%;
 }
 
