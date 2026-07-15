@@ -1,40 +1,59 @@
 import type { Request, Response } from "express";
-
-import { isDemoAuthEnabled } from "../config/auth";
+import type { LoginRequestDto } from "../dto/loginDto";
+import type { LoginService } from "../services/loginService";
 import {
-	type LoginPayload,
-	LoginService,
-	LoginServiceError,
-} from "../services/loginService";
+	clearAccessTokenCookie,
+	setAccessTokenCookie,
+} from "../utils/cookieHelpers";
 
-const loginService = new LoginService();
+export class LoginController {
+	constructor(private readonly loginService: LoginService) {}
 
-export const getLogin = (_request: Request, response: Response): void => {
-	response.render("login", {
-		demoAuthEnabled: isDemoAuthEnabled(),
-	});
-};
+	getLogin = (_request: Request, response: Response): void => {
+		response.render("login", {
+			errorMessage: null,
+		});
+	};
 
-export const postLogin = async (
-	request: Request,
-	response: Response,
-): Promise<void> => {
-	try {
-		const payload: LoginPayload = {
-			email: request.body.email,
-			password: request.body.password,
-		};
-
-		const loginResult = await loginService.login(payload);
-		response.status(200).json(loginResult);
-	} catch (controllerError) {
-		if (controllerError instanceof LoginServiceError) {
-			response
-				.status(controllerError.status)
-				.json({ message: controllerError.message });
+	postLogin = async (request: Request, response: Response): Promise<void> => {
+		// Check for errors from middleware
+		if (response.locals.errors) {
+			response.status(400).render("login", {
+				errorMessage: "Please enter both your email and password.",
+			});
 			return;
 		}
 
-		response.status(500).json({ message: "Internal server error" });
-	}
+		const { email, password } = request.body as LoginRequestDto;
+
+		try {
+			const accessToken = await this.loginService.authenticate({
+				email,
+				password,
+			});
+
+			setAccessTokenCookie(response, accessToken);
+			response.redirect("/");
+		} catch (_error) {
+			response.status(401).render("login", {
+				errorMessage: "Login failed. Please try again.",
+			});
+		}
+	};
+
+	postLogout = (_request: Request, response: Response): void => {
+		clearAccessTokenCookie(response);
+		response.redirect("/");
+	};
+}
+
+// Export handler functions for routing
+export const getLogin = (_request: Request, response: Response): void => {
+	response.render("login", {
+		errorMessage: null,
+	});
+};
+export const postLogout = (_request: Request, response: Response): void => {
+	clearAccessTokenCookie(response);
+	response.redirect("/");
 };

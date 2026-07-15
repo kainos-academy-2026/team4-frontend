@@ -1,11 +1,22 @@
 import { Router } from "express";
+import {
+	getLogin,
+	LoginController,
+	postLogout,
+} from "../controllers/loginController";
+import { LoginRequestSchema } from "../dto/loginDto";
+import { validateBody } from "../middleware/loginValidation";
+import { LoginService } from "../services/loginService";
 
-import { getLogin, postLogin } from "../controllers/loginController";
-import { validateLoginUser } from "../middleware/loginUserMiddleware";
+const loginService = new LoginService();
+const loginController = new LoginController(loginService);
 
 const loginRouter = Router();
 
 loginRouter.get("/login", getLogin);
-loginRouter.post("/auth/login", validateLoginUser, postLogin);
+loginRouter.post("/login", validateBody(LoginRequestSchema), (req, res) =>
+	loginController.postLogin(req, res),
+);
+loginRouter.post("/logout", postLogout);
 
 export default loginRouter;
