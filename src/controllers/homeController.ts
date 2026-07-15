@@ -19,7 +19,8 @@ export class HomeController {
 				isAuthenticated,
 		userEmail,
 				jobRoles: [],
-				errorMessage: "Something went wrong loading job roles. Please try again later.",
+				errorMessage:
+					"Something went wrong loading job roles. Please try again later.",
 			});
 		}
 	}

@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import "dotenv/config";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
 import { setAuthContext } from "./middleware/authContext";

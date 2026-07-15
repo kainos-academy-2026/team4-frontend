@@ -9,8 +9,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-08-01"),
 		status: "open",
-		description: "Design and build backend services using modern cloud-native technologies.",
-		responsibilities: "Deliver features, review code, and support production releases.",
+		description:
+			"Design and build backend services using modern cloud-native technologies.",
+		responsibilities:
+			"Deliver features, review code, and support production releases.",
 		sharepointUrl: "https://example.com/roles/software-engineer",
 		numberOfOpenPositions: 2,
 	},
@@ -36,7 +38,8 @@ export const fallbackJobRoles: JobRole[] = [
 		closingDate: new Date("2026-07-15"),
 		status: "closed",
 		description: "Analyse operational and product datasets to drive decisions.",
-		responsibilities: "Create dashboards, run ad-hoc queries, and report insights to stakeholders.",
+		responsibilities:
+			"Create dashboards, run ad-hoc queries, and report insights to stakeholders.",
 		sharepointUrl: "https://example.com/roles/data-analyst",
 		numberOfOpenPositions: 0,
 	},
@@ -49,7 +52,8 @@ export const fallbackJobRoles: JobRole[] = [
 		closingDate: new Date("2026-09-05"),
 		status: "open",
 		description: "Shape user experiences for public sector digital services.",
-		responsibilities: "Conduct user research, produce wireframes, and iterate on designs with engineering teams.",
+		responsibilities:
+			"Conduct user research, produce wireframes, and iterate on designs with engineering teams.",
 		sharepointUrl: "https://example.com/roles/ux-designer",
 		numberOfOpenPositions: 2,
 	},
@@ -61,8 +65,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Senior Associate",
 		closingDate: new Date("2026-08-22"),
 		status: "open",
-		description: "Build and maintain scalable cloud infrastructure on AWS and Azure.",
-		responsibilities: "Manage IaC pipelines, enforce security best practices, and support platform reliability.",
+		description:
+			"Build and maintain scalable cloud infrastructure on AWS and Azure.",
+		responsibilities:
+			"Manage IaC pipelines, enforce security best practices, and support platform reliability.",
 		sharepointUrl: "https://example.com/roles/cloud-infra-engineer",
 		numberOfOpenPositions: 3,
 	},
@@ -74,8 +80,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Manager",
 		closingDate: new Date("2026-08-18"),
 		status: "open",
-		description: "Lead product vision and delivery for a large-scale government transformation programme.",
-		responsibilities: "Define roadmap, manage stakeholders, and work closely with delivery and design teams.",
+		description:
+			"Lead product vision and delivery for a large-scale government transformation programme.",
+		responsibilities:
+			"Define roadmap, manage stakeholders, and work closely with delivery and design teams.",
 		sharepointUrl: "https://example.com/roles/product-manager",
 		numberOfOpenPositions: 1,
 	},
@@ -88,7 +96,8 @@ export const fallbackJobRoles: JobRole[] = [
 		closingDate: new Date("2026-07-31"),
 		status: "open",
 		description: "Drive agile delivery across cross-functional teams.",
-		responsibilities: "Facilitate ceremonies, remove blockers, and report on programme health.",
+		responsibilities:
+			"Facilitate ceremonies, remove blockers, and report on programme health.",
 		sharepointUrl: "https://example.com/roles/delivery-manager",
 		numberOfOpenPositions: 2,
 	},
@@ -100,8 +109,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-09-12"),
 		status: "open",
-		description: "Design and implement data pipelines to support analytics and ML platforms.",
-		responsibilities: "Build ETL workflows, maintain data quality, and collaborate with analysts.",
+		description:
+			"Design and implement data pipelines to support analytics and ML platforms.",
+		responsibilities:
+			"Build ETL workflows, maintain data quality, and collaborate with analysts.",
 		sharepointUrl: "https://example.com/roles/data-engineer",
 		numberOfOpenPositions: 2,
 	},
@@ -113,8 +124,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Consultant",
 		closingDate: new Date("2026-08-08"),
 		status: "open",
-		description: "Advise clients on security posture and risk management strategies.",
-		responsibilities: "Conduct threat modelling, pen-test reviews, and produce remediation roadmaps.",
+		description:
+			"Advise clients on security posture and risk management strategies.",
+		responsibilities:
+			"Conduct threat modelling, pen-test reviews, and produce remediation roadmaps.",
 		sharepointUrl: "https://example.com/roles/cybersecurity-consultant",
 		numberOfOpenPositions: 1,
 	},
@@ -126,8 +139,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-07-28"),
 		status: "open",
-		description: "Bridge business needs and technical delivery on complex transformation projects.",
-		responsibilities: "Gather requirements, produce process maps, and support user acceptance testing.",
+		description:
+			"Bridge business needs and technical delivery on complex transformation projects.",
+		responsibilities:
+			"Gather requirements, produce process maps, and support user acceptance testing.",
 		sharepointUrl: "https://example.com/roles/business-analyst",
 		numberOfOpenPositions: 3,
 	},
@@ -139,8 +154,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Senior Associate",
 		closingDate: new Date("2026-09-20"),
 		status: "open",
-		description: "Build and deploy ML models that improve public services at scale.",
-		responsibilities: "Train and evaluate models, build serving infrastructure, and collaborate with data scientists.",
+		description:
+			"Build and deploy ML models that improve public services at scale.",
+		responsibilities:
+			"Train and evaluate models, build serving infrastructure, and collaborate with data scientists.",
 		sharepointUrl: "https://example.com/roles/ml-engineer",
 		numberOfOpenPositions: 1,
 	},
@@ -152,8 +169,10 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Principal",
 		closingDate: new Date("2026-07-10"),
 		status: "closed",
-		description: "Define architectural patterns and standards across a portfolio of digital programmes.",
-		responsibilities: "Lead design reviews, govern technical decisions, and mentor senior engineers.",
+		description:
+			"Define architectural patterns and standards across a portfolio of digital programmes.",
+		responsibilities:
+			"Lead design reviews, govern technical decisions, and mentor senior engineers.",
 		sharepointUrl: "https://example.com/roles/technical-architect",
 		numberOfOpenPositions: 0,
 	},

@@ -17,7 +17,7 @@ export class JobRoleService {
 		private readonly client: AxiosInstance = apiClient,
 		private readonly fallbackData: JobRole[] = fallbackJobRoles,
 		private readonly useFallbackMock: boolean = process.env
-			.USE_JOB_ROLE_FALLBACK_MOCK !== "false",
+			.USE_JOB_ROLE_FALLBACK_MOCK === "true",
 	) {}
 
 	async getOpenRoles(): Promise<JobRoleListItem[]> {
