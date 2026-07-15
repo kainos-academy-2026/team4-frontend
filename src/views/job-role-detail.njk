@@ -42,7 +42,7 @@
 				</p>
 				<p>
 					<strong>Status:</strong>
-					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% elif jobRole.status | lower == 'in progress' %} badge--in-progress{% endif %}" data-role-status-badge>
+					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
 						{{ jobRole.status }}
 					</span>
 				</p>
@@ -52,7 +52,7 @@
 				<h2>Responsibilities</h2>
 				<p>{{ jobRole.responsibilities }}</p>
 				{% if showApplyForRole %}
-				<section class="empty-state" aria-label="Apply for this role" data-apply-section data-job-role-id="{{ jobRole.id }}">
+				<section class="empty-state" aria-label="Apply for this role">
 					<h2>Apply for this role</h2>
 					<p>Applicants can upload a CV and start an application.</p>
 					<div class="alert alert-info" data-login-prompt hidden>
@@ -62,6 +62,11 @@
 					<div class="alert alert-info" data-login-prompt hidden>
 						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
 					</div>
+					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
+					<div class="alert alert-info" data-login-prompt hidden>
+						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
+					</div>
+					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
 					<p>
 						<a
 							class="kainos-primary-action"

@@ -142,7 +142,7 @@
                   <td>{{ jobRole.band }}</td>
                   <td>{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}</td>
                   <td>
-                    <span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
+                    <span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% elif jobRole.status | lower == 'in progress' %} badge--in-progress{% endif %}" data-role-status-badge="{{ jobRole.id }}">
                       {{ jobRole.status }}
                     </span>
                   </td>
@@ -166,6 +166,8 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
+
+    <script src="/scripts/auth.js"></script>
     <script src="/scripts/job-application.js"></script>
     <script src="/scripts/scroll-reveal.js"></script>
     <script>

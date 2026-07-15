@@ -126,7 +126,7 @@
 			});
 		}
 
-		form.addEventListener("submit", (event) => {
+		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			setError("");
 
@@ -175,7 +175,7 @@
 			}
 
 			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
-			window.sessionStorage.setItem(demoAuthStorageKeys.token, createFakeJwt(email));
+			window.sessionStorage.setItem(demoAuthStorageKeys.token, token);
 			window.location.assign("/");
 		});
 	};
