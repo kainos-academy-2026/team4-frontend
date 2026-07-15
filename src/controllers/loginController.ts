@@ -3,14 +3,6 @@ import type { Request, Response } from "express";
 import type { LoginRequestDto } from "../dto/loginDto";
 import { type LoginService, LoginServiceError } from "../services/loginService";
 
-const clearAccessTokenCookieHeader = (): string => {
-	return "access_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
-};
-
-const setAccessTokenCookieHeader = (accessToken: string): string => {
-	return `access_token=${encodeURIComponent(accessToken)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`;
-};
-
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
 
@@ -29,7 +21,11 @@ export class LoginController {
 				password,
 			});
 
-			response.setHeader("Set-Cookie", setAccessTokenCookieHeader(accessToken));
+			response.cookie("access_token", accessToken, {
+				httpOnly: true,
+				sameSite: "lax",
+				maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+			});
 			response.redirect("/");
 		} catch (error) {
 			if (error instanceof LoginServiceError) {
@@ -46,7 +42,7 @@ export class LoginController {
 	};
 
 	postLogout = (_request: Request, response: Response): void => {
-		response.setHeader("Set-Cookie", clearAccessTokenCookieHeader());
+		response.clearCookie("access_token");
 		response.redirect("/");
 	};
 }
@@ -59,6 +55,6 @@ export const getLogin = (_request: Request, response: Response): void => {
 };
 
 export const postLogout = (_request: Request, response: Response): void => {
-	response.setHeader("Set-Cookie", clearAccessTokenCookieHeader());
+	response.clearCookie("access_token");
 	response.redirect("/");
 };

@@ -33,7 +33,7 @@ describe("login controller", () => {
 		const authenticate = vi.fn().mockResolvedValue("token-123");
 		const controller = createController(authenticate);
 
-		const setHeader = vi.fn();
+		const cookie = vi.fn().mockReturnThis();
 		const redirect = vi.fn();
 
 		await controller.postLogin(
@@ -43,17 +43,18 @@ describe("login controller", () => {
 					password: "Password123!",
 				},
 			} as Request,
-			{ setHeader, redirect } as unknown as Response,
+			{ cookie, redirect } as unknown as Response,
 		);
 
 		expect(authenticate).toHaveBeenCalledWith({
 			email: "test@example.com",
 			password: "Password123!",
 		});
-		expect(setHeader).toHaveBeenCalledWith(
-			"Set-Cookie",
-			expect.stringContaining("access_token=token-123"),
-		);
+		expect(cookie).toHaveBeenCalledWith("access_token", "token-123", {
+			httpOnly: true,
+			sameSite: "lax",
+			maxAge: 60 * 60 * 1000,
+		});
 		expect(redirect).toHaveBeenCalledWith("/");
 	});
 
@@ -111,19 +112,16 @@ describe("login controller", () => {
 	});
 
 	it("clears token cookie and redirects on logout", () => {
-		const setHeader = vi.fn();
+		const clearCookie = vi.fn().mockReturnThis();
 		const redirect = vi.fn();
 		const controller = createController();
 
 		controller.postLogout(
 			{} as Request,
-			{ setHeader, redirect } as unknown as Response,
+			{ clearCookie, redirect } as unknown as Response,
 		);
 
-		expect(setHeader).toHaveBeenCalledWith(
-			"Set-Cookie",
-			expect.stringContaining("Max-Age=0"),
-		);
+		expect(clearCookie).toHaveBeenCalledWith("access_token");
 		expect(redirect).toHaveBeenCalledWith("/");
 	});
 });
