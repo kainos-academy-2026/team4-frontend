@@ -1,7 +1,10 @@
 import { Router } from "express";
 
-import { LoginController } from "../controllers/loginController";
-import { getLogin, postLogout } from "../controllers/loginController";
+import {
+	getLogin,
+	LoginController,
+	postLogout,
+} from "../controllers/loginController";
 import { LoginService } from "../services/loginService";
 
 const loginService = new LoginService();

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 
+import type { LoginRequestDto } from "../dto/loginDto";
 import { type LoginService, LoginServiceError } from "../services/loginService";
 
 const clearAccessTokenCookieHeader = (): string => {
@@ -20,7 +21,7 @@ export class LoginController {
 	};
 
 	postLogin = async (request: Request, response: Response): Promise<void> => {
-		const { email, password } = request.body as Record<string, unknown>;
+		const { email, password } = request.body as LoginRequestDto;
 
 		try {
 			const accessToken = await this.loginService.authenticate({
