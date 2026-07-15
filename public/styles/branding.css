@@ -482,7 +482,13 @@ tbody tr:last-child td {
 }
 
 .badge--closed {
-  background: #fff4e6;
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.badge--in-progress {
+  background: #fff7ed;
   color: #c2410c;
   border-color: #fdba74;
 }
