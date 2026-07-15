@@ -43,7 +43,11 @@ describe("login controller", () => {
 					password: "Password123!",
 				},
 			} as Request,
-			{ cookie, redirect } as unknown as Response,
+			{
+				locals: {},
+				cookie,
+				redirect,
+			} as unknown as Response,
 		);
 
 		expect(authenticate).toHaveBeenCalledWith({
@@ -56,6 +60,30 @@ describe("login controller", () => {
 			maxAge: 60 * 60 * 1000,
 		});
 		expect(redirect).toHaveBeenCalledWith("/");
+	});
+
+	it("renders validation error when request body has validation errors", async () => {
+		const authenticate = vi.fn();
+		const controller = createController(authenticate);
+
+		const render = vi.fn();
+		const status = vi.fn(() => ({ render }));
+
+		await controller.postLogin(
+			{
+				body: {},
+			} as Request,
+			{
+				locals: { errors: { message: "validation error" } },
+				status,
+			} as unknown as Response,
+		);
+
+		expect(status).toHaveBeenCalledWith(400);
+		expect(render).toHaveBeenCalledWith("login", {
+			errorMessage: "Please enter both your email and password.",
+		});
+		expect(authenticate).not.toHaveBeenCalled();
 	});
 
 	it("renders 401 error when backend returns invalid credentials", async () => {
@@ -79,12 +107,12 @@ describe("login controller", () => {
 					password: "wrong",
 				},
 			} as Request,
-			{ status } as unknown as Response,
+			{ locals: {}, status } as unknown as Response,
 		);
 
 		expect(status).toHaveBeenCalledWith(401);
 		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Invalid email or password. Please try again.",
+			errorMessage: "Login failed. Please try again.",
 		});
 	});
 
@@ -102,12 +130,12 @@ describe("login controller", () => {
 					password: "Password123!",
 				},
 			} as Request,
-			{ status } as unknown as Response,
+			{ locals: {}, status } as unknown as Response,
 		);
 
-		expect(status).toHaveBeenCalledWith(500);
+		expect(status).toHaveBeenCalledWith(401);
 		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Something went wrong. Please try again.",
+			errorMessage: "Login failed. Please try again.",
 		});
 	});
 

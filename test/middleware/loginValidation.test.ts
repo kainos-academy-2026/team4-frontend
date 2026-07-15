@@ -1,26 +1,26 @@
 import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 
-import { validateLoginBody } from "../../src/middleware/loginValidation";
+import { LoginRequestSchema } from "../../src/dto/loginDto";
+import { validateBody } from "../../src/middleware/loginValidation";
 
-describe("validateLoginBody", () => {
-	it("renders a login error when fields are missing", () => {
-		const render = vi.fn();
-		const status = vi.fn(() => ({ render }));
+describe("validateBody", () => {
+	it("stores validation errors in res.locals.errors", () => {
+		const next = vi.fn() as NextFunction;
+		const response = { locals: {} } as Response;
+		const middleware = validateBody(LoginRequestSchema);
 
-		validateLoginBody(
+		middleware(
 			{ body: {} } as Request,
-			{ status } as unknown as Response,
-			vi.fn() as NextFunction,
+			response,
+			next,
 		);
 
-		expect(status).toHaveBeenCalledWith(400);
-		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Please enter both your email and password.",
-		});
+		expect(response.locals.errors).toBeDefined();
+		expect(next).toHaveBeenCalledOnce();
 	});
 
-	it("passes valid login data through", () => {
+	it("passes valid data through and calls next", () => {
 		const next = vi.fn() as NextFunction;
 		const request = {
 			body: {
@@ -28,8 +28,9 @@ describe("validateLoginBody", () => {
 				password: "Password123!",
 			},
 		} as Request;
+		const middleware = validateBody(LoginRequestSchema);
 
-		validateLoginBody(request, {} as Response, next);
+		middleware(request, { locals: {} } as Response, next);
 
 		expect(request.body).toEqual({
 			email: "test@example.com",

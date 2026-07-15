@@ -1,7 +1,11 @@
 import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
-import { type LoginService, LoginServiceError } from "../services/loginService";
+import type { LoginService } from "../services/loginService";
+import {
+	clearAccessTokenCookie,
+	setAccessTokenCookie,
+} from "../utils/cookieHelpers";
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
@@ -13,6 +17,14 @@ export class LoginController {
 	};
 
 	postLogin = async (request: Request, response: Response): Promise<void> => {
+		// Check for errors from middleware
+		if (response.locals.errors) {
+			response.status(400).render("login", {
+				errorMessage: "Please enter both your email and password.",
+			});
+			return;
+		}
+
 		const { email, password } = request.body as LoginRequestDto;
 
 		try {
@@ -21,28 +33,17 @@ export class LoginController {
 				password,
 			});
 
-			response.cookie("access_token", accessToken, {
-				httpOnly: true,
-				sameSite: "lax",
-				maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
-			});
+			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
-		} catch (error) {
-			if (error instanceof LoginServiceError) {
-				response.status(error.statusCode).render("login", {
-					errorMessage: error.message,
-				});
-				return;
-			}
-
-			response.status(500).render("login", {
-				errorMessage: "Something went wrong. Please try again.",
+		} catch (_error) {
+			response.status(401).render("login", {
+				errorMessage: "Login failed. Please try again.",
 			});
 		}
 	};
 
 	postLogout = (_request: Request, response: Response): void => {
-		response.clearCookie("access_token");
+		clearAccessTokenCookie(response);
 		response.redirect("/");
 	};
 }
@@ -55,6 +56,6 @@ export const getLogin = (_request: Request, response: Response): void => {
 };
 
 export const postLogout = (_request: Request, response: Response): void => {
-	response.clearCookie("access_token");
+	clearAccessTokenCookie(response);
 	response.redirect("/");
 };

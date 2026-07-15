@@ -1,23 +1,25 @@
 import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 
+import { SignJWT } from "jose";
 import { setAuthContext } from "../../src/middleware/authContext";
 
+const SECRET = new TextEncoder().encode("test-secret-key");
+
 describe("setAuthContext", () => {
-	it("stores auth state in res.locals", () => {
+	it("stores auth state in res.locals", async () => {
 		const next = vi.fn() as unknown as NextFunction;
-		const jwtPayload = Buffer.from(
-			JSON.stringify({ email: "test@example.com" }),
-		).toString("base64url");
-		const token = `header.${jwtPayload}.signature`;
+		const token = await new SignJWT({ email: "test@example.com" })
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(SECRET);
 		const response = {
 			locals: {},
 		} as Response;
 
 		setAuthContext(
 			{
-				headers: {
-					cookie: `access_token=${token}`,
+				cookies: {
+					access_token: token,
 				},
 			} as Request,
 			response,
@@ -37,7 +39,7 @@ describe("setAuthContext", () => {
 			locals: {},
 		} as Response;
 
-		setAuthContext({ headers: {} } as Request, response, next);
+		setAuthContext({ cookies: {} } as Request, response, next);
 
 		expect(response.locals).toEqual({
 			isAuthenticated: false,

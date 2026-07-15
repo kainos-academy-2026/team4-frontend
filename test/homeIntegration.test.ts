@@ -1,9 +1,20 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 
+import { SignJWT } from "jose";
 import app from "../src/app";
 
+const SECRET = new TextEncoder().encode("test-secret-key");
+
 describe("home branding integration", () => {
+	let authToken: string;
+
+	beforeAll(async () => {
+		authToken = await new SignJWT({ email: "test@example.com" })
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(SECRET);
+	});
+
   it("serves branded home markup at /", async () => {
     const response = await request(app).get("/");
 
@@ -39,13 +50,9 @@ describe("home branding integration", () => {
   });
 
   it("renders logged-in home state when access_token cookie is present", async () => {
-    const payload = Buffer.from(
-      JSON.stringify({ email: "test@example.com" }),
-    ).toString("base64url");
-    const token = `header.${payload}.signature`;
     const response = await request(app)
       .get("/")
-      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+      .set("Cookie", [`access_token=${encodeURIComponent(authToken)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Welcome back, test@example.com");

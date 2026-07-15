@@ -1,65 +1,36 @@
 import type { NextFunction, Request, Response } from "express";
 
-const ACCESS_TOKEN_COOKIE = "access_token";
+let decodeJwtFn: ((token: string) => Record<string, unknown>) | undefined;
 
-const parseCookies = (
-	cookieHeader: string | undefined,
-): Map<string, string> => {
-	if (!cookieHeader) {
-		return new Map();
+const getDecoder = async () => {
+	if (!decodeJwtFn) {
+		const jose = await import("jose");
+		decodeJwtFn = jose.decodeJwt;
 	}
-
-	return new Map(
-		cookieHeader
-			.split(";")
-			.map((segment) => segment.trim())
-			.filter((segment) => segment.length > 0)
-			.map((segment) => {
-				const equalsIndex = segment.indexOf("=");
-				if (equalsIndex < 0) {
-					return [segment, ""];
-				}
-
-				const key = segment.slice(0, equalsIndex);
-				const value = segment.slice(equalsIndex + 1);
-				return [key, decodeURIComponent(value)];
-			}),
-	);
+	return decodeJwtFn;
 };
 
-const getAccessTokenFromRequest = (request: Request): string | null => {
-	const cookies = parseCookies(request.headers.cookie);
-	const token = cookies.get(ACCESS_TOKEN_COOKIE);
-	return token ?? null;
-};
-
-const getEmailFromJwtPayload = (accessToken: string): string | null => {
-	const tokenParts = accessToken.split(".");
-	if (tokenParts.length < 2) {
-		return null;
-	}
-
-	const payloadPart = tokenParts[1];
-	if (!payloadPart) {
-		return null;
-	}
-
-	try {
-		const payloadText = Buffer.from(payloadPart, "base64url").toString("utf8");
-		const payload = JSON.parse(payloadText) as { email?: unknown };
-		return typeof payload.email === "string" ? payload.email : null;
-	} catch {
-		return null;
-	}
-};
+// Preload decoder to avoid first-request latency
+getDecoder().catch(() => {
+	// Initialization error - will retry on first use
+});
 
 export const setAuthContext = (
 	request: Request,
 	response: Response,
 	next: NextFunction,
 ): void => {
-	const accessToken = getAccessTokenFromRequest(request);
-	const userEmail = accessToken ? getEmailFromJwtPayload(accessToken) : null;
+	const accessToken = request.cookies.access_token as string | undefined;
+
+	let userEmail: string | null = null;
+	if (accessToken && decodeJwtFn) {
+		try {
+			const payload = decodeJwtFn(accessToken) as { email?: unknown };
+			userEmail = typeof payload.email === "string" ? payload.email : null;
+		} catch {
+			// ignore JWT decoding errors
+		}
+	}
 
 	response.locals.isAuthenticated = Boolean(accessToken);
 	response.locals.userEmail = userEmail;
