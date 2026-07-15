@@ -14,10 +14,15 @@ describe("home page template", () => {
     const html = environment.render("index.njk", {
      
       isAuthenticated: false,
+<<<<<<< HEAD:test/views/index.njk.test.ts
       userEmail: null,
    ,
+=======
+>>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
       jobRoles: [],
       errorMessage: null,
+   ,
+      userEmail: null,
     });
 
     expect(html).toContain("Welcome to Kainos Careers");
@@ -100,7 +105,10 @@ describe("home page template", () => {
     expect(html).toContain("Welcome back, test@example.com");
     expect(html).toContain('action="/logout"');
     expect(html).toContain("Log out");
+<<<<<<< HEAD:test/views/index.njk.test.ts
     expect(html).not.toContain('href="/register"');
+=======
+>>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
   });
 
@@ -119,7 +127,10 @@ describe("home page template", () => {
     expect(html).toContain("Welcome back, test@example.com");
     expect(html).toContain('action="/logout"');
     expect(html).toContain("Log out");
+<<<<<<< HEAD:test/views/index.njk.test.ts
     expect(html).not.toContain('href="/register"');
+=======
+>>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
   });
 });

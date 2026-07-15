@@ -85,3 +85,8 @@ export const postLogout = (_request: Request, response: Response): void => {
 	clearAccessTokenCookie(response);
 	response.redirect("/");
 };
+
+export const postLogout = (_request: Request, response: Response): void => {
+	clearAccessTokenCookie(response);
+	response.redirect("/");
+};

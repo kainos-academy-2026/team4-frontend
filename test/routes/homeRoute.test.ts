@@ -2,7 +2,13 @@ import request from "supertest";
 import { describe, expect, it, beforeAll } from "vitest";
 
 import { SignJWT } from "jose";
+<<<<<<< HEAD:test/routes/homeRoute.test.ts
 import app from "../../src/app";
+
+const SECRET = new TextEncoder().encode("test-secret-key");
+=======
+import app from "../src/app";
+>>>>>>> d5d5ae0 (Wired login with backend (#14)):test/homeIntegration.test.ts
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 

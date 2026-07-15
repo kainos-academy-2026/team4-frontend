@@ -24,6 +24,11 @@
         </form>
         {% else %}
         <a class="kainos-header-link" href="/register">Register</a>
+        {% if isAuthenticated %}
+        <form method="post" action="/logout">
+          <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
+        </form>
+        {% else %}
         <a class="kainos-header-link" href="/login">Log in</a>
         {% endif %}
       </nav>
@@ -41,8 +46,6 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
-
-    <script src="/scripts/auth.js"></script>
     <script src="/scripts/job-application.js"></script>
     <script src="/scripts/scroll-reveal.js"></script>
     <script>
