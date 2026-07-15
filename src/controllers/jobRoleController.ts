@@ -1,31 +1,10 @@
 import type { Request, Response } from "express";
 import type { JobRole } from "../models/jobRole";
 import { jobRoleIdSchema } from "../models/jobRole";
-import type { JobRoleListPage } from "../models/jobRoleListModels";
 import type { JobRoleService } from "../services/jobRoleService";
 
 export class JobRoleController {
 	constructor(private readonly jobRoleService: JobRoleService) {}
-
-	async renderListPage(_request: Request, response: Response): Promise<void> {
-		try {
-			const jobRoles = await this.jobRoleService.getOpenRoles();
-
-			const viewModel: JobRoleListPage = {
-				errorMessage: null,
-				jobRoles,
-			};
-
-			response.render("job-role-list", viewModel);
-		} catch (controllerError) {
-			console.error(controllerError);
-
-			response.render("job-role-list", {
-				errorMessage: "Something went wrong. Please try again later.",
-				jobRoles: [],
-			} satisfies JobRoleListPage);
-		}
-	}
 
 	async renderDetailPage(request: Request, response: Response): Promise<void> {
 		try {

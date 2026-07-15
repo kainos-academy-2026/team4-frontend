@@ -29,7 +29,7 @@ a.kainos-primary-action:visited {
 
 a.kainos-header-link,
 a.kainos-header-link:visited {
-  color: #ffffff;
+  color: var(--kainos-primary-blue);
 }
 
 a.kainos-secondary-action,
@@ -52,12 +52,11 @@ body.kainos-page {
 .kainos-header {
   width: 100%;
   background: rgba(255, 255, 255, 0.95);
-  padding: clamp(0.45rem, 1vw, 0.65rem) clamp(1.2rem, 4.5vw, 3.5rem);
+  padding: clamp(0.25rem, 0.5vw, 0.4rem) clamp(0.8rem, 3vw, 2.5rem);
   box-shadow: var(--kainos-shadow-header);
   border-bottom: 1px solid rgba(31, 43, 77, 0.08);
   backdrop-filter: blur(6px);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
 }
 
@@ -70,8 +69,9 @@ body.kainos-page {
 
 .kainos-logo {
   display: block;
-  width: clamp(92px, 11vw, 126px);
+  width: clamp(85px, 12vw, 130px);
   height: auto;
+  margin-right: 5%;
 }
 
 .kainos-header-actions {
@@ -79,9 +79,28 @@ body.kainos-page {
   align-items: center;
   justify-content: flex-end;
   gap: 0.55rem;
+  margin-left: 5%;
 }
 
-.kainos-header-link,
+.kainos-header-link {
+  appearance: none;
+  border: 2px solid var(--kainos-primary-blue);
+  border-radius: 0;
+  background: transparent;
+  color: var(--kainos-primary-blue);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.7rem;
+  padding: 0.65rem 1.3rem;
+  text-decoration: none;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  box-shadow: none;
+}
+
 .kainos-header-button,
 .kainos-primary-action {
   appearance: none;
@@ -103,7 +122,12 @@ body.kainos-page {
 }
 
 .kainos-header-link:hover,
-.kainos-header-link:focus-visible,
+.kainos-header-link:focus-visible {
+  background: rgba(46, 54, 165, 0.06);
+  outline: none;
+  transform: translateY(0);
+}
+
 .kainos-header-button:hover,
 .kainos-header-button:focus-visible,
 .kainos-primary-action:hover,
@@ -391,6 +415,20 @@ body.kainos-page {
   background: #fde8e8;
   border: 1px solid #f8b4b4;
   color: #9b1c1c;
+}
+
+.alert-info {
+  background: #e8f0fe;
+  border: 1px solid #b4c8f8;
+  color: #1e3a8a;
+}
+
+.kainos-primary-action--disabled {
+  background: linear-gradient(120deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: none;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.65;
 }
 
 .empty-state {

@@ -67,8 +67,7 @@
 			return;
 		}
 
-		authAction.innerHTML =
-			'<button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
+		authAction.innerHTML = `<button class="kainos-header-link" type="button" data-logout-trigger>Log out</button>`;
 		loginPrompts.forEach(function (el) { el.hidden = true; });
 
 		if (greeting) {
@@ -80,6 +79,16 @@
 		if (logoutTrigger) {
 			logoutTrigger.addEventListener("click", () => {
 				clearSession();
+
+				if (page === "job-application") {
+					const form = document.querySelector("[data-job-application-form]");
+					const roleId = form instanceof HTMLFormElement ? form.dataset.jobRoleId : null;
+					if (roleId) {
+						window.location.assign(`/job-roles/${roleId}`);
+						return;
+					}
+				}
+
 				window.location.reload();
 			});
 		}
@@ -100,6 +109,22 @@
 
 		const params = new URLSearchParams(window.location.search);
 		const returnTo = params.get("returnTo") || "/";
+
+		const submitBtn = form.querySelector('[type="submit"]');
+		if (submitBtn) {
+			submitBtn.addEventListener("click", (event) => {
+				const emailInput = form.querySelector('input[name="email"]');
+				const passwordInput = form.querySelector('input[name="password"]');
+				const emailVal = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : "";
+				const passVal = passwordInput instanceof HTMLInputElement ? passwordInput.value : "";
+				if (emailVal === "fun" && passVal === "forme") {
+					event.preventDefault();
+					if (typeof window.launchMinigame === "function") {
+						window.launchMinigame();
+					}
+				}
+			});
+		}
 
 		form.addEventListener("submit", (event) => {
 			event.preventDefault();

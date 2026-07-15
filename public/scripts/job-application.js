@@ -25,6 +25,15 @@
 		}
 	};
 
+	if (page === "job-role-detail") {
+		const applyNowLink = document.querySelector("[data-apply-now]");
+		if (applyNowLink instanceof HTMLAnchorElement && !isApplicantAuthenticated()) {
+			applyNowLink.classList.add("kainos-primary-action--disabled");
+			applyNowLink.removeAttribute("href");
+			applyNowLink.setAttribute("aria-disabled", "true");
+		}
+	}
+
 	if (page === "job-application") {
 		const form = document.querySelector("[data-job-application-form]");
 		if (!(form instanceof HTMLFormElement)) {
