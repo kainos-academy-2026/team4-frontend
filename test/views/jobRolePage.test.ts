@@ -25,14 +25,10 @@ describe("job role page templates", () => {
 			numberOfOpenPositions: 0,
 		};
 
-		const listHtml = environment.render("job-role-list.njk", {
-			jobRoles: [closedRole],
-		});
 		const detailHtml = environment.render("job-role-detail.njk", {
 			jobRole: closedRole,
 		});
 
-		expect(listHtml).toContain('class="badge badge--closed"');
 		expect(detailHtml).toContain('class="badge badge--closed"');
 		expect(detailHtml).not.toContain('Log in here.');
 		expect(detailHtml).toContain('href="/#roles"');

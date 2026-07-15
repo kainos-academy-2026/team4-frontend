@@ -55,10 +55,14 @@
 				<section class="empty-state" aria-label="Apply for this role">
 					<h2>Apply for this role</h2>
 					<p>Applicants can upload a CV and start an application.</p>
+					<div class="alert alert-info" data-login-prompt hidden>
+						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
+					</div>
 					<p>
 						<a
 							class="kainos-primary-action"
 							href="/job-roles/{{ jobRole.id }}/apply"
+							data-apply-now
 						>
 							Apply now
 						</a>
