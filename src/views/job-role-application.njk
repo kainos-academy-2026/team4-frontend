@@ -149,7 +149,93 @@
 			</form>
 
 			<section class="empty-state" data-application-confirmation hidden aria-live="polite">
-				<h2>Application submitted</h2>
+				<h2 data-application-confirmation-heading>Application submitted</h2>
+				<p data-application-confirmation-text></p>
+			</section>
+			{% endif %}
+			{% else %}
+			<h1>Apply for Job Role</h1>
+			<p class="subtitle">Upload your CV to start your application.</p>
+
+			{% if errorMessage %}
+			<div class="alert alert-error" role="alert">{{ errorMessage }}</div>
+			{% endif %}
+			{% endif %}
+		</main>
+
+		<footer class="kainos-footer" aria-label="Contact information">
+			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
+			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+		</footer>
+		<script src="/scripts/auth.js"></script>
+		<script src="/scripts/job-application.js"></script>
+	</body>
+</html><!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Apply for Job Role</title>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="stylesheet" href="/styles/branding.css" />
+	</head>
+	<body class="kainos-page" data-page="job-application">
+		<header class="kainos-header" aria-label="Kainos brand banner">
+			<a href="/"><img
+				class="kainos-logo"
+				src="/images/kainoslogo.png"
+				alt="Kainos home"
+			/></a>
+			<nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+				<a class="kainos-header-link" href="/login">Log in</a>
+			</nav>
+		</header>
+
+		<main class="page">
+			<nav class="kainos-page-nav" aria-label="Breadcrumb">
+				<a class="kainos-secondary-action" href="/#roles">Job roles</a>
+				{% if jobRole %}
+				<span class="kainos-breadcrumb-sep" aria-hidden="true">›</span>
+				<a class="kainos-secondary-action" href="/job-roles/{{ jobRole.id }}">{{ jobRole.roleName }}</a>
+				<span class="kainos-breadcrumb-sep" aria-hidden="true">›</span>
+				<span class="kainos-breadcrumb-current">Apply</span>
+				{% endif %}
+			</nav>
+
+			{% if jobRole %}
+			<h1>Apply: {{ jobRole.roleName }}</h1>
+			<p class="subtitle">Upload your CV to register interest for this role.</p>
+
+			{% if errorMessage %}
+			<div class="alert alert-error" role="alert">{{ errorMessage }}</div>
+			{% endif %}
+
+			{% if canApply %}
+			<form
+				class="kainos-auth-card"
+				data-job-application-form
+				data-job-role-id="{{ jobRole.id }}"
+				enctype="multipart/form-data"
+			>
+				<label class="kainos-field" for="cvFile">
+					<span>CV Upload</span>
+					<input
+						id="cvFile"
+						type="file"
+						name="cvFile"
+						accept=".pdf,.doc,.docx"
+						required
+						data-cv-file-input
+					/>
+				</label>
+				<p class="kainos-form-error" data-application-error aria-live="polite" hidden></p>
+				<button class="kainos-primary-action" type="submit" data-submit-application>
+					Submit application
+				</button>
+			</form>
+
+			<section class="empty-state" data-application-confirmation hidden aria-live="polite">
+				<h2 data-application-confirmation-heading>Application submitted</h2>
 				<p data-application-confirmation-text></p>
 			</section>
 			{% endif %}

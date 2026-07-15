@@ -240,24 +240,42 @@
 
 	const page = body.dataset.page;
 
+	const getAuthToken = () => window.sessionStorage.getItem("demoAuthToken");
+
 	const isApplicantAuthenticated = () => {
 		const email = window.sessionStorage.getItem("demoAuthEmail");
-		const token = window.sessionStorage.getItem("demoAuthToken");
+		const token = getAuthToken();
 		return Boolean(email && token);
 	};
 
-	const parseStoredApplications = () => {
-		const raw = window.sessionStorage.getItem("demoJobApplications");
-		if (!raw) {
-			return {};
-		}
-
-		try {
-			return JSON.parse(raw);
-		} catch {
-			return {};
-		}
+	const getBearerHeader = () => {
+		const token = getAuthToken();
+		return token ? `Bearer ${token}` : null;
 	};
+
+	if (page === "home") {
+		if (isApplicantAuthenticated()) {
+			const bearerHeader = getBearerHeader();
+			const badges = document.querySelectorAll("[data-role-status-badge]");
+			badges.forEach(function (badge) {
+				if (!(badge instanceof HTMLElement)) return;
+				const roleId = badge.dataset.roleStatusBadge;
+				if (!roleId || !bearerHeader) return;
+				window.fetch(`/job-roles/${roleId}/applications/me`, {
+					headers: { Authorization: bearerHeader },
+				}).then(function (res) {
+					if (!res.ok) return null;
+					return res.json();
+				}).then(function (data) {
+					if (!data) return;
+					badge.textContent = "In Progress";
+					badge.className = "badge badge--in-progress";
+				}).catch(function () {
+					// best-effort
+				});
+			});
+		}
+	}
 
 	if (page === "job-role-detail") {
 		const applyNowLink = document.querySelector("[data-apply-now]");
@@ -265,6 +283,36 @@
 			applyNowLink.classList.add("kainos-primary-action--disabled");
 			applyNowLink.removeAttribute("href");
 			applyNowLink.setAttribute("aria-disabled", "true");
+		}
+
+		if (isApplicantAuthenticated()) {
+			const applySection = document.querySelector("[data-apply-section]");
+			if (applySection instanceof HTMLElement) {
+				const roleId = applySection.dataset.jobRoleId;
+				const bearerHeader = getBearerHeader();
+				if (roleId && bearerHeader) {
+					window.fetch(`/job-roles/${roleId}/applications/me`, {
+						headers: { Authorization: bearerHeader },
+					}).then(function (res) {
+						if (!res.ok) return null;
+						return res.json();
+					}).then(function (data) {
+						if (!data) return;
+						const statusEl = document.querySelector("[data-application-status]");
+						if (statusEl instanceof HTMLElement) {
+							statusEl.textContent = `You have an application in progress for this role. You can re-upload your CV using the Apply now button.`;
+							statusEl.hidden = false;
+						}
+						const statusBadge = document.querySelector("[data-role-status-badge]");
+						if (statusBadge instanceof HTMLElement) {
+							statusBadge.textContent = "In Progress";
+							statusBadge.className = "badge badge--in-progress";
+						}
+					}).catch(function () {
+						// status fetch is best-effort; silent failure is acceptable
+					});
+				}
+			}
 		}
 	}
 
@@ -293,6 +341,21 @@
 			errorRegion.hidden = message.length === 0;
 		};
 
+		const showConfirmation = (status, cvFileName) => {
+			if (confirmationSection instanceof HTMLElement) {
+				confirmationSection.hidden = false;
+			}
+			const heading = document.querySelector("[data-application-confirmation-heading]");
+			if (heading instanceof HTMLElement) {
+				heading.textContent = status === "updated" ? "CV updated" : "Application submitted";
+			}
+			if (confirmationText instanceof HTMLElement) {
+				const label = status === "updated" ? "Your CV has been updated" : `Status: ${status.replace("_", " ")}`;
+				confirmationText.textContent = `${label}. CV uploaded: ${cvFileName}`;
+			}
+			form.hidden = true;
+		};
+
 		if (!isApplicantAuthenticated()) {
 			if (submitButton instanceof HTMLButtonElement) {
 				submitButton.disabled = true;
@@ -306,7 +369,31 @@
 			return;
 		}
 
-		form.addEventListener("submit", (event) => {
+		const roleId = form.dataset.jobRoleId;
+		const bearerHeader = getBearerHeader();
+		let hasExistingApplication = false;
+
+		if (roleId && bearerHeader) {
+			window.fetch(`/job-roles/${roleId}/applications/me`, {
+				headers: { Authorization: bearerHeader },
+			}).then(function (res) {
+				if (!res.ok) return null;
+				return res.json();
+			}).then(function (data) {
+				if (!data) return;
+				hasExistingApplication = true;
+				if (confirmationSection instanceof HTMLElement) {
+					confirmationSection.hidden = false;
+				}
+				if (confirmationText instanceof HTMLElement) {
+					confirmationText.textContent = `You have an active application for this role (CV: ${data.cvFileName ?? "on file"}). You can upload a new CV below to update it.`;
+				}
+			}).catch(function () {
+				// status fetch is best-effort; continue to show form
+			});
+		}
+
+		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 			setError("");
 
@@ -316,7 +403,6 @@
 			}
 
 			const cvFile = fileInput.files[0];
-			const roleId = form.dataset.jobRoleId;
 			if (!roleId) {
 				setError("Unable to submit application for this role.");
 				return;
