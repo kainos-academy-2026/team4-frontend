@@ -18,7 +18,8 @@ export class HomeController {
 			response.render("index", {
 				demoAuthEnabled: isDemoAuthEnabled(),
 				jobRoles: [],
-				errorMessage: "Something went wrong loading job roles. Please try again later.",
+				errorMessage:
+					"Something went wrong loading job roles. Please try again later.",
 			});
 		}
 	}
