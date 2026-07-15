@@ -10,7 +10,6 @@
   <body
     class="kainos-page"
     data-page="home"
-    data-demo-auth-enabled="{{ demoAuthEnabled | dump | safe }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
       <a href="/"><img
@@ -19,7 +18,13 @@
         alt="Kainos home"
       /></a>
       <nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+        {% if isAuthenticated %}
+        <form method="post" action="/logout">
+          <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
+        </form>
+        {% else %}
         <a class="kainos-header-link" href="/login">Log in</a>
+        {% endif %}
       </nav>
     </header>
 
@@ -27,7 +32,10 @@
       <section class="kainos-hero" aria-label="Welcome to Kainos">
         <div class="kainos-home-copy">
           <h1>Welcome to Kainos Careers</h1>
-          <p class="kainos-greeting" data-auth-greeting hidden></p>
+          {% if isAuthenticated and userEmail %}
+        <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
+        {% else %}
+        <p class="kainos-greeting" data-auth-greeting hidden></p>
           <p class="kainos-hero-subtitle">Explore open opportunities and take the next step in your career.</p>
           <a class="kainos-scroll-cta" href="#roles" aria-label="Browse open roles">
             Browse open roles
@@ -88,7 +96,8 @@
             <p>No open job roles are available right now.</p>
           </div>
           {% endif %}
-        </div>
+          {% endif %}
+      </div>
       </section>
     </main>
 
@@ -96,8 +105,6 @@
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
-
-    <script src="/scripts/auth.js"></script>
     <script src="/scripts/job-application.js"></script>
     <script src="/scripts/scroll-reveal.js"></script>
     <script>

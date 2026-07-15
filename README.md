@@ -79,24 +79,28 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 ## Endpoints
 
 - `GET /` renders the branded home page with open job roles.
-- `GET /login` renders the demo login page.
+- `GET /login` renders the login page.
+- `POST /login` submits credentials to backend `POST /auth/login`.
+- `POST /logout` clears the frontend auth cookie.
 - `POST /api/login` proxies login to the backend auth endpoint.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
 	- `time`: current timestamp in ISO-8601 format
+- `GET /job-roles` renders open job roles.
+  - Calls backend `GET /job-roles` using Axios.
+  - Falls back to frontend mock data when backend is unavailable and `USE_JOB_ROLE_FALLBACK_MOCK=true`.
 - `GET /job-roles/:id` renders the job role detail page.
 - `GET /job-roles/:id/apply` renders the job application page.
 - `POST /job-roles/:id/applications` uploads a CV for a role.
 - `GET /job-roles/:id/applications/me` fetches the logged-in user's application status.
 
-## Demo Login
+## Login Integration
 
-- Set `ENABLE_DEMO_AUTH=true` to enable the frontend-only demo login flow.
-- Demo credentials:
-	- Email: `test@test.com`
-	- Password: `passwordtest`
-- On successful login, a fake JWT-shaped token and the user email are stored in `sessionStorage`.
-- This is a frontend-only demo flow and does not call a backend or validate real password hashes.
+- Login form sends `email` and `password` to backend `/auth/login`.
+- Backend is expected to return JSON: `{ "accessToken": "..." }`.
+- Frontend stores `accessToken` in an HttpOnly cookie named `access_token`.
+- Home page reads that cookie and displays a greeting when a token is present.
+- Logout clears the cookie and redirects back to home.
 
 Example health response:
 
@@ -110,22 +114,12 @@ Example health response:
 ## Acceptance Criteria Checks
 
 1. Run `npm run build` and confirm `dist` is created.
-2. Run `npm run dev` and open `http://localhost:3000/`.
-3. Click `Log in` and confirm `http://localhost:3000/login` renders the branded login form.
-4. Submit invalid credentials and confirm the page stays on `/login` and shows an error.
-5. Submit `test@test.com` and `passwordtest` with `ENABLE_DEMO_AUTH=true` and confirm the app redirects to `/`, shows `Welcome back, test@test.com`, and swaps `Log in` for `Log out`.
-6. Click `Log out` and confirm the session is cleared and the home page returns to the logged-out state.
-7. Request `http://localhost:3000/health` and confirm `status` + `time`.
-8. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
-9. Run `npm ci` and `npm run build` again to confirm reproducibility.
-
-## STEPS FOR DEMO
-1. Run 'ENABLE_DEMO_AUTH=true npm run dev' to enter test mode.
-2. Navigate to login page
-3. *OPTIONAL* Enter invalid credentials first 
-	e.g - email without an @
-	e.g - random login details (random@test.com, password)
-	e.g - correct email, wrong password (test@test.com, test)
-4. Enter valid credentials (test@test.com, passwordtest)
-5. Renavigate to home page to show welcome message
-6. Click logout button
+2. Run the backend API and ensure `POST /auth/login` is available.
+3. Run frontend with `API_BASE_URL` pointing to backend, then open the frontend URL.
+4. Confirm `/` and `/login` render correctly.
+5. Submit invalid credentials and confirm `/login` shows an error.
+6. Submit valid credentials and confirm redirect to `/` with logged-in state visible.
+7. Click `Log out` and confirm the app returns to logged-out state.
+8. Request `/health` on the frontend and confirm `status` + `time`.
+9. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
+10. Run `npm ci` and `npm run build` again to confirm reproducibility.

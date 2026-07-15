@@ -2,7 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
+import { setAuthContext } from "./middleware/authContext";
+import cookieParserMiddleware from "./middleware/cookieParser";
 import router from "./routes";
+
+// Validate required environment variables at startup
+if (!process.env.API_BASE_URL) {
+	throw new Error("API_BASE_URL environment variable is required");
+}
 
 const app: Express = express();
 const viewsPath = path.join(__dirname, "views");
@@ -31,7 +38,9 @@ app.set("views", viewsPath);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParserMiddleware);
 app.use(express.static(publicPath));
+app.use(setAuthContext);
 
 app.use(router);
 

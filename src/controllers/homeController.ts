@@ -1,6 +1,4 @@
 import type { Request, Response } from "express";
-
-import { isDemoAuthEnabled } from "../config/auth";
 import type { JobRoleService } from "../services/jobRoleService.js";
 
 export class HomeController {
@@ -15,8 +13,11 @@ export class HomeController {
 				errorMessage: null,
 			});
 		} catch {
-			response.render("index", {
-				demoAuthEnabled: isDemoAuthEnabled(),
+			const { isAuthenticated, userEmail } = response.locals;
+
+	response.render("index", {
+				isAuthenticated,
+		userEmail,
 				jobRoles: [],
 				errorMessage:
 					"Something went wrong loading job roles. Please try again later.",
