@@ -7,6 +7,11 @@ import { setAuthContext } from "./middleware/authContext";
 import cookieParserMiddleware from "./middleware/cookieParser";
 import router from "./routes";
 
+// Validate required environment variables at startup
+if (!process.env.API_BASE_URL) {
+	throw new Error("API_BASE_URL environment variable is required");
+}
+
 const app: Express = express();
 const viewsPath = path.join(__dirname, "views");
 const distPublicPath = path.join(__dirname, "..", "dist", "public");

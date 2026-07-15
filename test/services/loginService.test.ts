@@ -1,33 +1,43 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import {
-	LoginService,
-	LoginServiceError,
-} from "../../src/services/loginService";
+import apiClient from "../../src/config/apiClient";
+import { LoginService } from "../../src/services/loginService";
+import { LoginServiceError } from "../../src/services/loginServiceError";
+
+vi.mock("../../src/config/apiClient");
 
 describe("LoginService", () => {
-	it("returns an access token when authentication succeeds", async () => {
-		const fetchFn = vi.fn().mockResolvedValue({
-			ok: true,
-			status: 200,
-			json: vi.fn().mockResolvedValue({ accessToken: "token-123" }),
-		});
-		const service = new LoginService("http://example.com", fetchFn as never);
-
-		await expect(
-			service.authenticate({
-				email: "test@example.com",
-				password: "Password123!",
-			}),
-		).resolves.toBe("token-123");
+	beforeEach(() => {
+		vi.clearAllMocks();
 	});
 
-	it("throws a 401 error for invalid credentials", async () => {
-		const fetchFn = vi.fn().mockResolvedValue({
-			ok: false,
-			status: 401,
+	it("returns an access token when authentication succeeds", async () => {
+		const mockPost = vi.fn().mockResolvedValue({
+			data: { accessToken: "token-123" },
 		});
-		const service = new LoginService("http://example.com", fetchFn as never);
+		vi.mocked(apiClient).post = mockPost;
+
+		const service = new LoginService();
+
+		const token = await service.authenticate({
+			email: "test@example.com",
+			password: "Password123!",
+		});
+
+		expect(token).toBe("token-123");
+		expect(mockPost).toHaveBeenCalledWith("/auth/login", {
+			email: "test@example.com",
+			password: "Password123!",
+		});
+	});
+
+	it("throws generic error for any auth failure", async () => {
+		const mockError = new Error("401");
+		mockError.message = "401 Unauthorized";
+		const mockPost = vi.fn().mockRejectedValue(mockError);
+		vi.mocked(apiClient).post = mockPost;
+
+		const service = new LoginService();
 
 		await expect(
 			service.authenticate({
@@ -35,29 +45,31 @@ describe("LoginService", () => {
 				password: "wrong",
 			}),
 		).rejects.toEqual(
-			new LoginServiceError(
-				401,
-				"Invalid email or password. Please try again.",
-			),
+			expect.objectContaining({
+				statusCode: 500,
+				message: "Login failed. Please try again.",
+			}),
 		);
 	});
 
-	it("throws a generic 500 error for unexpected backend responses", async () => {
-		const fetchFn = vi.fn().mockResolvedValue({
-			ok: true,
-			status: 200,
-			json: vi.fn().mockResolvedValue({ accessToken: "" }),
+	it("throws generic error for invalid backend responses", async () => {
+		const mockPost = vi.fn().mockResolvedValue({
+			data: { accessToken: "" },
 		});
-		const service = new LoginService("http://example.com", fetchFn as never);
+		vi.mocked(apiClient).post = mockPost;
+
+		const service = new LoginService();
 
 		await expect(
 			service.authenticate({
 				email: "test@example.com",
 				password: "Password123!",
 			}),
-		).rejects.toMatchObject({
-			statusCode: 500,
-			message: "Something went wrong. Please try again.",
-		});
+		).rejects.toEqual(
+			expect.objectContaining({
+				statusCode: 500,
+				message: "Login failed. Please try again.",
+			}),
+		);
 	});
 });

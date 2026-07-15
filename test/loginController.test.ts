@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { LoginController } from "../src/controllers/loginController";
-import { LoginServiceError } from "../src/services/loginService";
+import { LoginServiceError } from "../src/services/loginServiceError";
 
 describe("login controller", () => {
 	const createController = (authenticate = vi.fn()) => {
