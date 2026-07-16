@@ -14,7 +14,10 @@ describe("HomeController.getHome", () => {
     } as unknown as JobRoleService;
 
     const controller = new HomeController(mockService);
-    await controller.getHome({} as Request, { render } as unknown as Response);
+    await controller.getHome(
+      { cookies: {} } as Request,
+      { render } as unknown as Response,
+    );
 
     expect(render).toHaveBeenCalledWith("index", {
       demoAuthEnabled: false,
@@ -23,7 +26,7 @@ describe("HomeController.getHome", () => {
     });
   });
 
-	it("renders the index view with an error message when service fails", async () => {
+  it("renders the index view with an error message when service fails", async () => {
     const render = vi.fn();
     const mockService = {
       getOpenRoles: vi.fn().mockRejectedValue(new Error("Service error")),
@@ -44,21 +47,31 @@ describe("HomeController.getHome", () => {
 
   it("renders the index view with job roles on success", async () => {
     const render = vi.fn();
-    const mockRoles: JobRoleListItem[] = [];
+    const mockRoles: JobRoleListItem[] = [{
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      myApplication: { status: "in_progress" },
+    }];
     const mockService = {
       getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
     } as unknown as JobRoleService;
 
     const controller = new HomeController(mockService);
     await controller.getHome(
-      { headers: {} } as Request,
+      { cookies: { access_token: "token" } } as Request,
       { render } as unknown as Response,
     );
 
     expect(render).toHaveBeenCalledWith("index", {
       demoAuthEnabled: false,
-      jobRoles: mockRoles,
+      jobRoles: [{ ...mockRoles[0], status: "In Progress" }],
       errorMessage: null,
     });
+    expect(mockService.getOpenRoles).toHaveBeenCalledWith("Bearer token");
   });
 });

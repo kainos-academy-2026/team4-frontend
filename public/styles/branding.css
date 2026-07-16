@@ -432,13 +432,6 @@ a:has(> .kainos-logo):focus-visible {
   text-decoration: underline;
 }
 
-
-  margin: 0 0 0.75rem;
-  font-size: clamp(2rem, 4.5vw, 3.2rem);
-  line-height: 1.05;
-  color: var(--kainos-text-navy);
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .kainos-roles-panel {
     opacity: 0;

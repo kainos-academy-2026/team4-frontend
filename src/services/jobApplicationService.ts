@@ -34,16 +34,4 @@ export class JobApplicationService {
 			data: backendResponse.data,
 		};
 	}
-
-	async getApplicationStatus(
-		jobRoleId: number,
-		authHeader: string,
-	): Promise<unknown> {
-		const backendResponse = await this.backendClient.get(
-			`/job-roles/${jobRoleId}/applications/me`,
-			{ headers: { Authorization: authHeader } },
-		);
-
-		return backendResponse.data;
-	}
 }

@@ -3,6 +3,7 @@ import { isDemoAuthEnabled } from "../config/auth";
 import type { LoginRequestDto } from "../dto/loginDto";
 import { LoginService } from "../services/loginService";
 import { LoginServiceError } from "../services/loginServiceError";
+import { LoginServiceError } from "../services/loginServiceError";
 import {
 	clearAccessTokenCookie,
 	setAccessTokenCookie,
@@ -36,9 +37,16 @@ export class LoginController {
 
 			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
-		} catch (_error) {
-			response.status(401).render("login", {
-				errorMessage: "Login failed. Please try again.",
+		} catch (error) {
+			if (error instanceof LoginServiceError) {
+				response.status(error.statusCode).render("login", {
+					errorMessage: error.message,
+				});
+				return;
+			}
+
+			response.status(502).render("login", {
+				errorMessage: "Login service unavailable. Please try again later.",
 			});
 		}
 	};

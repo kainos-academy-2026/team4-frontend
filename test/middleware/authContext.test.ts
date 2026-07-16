@@ -119,7 +119,7 @@ describe("setAuthContext", () => {
 			locals: {},
 		} as Response;
 
-		setAuthContext(
+		await setAuthContext(
 			{
 				cookies: {
 					access_token: token,
@@ -136,13 +136,13 @@ describe("setAuthContext", () => {
 		expect(next).toHaveBeenCalledOnce();
 	});
 
-	it("marks unauthenticated requests with null email", () => {
+	it("marks unauthenticated requests with null email", async () => {
 		const next = vi.fn() as unknown as NextFunction;
 		const response = {
 			locals: {},
 		} as Response;
 
-		setAuthContext({ cookies: {} } as Request, response, next);
+		await setAuthContext({ cookies: {} } as Request, response, next);
 
 		expect(response.locals).toEqual({
 			isAuthenticated: false,
@@ -158,7 +158,7 @@ describe("setAuthContext", () => {
 		const next = vi.fn() as unknown as NextFunction;
 		const response = { locals: {} } as Response;
 
-		setAuthContext(
+		await setAuthContext(
 			{ cookies: { access_token: "not.a.valid.jwt" } } as Request,
 			response,
 			next,
@@ -177,7 +177,11 @@ describe("setAuthContext", () => {
 		const next = vi.fn() as unknown as NextFunction;
 		const response = { locals: {} } as Response;
 
-		setAuthContext({ cookies: { access_token: token } } as Request, response, next);
+		await setAuthContext(
+			{ cookies: { access_token: token } } as Request,
+			response,
+			next,
+		);
 
 		expect(response.locals.isAuthenticated).toBe(true);
 		expect(response.locals.userEmail).toBeNull();

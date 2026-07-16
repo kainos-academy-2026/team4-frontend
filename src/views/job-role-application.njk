@@ -39,10 +39,21 @@
 			{% endif %}
 
 			{% if canApply %}
+			{% if existingApplicationStatus %}
+			<section class="empty-state" aria-live="polite">
+				<p>
+					You have an active application for this role
+					{% if existingApplicationStatus.cvFileName %}(CV: {{ existingApplicationStatus.cvFileName }}){% endif %}.
+					You can upload a new CV below to update it.
+				</p>
+			</section>
+			{% endif %}
+
 			<form
 				class="kainos-auth-card"
 				data-job-application-form
-				data-job-role-id="{{ jobRole.id }}"
+				method="post"
+				action="/job-roles/{{ jobRole.id }}/apply"
 				enctype="multipart/form-data"
 			>
 				<label class="kainos-field" for="cvFile">
@@ -62,9 +73,15 @@
 				</button>
 			</form>
 
-			<section class="empty-state" data-application-confirmation hidden aria-live="polite">
-				<h2 data-application-confirmation-heading>Application submitted</h2>
-				<p data-application-confirmation-text></p>
+			<section class="empty-state" data-application-confirmation {% if not submissionStatus %}hidden{% endif %} aria-live="polite">
+				<h2 data-application-confirmation-heading>
+					{% if submissionStatus %}{{ submissionStatus.heading }}{% else %}Application submitted{% endif %}
+				</h2>
+				{% if submissionStatus and submissionStatus.text %}
+				<p data-application-confirmation-text>
+					{% if submissionStatus %}{{ submissionStatus.text }}{% endif %}
+				</p>
+				{% endif %}
 			</section>
 			{% endif %}
 			{% else %}
@@ -82,6 +99,5 @@
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
 		<script src="/scripts/auth.js"></script>
-		<script src="/scripts/job-application.js"></script>
 	</body>
 </html>

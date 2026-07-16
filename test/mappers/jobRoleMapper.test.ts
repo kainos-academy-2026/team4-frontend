@@ -32,6 +32,7 @@ describe("mapJobRoleDetailApiToModel", () => {
 			responsibilities: "Ship features",
 			sharepointUrl: "https://example.com/role/1",
 			numberOfOpenPositions: 2,
+			myApplication: null,
 		});
 	});
 

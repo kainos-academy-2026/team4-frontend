@@ -237,8 +237,10 @@ describe("GET /job-roles/:id/apply", () => {
 
     const response = await request(app).get("/job-roles/1/apply");
 
-    expect(response.status).toBe(200);
-    expect(response.text).toContain("Something went wrong. Please try again later.");
+    expect(response.status).toBe(500);
+    expect(response.text).toContain("500");
+    expect(response.text).toContain("Something went wrong");
+    expect(response.text).toContain("Please try again later.");
   });
 });
 
@@ -462,6 +464,96 @@ describe("POST /job-roles/:id/applications", () => {
 });
 
 
+describe("POST /job-roles/:id/apply", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("redirects to not found for an invalid role id", async () => {
+    const response = await request(app)
+      .post("/job-roles/not-a-number/apply")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/404");
+  });
+
+  it("redirects to login when cookie is missing", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/apply")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login?returnTo=/job-roles/1/apply");
+  });
+
+  it("renders an error message when cvFile is missing", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+    const response = await request(app)
+      .post("/job-roles/1/apply")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain("No CV file provided.");
+  });
+
+  it("redirects back to apply page with submission status when upload succeeds", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
+      status: 201,
+      data: { id: 10, status: "in_progress" },
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/apply")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toContain("/job-roles/1/apply?submitted=true");
+    expect(response.headers.location).toContain("updated=false");
+    expect(response.headers.location).toContain("cvFileName=cv.pdf");
+  });
+});
+
 describe("POST /job-roles/:id/applications", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -537,97 +629,6 @@ describe("POST /job-roles/:id/applications", () => {
 
     expect(response.status).toBe(502);
     expect(response.body).toEqual({ message: "CV upload failed. Please try again later." });
-  });
-});
-
-describe("GET /job-roles/:id/applications/me", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns 404 for an invalid role id", async () => {
-    const response = await request(app)
-      .get("/job-roles/not-a-number/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({ message: "Job role not found." });
-  });
-
-  it("returns 401 when cookie is missing", async () => {
-    const response = await request(app).get("/job-roles/1/applications/me");
-
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual({ message: "Unauthorised." });
-  });
-
-  it("returns current application status", async () => {
-    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockResolvedValue({
-      id: 10,
-      status: "in_progress",
-    });
-
-    const response = await request(app)
-      .get("/job-roles/1/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ id: 10, status: "in_progress" });
-  });
-
-  it("maps backend 404 to no application found", async () => {
-    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
-      isAxiosError: true,
-      response: { status: 404 },
-    });
-
-    const response = await request(app)
-      .get("/job-roles/1/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({ message: "No application found." });
-  });
-
-  it("returns 401 when backend rejects the token", async () => {
-    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
-      isAxiosError: true,
-      response: { status: 401 },
-    });
-
-    const response = await request(app)
-      .get("/job-roles/1/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual({ message: "Unauthorised." });
-  });
-
-  it("returns 502 on unexpected error", async () => {
-    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue(
-      new Error("unexpected"),
-    );
-
-    const response = await request(app)
-      .get("/job-roles/1/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(502);
-    expect(response.body).toEqual({ message: "Unable to retrieve application status." });
-  });
-
-  it("returns 502 when backend returns an unrecognised error status", async () => {
-    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
-      isAxiosError: true,
-      response: { status: 500 },
-    });
-
-    const response = await request(app)
-      .get("/job-roles/1/applications/me")
-      .set("Cookie", "access_token=fake.jwt.token");
-
-    expect(response.status).toBe(502);
-    expect(response.body).toEqual({ message: "Unable to retrieve application status." });
   });
 });
 

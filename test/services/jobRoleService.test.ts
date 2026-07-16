@@ -44,6 +44,7 @@ const detailApiData: JobRoleDetailApi = {
   responsibilities: "Ship features",
   sharepointUrl: "https://example.com/role/1",
   numberOfOpenPositions: 2,
+  myApplication: null,
 };
 
 const fallbackData: JobRole[] = [
@@ -83,6 +84,7 @@ describe("JobRoleService", () => {
         band: "Associate",
         closingDate: new Date("2026-08-01"),
         status: "open",
+        myApplication: null,
       },
     ]);
   });
@@ -107,8 +109,24 @@ describe("JobRoleService", () => {
         band: "Senior Associate",
         closingDate: new Date("2026-08-12"),
         status: "open",
+        myApplication: null,
       },
     ]);
+  });
+
+  it("forwards auth header when listing open roles", async () => {
+    const mockGet = vi.fn().mockResolvedValue({ data: listApiData });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await service.getOpenRoles("Bearer token");
+
+    expect(mockGet).toHaveBeenCalledWith("/job-roles", {
+      headers: { Authorization: "Bearer token" },
+    });
   });
 
   it("returns an empty list when backend responds with 404", async () => {
@@ -164,6 +182,22 @@ describe("JobRoleService", () => {
       responsibilities: "Ship features",
       sharepointUrl: "https://example.com/role/1",
       numberOfOpenPositions: 2,
+      myApplication: null,
+    });
+  });
+
+  it("forwards auth header when loading role details", async () => {
+    const mockGet = vi.fn().mockResolvedValue({ data: detailApiData });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+      fallbackData,
+      false,
+    );
+
+    await service.getRoleById(1, "Bearer token");
+
+    expect(mockGet).toHaveBeenCalledWith("/job-roles/1", {
+      headers: { Authorization: "Bearer token" },
     });
   });
 

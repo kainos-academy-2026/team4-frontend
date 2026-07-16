@@ -15,6 +15,10 @@ export type JobRoleDetailApi = {
 	responsibilities: string;
 	sharepointUrl: string;
 	numberOfOpenPositions: number;
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };
 
 export const mapJobRoleDetailApiToModel = (
@@ -32,6 +36,7 @@ export const mapJobRoleDetailApiToModel = (
 		responsibilities: jobRoleDetailApi.responsibilities,
 		sharepointUrl: jobRoleDetailApi.sharepointUrl,
 		numberOfOpenPositions: jobRoleDetailApi.numberOfOpenPositions,
+		myApplication: jobRoleDetailApi.myApplication ?? null,
 	};
 };
 
@@ -43,6 +48,10 @@ export type JobRoleListApi = {
 	bandName: string;
 	closingDate: string | Date;
 	status: string;
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };
 
 export const mapJobRoleListApiToItem = (
@@ -56,6 +65,7 @@ export const mapJobRoleListApiToItem = (
 		band: jobRoleListApi.bandName,
 		closingDate: new Date(jobRoleListApi.closingDate),
 		status: jobRoleListApi.status,
+		myApplication: jobRoleListApi.myApplication ?? null,
 	};
 };
 
@@ -70,5 +80,6 @@ export const mapJobRoleToListItem = (
 		band: jobRoleDetail.band,
 		closingDate: new Date(jobRoleDetail.closingDate),
 		status: jobRoleDetail.status,
+		myApplication: jobRoleDetail.myApplication ?? null,
 	};
 };

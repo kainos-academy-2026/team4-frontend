@@ -6,6 +6,10 @@ export type JobRoleListItem = {
 	band: string;
 	closingDate: Date;
 	status: string;
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };
 
 export type JobRoleListPage = {

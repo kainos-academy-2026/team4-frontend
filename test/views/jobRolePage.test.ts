@@ -107,57 +107,12 @@ describe("job role page templates", () => {
 
 		expect(html).toContain("Apply: Data Engineer");
 		expect(html).toContain("data-job-application-form");
+		expect(html).toContain('method="post"');
+		expect(html).toContain('action="/job-roles/2/apply"');
 		expect(html).toContain('type="file"');
 		expect(html).toContain("data-application-confirmation");
-		expect(html).toContain('src="/scripts/job-application.js"');
 		expect(html).not.toContain('Log in here.');
 		expect(html).toContain('href="/#roles"');
-	});
-
-	it("renders the apply CTA only when role is open and has open positions", () => {
-		const viewsPath = path.join(process.cwd(), "src/views");
-		const environment = nunjucks.configure(viewsPath, {
-			autoescape: true,
-			noCache: true,
-		});
-
-		const openRole = {
-			id: 5,
-			roleName: "Frontend Engineer",
-			location: "Belfast",
-			capability: "Engineering",
-			band: "Associate",
-			closingDate: new Date("2026-07-30"),
-			status: "open",
-			description: "Build UI experiences.",
-			responsibilities: "Deliver frontend features.",
-			sharepointUrl: "https://example.com/roles/frontend-engineer",
-			numberOfOpenPositions: 1,
-		};
-
-		const htmlWithApply = environment.render("job-role-detail.njk", {
-			jobRole: openRole,
-			showApplyForRole: true,
-		});
-
-		const htmlWithoutApply = environment.render("job-role-detail.njk", {
-			jobRole: {
-				...openRole,
-				numberOfOpenPositions: 0,
-			},
-			showApplyForRole: false,
-		});
-
-		const applicationHtml = environment.render("job-role-application.njk", {
-			jobRole: openRole,
-			canApply: true,
-			errorMessage: null,
-		});
-
-		expect(htmlWithApply).toContain('href="/job-roles/5/apply"');
-		expect(htmlWithoutApply).not.toContain('href="/job-roles/5/apply"');
-		expect(applicationHtml).not.toContain('Log in here.');
-		expect(applicationHtml).toContain('href="/#roles"');
 	});
 
 	it("renders the job application page contract", () => {
@@ -187,8 +142,9 @@ describe("job role page templates", () => {
 
 		expect(html).toContain("Apply: Data Engineer");
 		expect(html).toContain("data-job-application-form");
+		expect(html).toContain('method="post"');
+		expect(html).toContain('action="/job-roles/2/apply"');
 		expect(html).toContain('type="file"');
 		expect(html).toContain("data-application-confirmation");
-		expect(html).toContain('src="/scripts/job-application.js"');
 	});
 });

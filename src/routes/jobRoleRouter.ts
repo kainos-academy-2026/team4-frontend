@@ -16,8 +16,11 @@ jobRoleRouter.post(
 	upload.single("cvFile"),
 	(request, response) => jobRoleController.submitApplication(request, response),
 );
-jobRoleRouter.get("/job-roles/:id/applications/me", (request, response) =>
-	jobRoleController.getApplicationStatus(request, response),
+jobRoleRouter.post(
+	"/job-roles/:id/apply",
+	upload.single("cvFile"),
+	(request, response) =>
+		jobRoleController.submitApplicationPage(request, response),
 );
 jobRoleRouter.get("/job-roles/:id/apply", (request, response) =>
 	jobRoleController.renderApplicationPage(request, response),

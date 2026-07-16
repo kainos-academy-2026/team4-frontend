@@ -77,10 +77,6 @@ describe("home branding integration", () => {
     expect(cssResponse.status).toBe(200);
     expect(cssResponse.headers["content-type"]).toContain("text/css");
 
-    const applicationScriptResponse = await request(app).get("/scripts/job-application.js");
-    expect(applicationScriptResponse.status).toBe(200);
-    expect(applicationScriptResponse.headers["content-type"]).toContain("javascript");
-
     const scrollRevealResponse = await request(app).get("/scripts/scroll-reveal.js");
     expect(scrollRevealResponse.status).toBe(200);
     expect(scrollRevealResponse.headers["content-type"]).toContain("javascript");
