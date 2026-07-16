@@ -113,6 +113,7 @@ describe("home page template", () => {
 =======
 >>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
+    expect(html).toContain("Browse open roles");
   });
 <<<<<<< HEAD:test/views/index.njk.test.ts
 
