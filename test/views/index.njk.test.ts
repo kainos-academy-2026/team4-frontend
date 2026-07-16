@@ -12,8 +12,8 @@ describe("home page template", () => {
     });
 
     const html = environment.render("index.njk", {
-     
       isAuthenticated: false,
+<<<<<<< HEAD:test/views/index.njk.test.ts
 <<<<<<< HEAD:test/views/index.njk.test.ts
       userEmail: null,
    ,
@@ -22,8 +22,9 @@ describe("home page template", () => {
       jobRoles: [],
       errorMessage: null,
    ,
+=======
+>>>>>>> 28abf4e (Fix CV upload auth and application form duplication):test/views/homePage.test.ts
       userEmail: null,
-   ,
       jobRoles: [],
       errorMessage: null,
     });
@@ -41,7 +42,6 @@ describe("home page template", () => {
     expect(html).toContain("data-auth-greeting");
     expect(html).toContain("You must be logged in to apply for a role.");
     expect(html).not.toContain('Log in here.');
-    expect(html).not.toContain("/scripts/auth.js");
     expect(html).toContain("src=\"/scripts/scroll-reveal.js\"");
     expect(html).toContain("careers@kainosjobs.example");
     expect(html).toContain("+44 28 9000 0000");
@@ -114,6 +114,7 @@ describe("home page template", () => {
 >>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
   });
+<<<<<<< HEAD:test/views/index.njk.test.ts
 
   it("renders greeting and logout action when authenticated", () => {
     const viewsPath = path.join(process.cwd(), "src/views");
@@ -136,4 +137,6 @@ describe("home page template", () => {
 >>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
   });
+=======
+>>>>>>> 28abf4e (Fix CV upload auth and application form duplication):test/views/homePage.test.ts
 });

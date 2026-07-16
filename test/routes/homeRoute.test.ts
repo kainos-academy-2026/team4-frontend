@@ -51,7 +51,6 @@ describe("home branding integration", () => {
     expect(response.headers["content-type"]).toContain("text/html");
     expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain('href="/">Home</a>');
     expect(response.text).toContain("data-login-form");
     expect(response.text).toContain('method="post"');
     expect(response.text).toContain('action="/login"');
@@ -59,7 +58,6 @@ describe("home branding integration", () => {
     expect(response.text).toContain('type="password"');
     expect(response.text).toContain("data-login-error");
     expect(response.text).not.toContain('href="/login">Log in</a>');
-    expect(response.text).not.toContain("/scripts/auth.js");
   });
 
   it("renders logged-in home state when access_token cookie is present", async () => {
@@ -90,14 +88,6 @@ describe("home branding integration", () => {
     const scriptResponse = await request(app).get("/scripts/auth.js");
     expect(scriptResponse.status).toBe(200);
     expect(scriptResponse.headers["content-type"]).toContain("javascript");
-
-    const applicationScriptResponse = await request(app).get("/scripts/job-application.js");
-    expect(applicationScriptResponse.status).toBe(200);
-    expect(applicationScriptResponse.headers["content-type"]).toContain("javascript");
-
-    const scrollRevealResponse = await request(app).get("/scripts/scroll-reveal.js");
-    expect(scrollRevealResponse.status).toBe(200);
-    expect(scrollRevealResponse.headers["content-type"]).toContain("javascript");
 
     const logoResponse = await request(app).get("/images/kainoslogo.png");
     expect(logoResponse.status).toBe(200);

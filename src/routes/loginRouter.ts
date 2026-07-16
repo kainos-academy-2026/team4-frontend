@@ -16,6 +16,10 @@ const loginController = new LoginController(loginService);
 
 const loginRouter = Router();
 
-loginRouter.get("/login", getLogin);
+loginRouter.get("/login", (req, res) => loginController.getLogin(req, res));
+loginRouter.post("/login", validateBody(LoginRequestSchema), (req, res) =>
+	loginController.postLogin(req, res),
+);
+loginRouter.post("/logout", (req, res) => loginController.postLogout(req, res));
 
 export default loginRouter;

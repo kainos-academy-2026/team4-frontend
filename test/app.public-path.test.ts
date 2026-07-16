@@ -14,6 +14,7 @@ describe("app module public static path selection", () => {
     vi.unstubAllEnvs();
     vi.doUnmock("node:fs");
     vi.resetModules();
+    vi.unstubAllEnvs();
   });
 
   it("throws on import when API_BASE_URL is not configured", async () => {
@@ -70,5 +71,12 @@ describe("app module public static path selection", () => {
     expect(selectedPath).toBe(sourcePath);
     expect(fsModule.existsSync).toHaveBeenCalledWith(path.join(distPath, "styles", "branding.css"));
     expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
+  });
+
+  it("throws when API_BASE_URL environment variable is not set", async () => {
+    vi.stubEnv("API_BASE_URL", "");
+    await expect(import("../src/app")).rejects.toThrow(
+      "API_BASE_URL environment variable is required",
+    );
   });
 });

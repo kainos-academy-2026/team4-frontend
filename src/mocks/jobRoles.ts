@@ -37,7 +37,8 @@ export const fallbackJobRoles: JobRole[] = [
 		band: "Associate",
 		closingDate: new Date("2026-07-15"),
 		status: "closed",
-		description: "Analyse operational and product datasets to drive decisions to drive decisions.",
+		description:
+			"Analyse operational and product datasets to drive decisions to drive decisions.",
 		responsibilities:
 			"Create dashboards, run ad-hoc queries,, run ad-hoc queries, and report insights to stakeholders to stakeholders.",
 		sharepointUrl: "https://example.com/roles/data-analyst",
@@ -185,7 +186,8 @@ export const fallbackJobRoles: JobRole[] = [
 		closingDate: new Date("2026-09-05"),
 		status: "open",
 		description: "Shape user experiences for public sector digital services.",
-		responsibilities: "Conduct user research, produce wireframes, and iterate on designs with engineering teams.",
+		responsibilities:
+			"Conduct user research, produce wireframes, and iterate on designs with engineering teams.",
 		sharepointUrl: "https://example.com/roles/ux-designer",
 		numberOfOpenPositions: 2,
 	},

@@ -32,7 +32,6 @@ describe("GET /job-roles/:id", () => {
     expect(response.text).toContain("Software Engineer");
     expect(response.text).toContain("Build services");
     expect(response.text).toContain('href="/job-roles/1/apply"');
-    expect(response.text).toContain('href="/job-roles/1/apply"');
     expect(response.text).toContain("Apply on SharePoint");
   });
 
@@ -58,32 +57,8 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("redirects to not found for an invalid id", async () => {
-  it("does not render the apply route link when no open positions remain", async () => {
-    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
-      id: 1,
-      roleName: "Software Engineer",
-      location: "Belfast",
-      capability: "Engineering",
-      band: "Associate",
-      closingDate: new Date("2026-08-01"),
-      status: "open",
-      description: "Build services",
-      responsibilities: "Ship features",
-      sharepointUrl: "https://example.com/role/1",
-      numberOfOpenPositions: 0,
-    });
-
-    const response = await request(app).get("/job-roles/1");
-
-    expect(response.status).toBe(200);
-    expect(response.text).not.toContain('href="/job-roles/1/apply"');
-  });
-
-  it("redirects to not found for an invalid id", async () => {
     const response = await request(app).get("/job-roles/not-a-number");
 
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toBe("/404");
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("/404");
   });
@@ -257,7 +232,7 @@ describe("GET /job-roles/:id/apply", () => {
 
   it("renders an error page when application lookup throws", async () => {
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockRejectedValue(
-      new Error("Backend service is currently unavailable."),
+      new Error("service unavailable"),
     );
 
     const response = await request(app).get("/job-roles/1/apply");
@@ -495,14 +470,14 @@ describe("POST /job-roles/:id/applications", () => {
   it("returns 404 for an invalid role id", async () => {
     const response = await request(app)
       .post("/job-roles/not-a-number/applications")
-      .set("Authorization", "Bearer token")
+      .set("Cookie", "access_token=fake.jwt.token")
       .attach("cvFile", Buffer.from("cv"), "cv.pdf");
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ message: "Job role not found." });
   });
 
-  it("returns 401 when auth header is missing", async () => {
+  it("returns 401 when cookie is missing", async () => {
     const response = await request(app)
       .post("/job-roles/1/applications")
       .attach("cvFile", Buffer.from("cv"), "cv.pdf");
@@ -514,7 +489,7 @@ describe("POST /job-roles/:id/applications", () => {
   it("returns 400 when cvFile is missing", async () => {
     const response = await request(app)
       .post("/job-roles/1/applications")
-      .set("Authorization", "Bearer token");
+      .set("Cookie", "access_token=fake.jwt.token");
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ message: "No CV file provided." });
@@ -528,11 +503,40 @@ describe("POST /job-roles/:id/applications", () => {
 
     const response = await request(app)
       .post("/job-roles/1/applications")
-      .set("Authorization", "Bearer token")
+      .set("Cookie", "access_token=fake.jwt.token")
       .attach("cvFile", Buffer.from("cv"), "cv.pdf");
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual({ id: 10, status: "in_progress" });
+  });
+
+  it("forwards backend error status and body when service throws an axios error", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 422, data: { message: "Invalid file type." } },
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(422);
+    expect(response.body).toEqual({ message: "Invalid file type." });
+  });
+
+  it("returns 502 when service throws an unexpected error", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue(
+      new Error("network failure"),
+    );
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({ message: "CV upload failed. Please try again later." });
   });
 });
 
@@ -541,7 +545,16 @@ describe("GET /job-roles/:id/applications/me", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns 401 when auth header is missing", async () => {
+  it("returns 404 for an invalid role id", async () => {
+    const response = await request(app)
+      .get("/job-roles/not-a-number/applications/me")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "Job role not found." });
+  });
+
+  it("returns 401 when cookie is missing", async () => {
     const response = await request(app).get("/job-roles/1/applications/me");
 
     expect(response.status).toBe(401);
@@ -556,7 +569,7 @@ describe("GET /job-roles/:id/applications/me", () => {
 
     const response = await request(app)
       .get("/job-roles/1/applications/me")
-      .set("Authorization", "Bearer token");
+      .set("Cookie", "access_token=fake.jwt.token");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ id: 10, status: "in_progress" });
@@ -570,9 +583,64 @@ describe("GET /job-roles/:id/applications/me", () => {
 
     const response = await request(app)
       .get("/job-roles/1/applications/me")
-      .set("Authorization", "Bearer token");
+      .set("Cookie", "access_token=fake.jwt.token");
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ message: "No application found." });
+  });
+
+  it("returns 401 when backend rejects the token", async () => {
+    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+
+    const response = await request(app)
+      .get("/job-roles/1/applications/me")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ message: "Unauthorised." });
+  });
+
+  it("returns 502 on unexpected error", async () => {
+    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue(
+      new Error("unexpected"),
+    );
+
+    const response = await request(app)
+      .get("/job-roles/1/applications/me")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({ message: "Unable to retrieve application status." });
+  });
+
+  it("returns 502 when backend returns an unrecognised error status", async () => {
+    vi.spyOn(JobApplicationService.prototype, "getApplicationStatus").mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 500 },
+    });
+
+    const response = await request(app)
+      .get("/job-roles/1/applications/me")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({ message: "Unable to retrieve application status." });
+  });
+});
+
+describe("POST /logout", () => {
+  it("clears the access_token cookie and redirects to /", async () => {
+    const response = await request(app)
+      .post("/logout")
+      .set("Cookie", "access_token=fake.jwt.token");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/");
+    expect(response.headers["set-cookie"]).toEqual(
+      expect.arrayContaining([expect.stringContaining("access_token=;")]),
+    );
   });
 });

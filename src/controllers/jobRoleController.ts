@@ -1,22 +1,14 @@
 import axios from "axios";
-import type { AxiosInstance } from "axios";
-import FormData from "form-data";
 import type { Request, Response } from "express";
 
 import type { JobRole } from "../models/jobRole";
-
-import type { JobRole } from "../models/jobRole";
 import { jobRoleIdSchema } from "../models/jobRole";
-import type { JobApplicationService } from "../services/jobApplicationService";
 import type { JobApplicationService } from "../services/jobApplicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 
 export class JobRoleController {
 	constructor(
-		
 		private readonly jobRoleService: JobRoleService,
-		private readonly jobApplicationService: JobApplicationService,
-	,
 		private readonly jobApplicationService: JobApplicationService,
 	) {}
 
@@ -38,10 +30,6 @@ export class JobRoleController {
 				return;
 			}
 
-			response.render("job-role-detail", {
-				jobRole,
-				showApplyForRole: this.canAcceptApplications(jobRole),
-			});
 			response.render("job-role-detail", {
 				jobRole,
 				showApplyForRole: this.canAcceptApplications(jobRole),
@@ -104,11 +92,12 @@ export class JobRoleController {
 			return;
 		}
 
-		const authHeader = request.headers.authorization;
-		if (!authHeader?.startsWith("Bearer ")) {
+		const token = request.cookies.access_token as string | undefined;
+		if (!token) {
 			response.status(401).json({ message: "Unauthorised." });
 			return;
 		}
+		const authHeader = `Bearer ${token}`;
 
 		const file = request.file;
 		if (!file) {
@@ -146,11 +135,12 @@ export class JobRoleController {
 			return;
 		}
 
-		const authHeader = request.headers.authorization;
-		if (!authHeader?.startsWith("Bearer ")) {
+		const token = request.cookies.access_token as string | undefined;
+		if (!token) {
 			response.status(401).json({ message: "Unauthorised." });
 			return;
 		}
+		const authHeader = `Bearer ${token}`;
 
 		try {
 			const applicationStatus =

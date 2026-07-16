@@ -69,8 +69,14 @@ import {
 
 		const logoutTrigger = authAction.querySelector("[data-logout-trigger]");
 		if (logoutTrigger) {
-			logoutTrigger.addEventListener("click", () => {
+			logoutTrigger.addEventListener("click", async () => {
 				clearSession();
+
+				try {
+					await window.fetch("/logout", { method: "POST" });
+				} catch {
+					// best-effort; proceed with redirect regardless
+				}
 
 				if (page === "job-application") {
 					const form = document.querySelector("[data-job-application-form]");

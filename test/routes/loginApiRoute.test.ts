@@ -16,7 +16,7 @@ describe("POST /api/login", () => {
 		expect(response.body).toEqual({ message: "Email and password are required." });
 	});
 
-	it("returns access token when credentials are valid", async () => {
+	it("returns access token and sets access_token cookie when credentials are valid", async () => {
 		vi.spyOn(AuthService.prototype, "login").mockResolvedValue({
 			accessToken: "header.payload.signature",
 		});
@@ -28,6 +28,9 @@ describe("POST /api/login", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual({ accessToken: "header.payload.signature" });
+		expect(response.headers["set-cookie"]).toEqual(
+			expect.arrayContaining([expect.stringContaining("access_token=")]),
+		);
 	});
 
 	it("returns 401 when backend rejects credentials", async () => {

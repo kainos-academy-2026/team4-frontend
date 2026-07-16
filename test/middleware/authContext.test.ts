@@ -150,4 +150,37 @@ describe("setAuthContext", () => {
 		});
 		expect(next).toHaveBeenCalledOnce();
 	});
+
+	it("handles malformed JWT tokens gracefully", async () => {
+		// Allow the preloaded decoder to initialize
+		await new Promise<void>((resolve) => setImmediate(resolve));
+
+		const next = vi.fn() as unknown as NextFunction;
+		const response = { locals: {} } as Response;
+
+		setAuthContext(
+			{ cookies: { access_token: "not.a.valid.jwt" } } as Request,
+			response,
+			next,
+		);
+
+		expect(response.locals.isAuthenticated).toBe(true);
+		expect(response.locals.userEmail).toBeNull();
+		expect(next).toHaveBeenCalledOnce();
+	});
+
+	it("sets email to null when JWT payload has no string email claim", async () => {
+		const token = await new SignJWT({ role: "admin" })
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(SECRET);
+
+		const next = vi.fn() as unknown as NextFunction;
+		const response = { locals: {} } as Response;
+
+		setAuthContext({ cookies: { access_token: token } } as Request, response, next);
+
+		expect(response.locals.isAuthenticated).toBe(true);
+		expect(response.locals.userEmail).toBeNull();
+		expect(next).toHaveBeenCalledOnce();
+	});
 });

@@ -23,7 +23,7 @@ describe("HomeController.getHome", () => {
     });
   });
 
-  it("renders the index view with an error message when service fails", async () => {
+	it("renders the index view with an error message when service fails", async () => {
     const render = vi.fn();
     const mockService = {
       getOpenRoles: vi.fn().mockRejectedValue(new Error("Service error")),
@@ -32,48 +32,33 @@ describe("HomeController.getHome", () => {
     const controller = new HomeController(mockService);
     await controller.getHome(
       { headers: {} } as Request,
-      {
-        locals: {
-          isAuthenticated: false,
-          userEmail: null,
-        },
-        render,
-      } as unknown as Response,
+      { render } as unknown as Response,
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      isAuthenticated: false,
-      userEmail: null,
+      demoAuthEnabled: false,
+      jobRoles: [],
+      errorMessage: "Something went wrong loading job roles. Please try again later.",
     });
   });
 
-  it("renders logged-in state when access token cookie is present", () => {
+  it("renders the index view with job roles on success", async () => {
     const render = vi.fn();
-    const jwtPayload = Buffer.from(
-      JSON.stringify({ email: "test@example.com" }),
-    ).toString("base64url");
-    const token = `header.${jwtPayload}.signature`;
+    const mockRoles: JobRoleListItem[] = [];
+    const mockService = {
+      getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
+    } as unknown as JobRoleService;
 
-    getHome(
-      {
-        headers: {
-          cookie: `access_token=${token}`,
-        },
-      } as Request,
-      {
-        locals: {
-          isAuthenticated: true,
-          userEmail: "test@example.com",
-        },
-        render,
-      } as unknown as Response,
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { headers: {} } as Request,
+      { render } as unknown as Response,
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      isAuthenticated: true,
-      userEmail: "test@example.com",
-      jobRoles: [],
-      errorMessage: expect.any(String),
+      demoAuthEnabled: false,
+      jobRoles: mockRoles,
+      errorMessage: null,
     });
   });
 });
