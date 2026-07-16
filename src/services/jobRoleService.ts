@@ -20,14 +20,18 @@ export class JobRoleService {
 			.USE_JOB_ROLE_FALLBACK_MOCK !== "false",
 	) {}
 
-	async getOpenRoles(): Promise<JobRoleListItem[]> {
+	async getOpenRoles(token: string): Promise<JobRoleListItem[]> {
 		if (this.useFallbackMock) {
 			return this.getFallbackOpenRoles();
 		}
 
 		try {
 			const jobRoleListResponse =
-				await this.client.get<JobRoleListApi[]>("/job-roles");
+				await this.client.get<JobRoleListApi[]>("/job-roles", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
 			return this.filterOpenRoles(
 				jobRoleListResponse.data.map(mapJobRoleListApiToItem),
 			);
@@ -42,7 +46,7 @@ export class JobRoleService {
 		}
 	}
 
-	async getRoleById(jobRoleId: number): Promise<JobRole | null> {
+	async getRoleById(jobRoleId: number, token: string): Promise<JobRole | null> {
 		if (this.useFallbackMock) {
 			return this.getFallbackJobRoleById(jobRoleId);
 		}
@@ -50,6 +54,11 @@ export class JobRoleService {
 		try {
 			const jobRoleDetailResponse = await this.client.get<JobRoleDetailApi>(
 				`/job-roles/${jobRoleId}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
 			);
 			return mapJobRoleDetailApiToModel(jobRoleDetailResponse.data);
 		} catch (requestError) {

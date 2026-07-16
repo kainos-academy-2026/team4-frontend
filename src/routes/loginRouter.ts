@@ -6,6 +6,7 @@ import {
 	postLogout,
 } from "../controllers/loginController";
 import { LoginRequestSchema } from "../dto/loginDto";
+import { requireAuthHtml } from "../middleware/authContext";
 import { validateBody } from "../middleware/loginValidation";
 import { LoginService } from "../services/loginService";
 
@@ -18,6 +19,6 @@ loginRouter.get("/login", getLogin);
 loginRouter.post("/login", validateBody(LoginRequestSchema), (req, res) =>
 	loginController.postLogin(req, res),
 );
-loginRouter.post("/logout", postLogout);
+loginRouter.post("/logout", requireAuthHtml, postLogout);
 
 export default loginRouter;
