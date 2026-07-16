@@ -19,7 +19,7 @@ describe("app module public static path selection", () => {
   it("throws on import when API_BASE_URL is not configured", async () => {
     vi.stubEnv("API_BASE_URL", "");
 
-    await expect(import("../src/app")).rejects.toThrow(
+    await expect(import("../../src/app")).rejects.toThrow(
       "API_BASE_URL environment variable is required",
     );
   });
@@ -36,7 +36,7 @@ describe("app module public static path selection", () => {
       };
     });
 
-    const { resolvePublicPath } = await import("../src/app");
+    const { resolvePublicPath } = await import("../../src/app");
     const distPath = "/tmp/dist/public";
     const sourcePath = "/tmp/source/public";
     const fsModule = await import("node:fs");
@@ -60,7 +60,7 @@ describe("app module public static path selection", () => {
       };
     });
 
-    const { resolvePublicPath } = await import("../src/app");
+    const { resolvePublicPath } = await import("../../src/app");
     const distPath = "/tmp/dist/public";
     const sourcePath = "/tmp/source/public";
     const fsModule = await import("node:fs");

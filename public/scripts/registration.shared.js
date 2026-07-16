@@ -5,6 +5,21 @@ export const createRegistrationPayload = (email, password) => ({
 	password: String(password),
 });
 
+export const registerUser = async (
+	payload,
+	fetchImpl = globalThis.fetch,
+) => {
+	const response = await fetchImpl("/auth/register", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(payload),
+	});
+
+	return response.status;
+};
+
 export const validateRegistrationInput = (email, password) => {
 	const normalizedEmail = String(email).trim();
 	const normalizedPassword = String(password);
@@ -34,12 +49,8 @@ export const mapRegistrationStatusToMessage = (statusCode) => {
 	if (statusCode === 201) {
 		return {
 			variant: "success",
-			message:
-				"Account created successfully. Continue to the login page to sign in with your new credentials.",
-			cta: {
-				label: "Go to login",
-				href: "/login",
-			},
+			message: "Registration Successful, redirecting you to the login page",
+			cta: null,
 		};
 	}
 

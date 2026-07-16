@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
 	createRegistrationPayload,
 	mapRegistrationStatusToMessage,
+	registerUser,
 	validateRegistrationInput,
-} from "../public/scripts/registration.shared.js";
+} from "../../../public/scripts/registration.shared.js";
 
 describe("registration shared client helpers", () => {
 	it("creates strict payload with only email and password", () => {
@@ -38,12 +39,8 @@ describe("registration shared client helpers", () => {
 	it("maps backend response statuses to user-facing messages", () => {
 		expect(mapRegistrationStatusToMessage(201)).toEqual({
 			variant: "success",
-			message:
-				"Account created successfully. Continue to the login page to sign in with your new credentials.",
-			cta: {
-				label: "Go to login",
-				href: "/login",
-			},
+			message: "Registration Successful, redirecting you to the login page",
+			cta: null,
 		});
 
 		expect(mapRegistrationStatusToMessage(400)).toEqual({
@@ -65,5 +62,56 @@ describe("registration shared client helpers", () => {
 			message: "Something went wrong on our side. Please try again in a moment.",
 			cta: null,
 		});
+
+		expect(mapRegistrationStatusToMessage(418)).toEqual({
+			variant: "error",
+			message: "Something went wrong. Please try again.",
+			cta: null,
+		});
+	});
+
+	it("posts registration payload to /auth/register as JSON", async () => {
+		const fetchMock = async (
+			url: string,
+			options?: {
+				method?: string;
+				headers?: Record<string, string>;
+				body?: string;
+			},
+		) => {
+			expect(url).toBe("/auth/register");
+			expect(options?.method).toBe("POST");
+			expect(options?.headers).toEqual({
+				"Content-Type": "application/json",
+			});
+			expect(options?.body).toBe(
+				JSON.stringify({
+					email: "new.user@example.com",
+					password: "Password!",
+				}),
+			);
+
+			return {
+				status: 201,
+			} as Response;
+		};
+
+		const status = await registerUser(
+			{ email: "new.user@example.com", password: "Password!" },
+			fetchMock,
+		);
+
+		expect(status).toBe(201);
+	});
+
+	it("returns backend status codes from registration call", async () => {
+		const fetchMock = async () => ({ status: 409 }) as Response;
+
+		const status = await registerUser(
+			{ email: "existing.user@example.com", password: "Password!" },
+			fetchMock,
+		);
+
+		expect(status).toBe(409);
 	});
 });

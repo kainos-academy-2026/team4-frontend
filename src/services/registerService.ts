@@ -1,27 +1,11 @@
 import axios, { type AxiosInstance } from "axios";
 
 import apiClient from "../config/apiClient";
-
-export interface RegisterUserPayload {
-	email: string;
-	password: string;
-}
-
-export interface RegisteredUser {
-	id: string;
-	email: string;
-	role: string;
-}
-
-export class RegisterServiceError extends Error {
-	constructor(
-		public readonly status: 400 | 409 | 500,
-		message: string,
-	) {
-		super(message);
-		this.name = "RegisterServiceError";
-	}
-}
+import { RegisterServiceError } from "./registerServiceError";
+import type {
+	RegisteredUser,
+	RegisterUserPayload,
+} from "./registerServiceModels";
 
 export class RegisterService {
 	constructor(private readonly client: AxiosInstance = apiClient) {}

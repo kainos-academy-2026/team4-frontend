@@ -3,19 +3,7 @@ import axios, { type AxiosInstance } from "axios";
 import apiClient from "../config/apiClient";
 import type { LoginRequestDto, LoginResponseDto } from "../dto/loginDto";
 import { LoginServiceError } from "./loginServiceError";
-
-export interface LoginPayload {
-	email: string;
-	password: string;
-}
-
-export interface LoginResult {
-	token?: string;
-	email?: string;
-	[key: string]: unknown;
-}
-
-export { LoginServiceError } from "./loginServiceError";
+import type { LoginPayload, LoginResult } from "./loginServiceModels";
 
 export class LoginService {
 	constructor(private readonly client: AxiosInstance = apiClient) {}

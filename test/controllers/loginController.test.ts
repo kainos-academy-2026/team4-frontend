@@ -5,9 +5,9 @@ import {
 	LoginController,
 	postLogin as postApiLogin,
 	postLogout as postApiLogout,
-} from "../src/controllers/loginController";
-import { LoginService } from "../src/services/loginService";
-import { LoginServiceError } from "../src/services/loginServiceError";
+} from "../../src/controllers/loginController";
+import { LoginService } from "../../src/services/loginService";
+import { LoginServiceError } from "../../src/services/loginServiceError";
 
 describe("login controller", () => {
 	const createController = (authenticate = vi.fn()) => {

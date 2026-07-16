@@ -1,10 +1,8 @@
 import type { Request, Response } from "express";
 
-import {
-	type RegisterService,
-	RegisterServiceError,
-	type RegisterUserPayload,
-} from "../services/registerService";
+import type { RegisterService } from "../services/registerService";
+import { RegisterServiceError } from "../services/registerServiceError";
+import type { RegisterUserPayload } from "../services/registerServiceModels";
 
 export class RegisterController {
 	constructor(private readonly registerService: RegisterService) {}

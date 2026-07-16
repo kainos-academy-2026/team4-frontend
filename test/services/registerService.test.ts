@@ -1,10 +1,8 @@
 import axios, { AxiosError } from "axios";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-	RegisterService,
-	RegisterServiceError,
-} from "../../src/services/registerService";
+import { RegisterService } from "../../src/services/registerService";
+import { RegisterServiceError } from "../../src/services/registerServiceError";
 
 describe("RegisterService", () => {
 	it("returns registered user when backend responds 201", async () => {
@@ -82,6 +80,28 @@ describe("RegisterService", () => {
 	it("maps unknown errors to internal server error", async () => {
 		const client = {
 			post: vi.fn().mockRejectedValue(new Error("Unexpected failure")),
+		};
+
+		const service = new RegisterService(client as never);
+
+		await expect(
+			service.register({ email: "new.user@example.com", password: "Password!" }),
+		).rejects.toEqual(new RegisterServiceError(500, "Internal server error"));
+	});
+
+	it("maps unexpected Axios statuses to internal server error", async () => {
+		const client = {
+			post: vi.fn().mockRejectedValue(
+				new AxiosError("Teapot", "418", undefined, undefined, {
+					status: 418,
+					statusText: "I'm a teapot",
+					headers: {},
+					config: {
+						headers: axios.AxiosHeaders.from({}),
+					},
+					data: { message: "Unexpected" },
+				}),
+			),
 		};
 
 		const service = new RegisterService(client as never);

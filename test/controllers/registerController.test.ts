@@ -2,10 +2,8 @@ import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 
 import { RegisterController } from "../../src/controllers/registerController";
-import {
-	RegisterServiceError,
-	type RegisteredUser,
-} from "../../src/services/registerService";
+import { RegisterServiceError } from "../../src/services/registerServiceError";
+import type { RegisteredUser } from "../../src/services/registerServiceModels";
 
 describe("RegisterController", () => {
 	it("renders the register page", () => {
@@ -76,5 +74,28 @@ describe("RegisterController", () => {
 
 		expect(status).toHaveBeenCalledWith(409);
 		expect(json).toHaveBeenCalledWith({ message: "User already exists" });
+	});
+
+	it("returns 500 when registration fails unexpectedly", async () => {
+		const registerService = {
+			register: vi.fn().mockRejectedValue(new Error("boom")),
+		};
+
+		const status = vi.fn().mockReturnThis();
+		const json = vi.fn();
+		const controller = new RegisterController(registerService as never);
+
+		await controller.postRegister(
+			{
+				body: {
+					email: "new.user@example.com",
+					password: "Password!",
+				},
+			} as Request,
+			{ status, json } as unknown as Response,
+		);
+
+		expect(status).toHaveBeenCalledWith(500);
+		expect(json).toHaveBeenCalledWith({ message: "Internal server error" });
 	});
 });

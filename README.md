@@ -80,6 +80,7 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 
 - `GET /` renders a hello-world HTML page.
 - `GET /login` renders the login page.
+- `GET /register` renders the registration page.
 - `POST /login` submits credentials to backend `POST /auth/login`.
 - `POST /logout` clears the frontend auth cookie.
 - `GET /health` returns JSON with:
@@ -96,6 +97,18 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 - Frontend stores `accessToken` in an HttpOnly cookie named `access_token`.
 - Home page reads that cookie and displays a greeting when a token is present.
 - Logout clears the cookie and redirects back to home.
+
+## Registration Integration
+
+- Registration form sends `email` and `password` to backend `POST /auth/register`.
+- Frontend payload is limited to `email` and `password` only.
+- Password is never hashed in the browser; hashing/salting is backend-only.
+- Frontend handles backend outcomes:
+	- `201`: shows account-created success guidance with login CTA.
+	- `400`: shows invalid-payload guidance.
+	- `409`: shows duplicate-user guidance.
+	- `500` and network failures: shows generic retry guidance.
+- Submit button is disabled while a request is in-flight to prevent duplicate submissions.
 
 Example health response:
 
@@ -118,3 +131,12 @@ Example health response:
 8. Request `/health` on the frontend and confirm `status` + `time`.
 9. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
 10. Run `npm ci` and `npm run build` again to confirm reproducibility.
+
+## Registration Acceptance Checks
+
+1. Run the backend API and ensure `POST /auth/register` is available.
+2. Run frontend and open `/register`.
+3. Submit an invalid email and weak password and confirm inline validation messages are shown.
+4. Submit valid details and confirm success guidance appears.
+5. Submit an already-registered email and confirm duplicate-user guidance appears.
+6. Confirm no role field is sent from the frontend payload.
