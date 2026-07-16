@@ -24,9 +24,7 @@ describe("home branding integration", () => {
     expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
     expect(response.text).toContain("href=\"/images/favicon.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain("data-auth-action");
     expect(response.text).toContain('href="/login"');
-    expect(response.text).toContain("data-auth-greeting");
     expect(response.text).toContain("You must be logged in to apply for a role.");
     expect(response.text).not.toContain('Log in here.');
     expect(response.text).toContain("careers@kainosjobs.example");
@@ -69,10 +67,6 @@ describe("home branding integration", () => {
     const scrollRevealResponse = await request(app).get("/scripts/scroll-reveal.js");
     expect(scrollRevealResponse.status).toBe(200);
     expect(scrollRevealResponse.headers["content-type"]).toContain("javascript");
-
-    const scriptResponse = await request(app).get("/scripts/auth.js");
-    expect(scriptResponse.status).toBe(200);
-    expect(scriptResponse.headers["content-type"]).toContain("javascript");
 
     const logoResponse = await request(app).get("/images/kainoslogo.png");
     expect(logoResponse.status).toBe(200);

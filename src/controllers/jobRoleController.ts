@@ -41,6 +41,7 @@ export class JobRoleController {
 				jobRole,
 				showApplyForRole: this.canAcceptApplications(jobRole),
 				hasApplicationInProgress: this.hasApplicationInProgress(jobRole),
+				isLoggedIn: authHeader !== null,
 			});
 		} catch (controllerError) {
 			console.error(controllerError);
@@ -90,6 +91,7 @@ export class JobRoleController {
 				canApply,
 				existingApplicationStatus,
 				submissionStatus,
+				isLoggedIn: authHeader !== null,
 			});
 		} catch (controllerError) {
 			console.error(controllerError);

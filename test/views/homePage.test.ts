@@ -25,9 +25,7 @@ describe("home page template", () => {
     expect(html).toContain("href=\"/images/favicon.png\"");
     expect(html).toContain("href=\"/styles/branding.css\"");
     expect(html).toContain("class=\"kainos-footer\"");
-    expect(html).toContain("data-auth-action");
     expect(html).toContain('href="/login"');
-    expect(html).toContain("data-auth-greeting");
     expect(html).toContain("You must be logged in to apply for a role.");
     expect(html).not.toContain('Log in here.');
     expect(html).toContain("src=\"/scripts/scroll-reveal.js\"");
@@ -45,7 +43,6 @@ describe("home page template", () => {
     });
 
     const html = environment.render("index.njk", {
-      demoAuthEnabled: false,
       jobRoles: [
         {
           id: 1,
@@ -73,7 +70,6 @@ describe("home page template", () => {
     });
 
     const html = environment.render("index.njk", {
-      demoAuthEnabled: false,
       jobRoles: [],
       errorMessage: null,
     });

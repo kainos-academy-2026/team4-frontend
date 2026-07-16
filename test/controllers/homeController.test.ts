@@ -20,7 +20,6 @@ describe("HomeController.getHome", () => {
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      demoAuthEnabled: false,
       jobRoles: mockRoles,
       errorMessage: null,
     });
@@ -39,7 +38,6 @@ describe("HomeController.getHome", () => {
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      demoAuthEnabled: false,
       jobRoles: [],
       errorMessage: "Something went wrong loading job roles. Please try again later.",
     });
@@ -68,7 +66,6 @@ describe("HomeController.getHome", () => {
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      demoAuthEnabled: false,
       jobRoles: [{ ...mockRoles[0], status: "In Progress" }],
       errorMessage: null,
     });

@@ -46,29 +46,11 @@ const detailApiData: JobRoleDetailApi = {
   myApplication: null,
 };
 
-const fallbackData: JobRole[] = [
-  {
-    id: 3,
-    roleName: "Test Engineer",
-    location: "Dublin",
-    capability: "Quality Engineering",
-    band: "Senior Associate",
-    closingDate: new Date("2026-08-12"),
-    status: "open",
-    description: "Test releases",
-    responsibilities: "Own QA",
-    sharepointUrl: "https://example.com/role/3",
-    numberOfOpenPositions: 1,
-  },
-];
-
 describe("JobRoleService", () => {
   it("returns only open job roles from API response", async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: listApiData });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     const result = await service.getOpenRoles();
@@ -88,37 +70,10 @@ describe("JobRoleService", () => {
     ]);
   });
 
-  it("returns fallback open roles when fallback mode is enabled", async () => {
-    const mockGet = vi.fn();
-    const service = new JobRoleService(
-      { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      true,
-    );
-
-    const result = await service.getOpenRoles();
-
-    expect(mockGet).not.toHaveBeenCalled();
-    expect(result).toEqual([
-      {
-        id: 3,
-        roleName: "Test Engineer",
-        location: "Dublin",
-        capability: "Quality Engineering",
-        band: "Senior Associate",
-        closingDate: new Date("2026-08-12"),
-        status: "open",
-        myApplication: null,
-      },
-    ]);
-  });
-
   it("forwards auth header when listing open roles", async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: listApiData });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await service.getOpenRoles("Bearer token");
@@ -135,8 +90,6 @@ describe("JobRoleService", () => {
     });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await expect(service.getOpenRoles()).resolves.toEqual([]);
@@ -151,8 +104,6 @@ describe("JobRoleService", () => {
     const mockGet = vi.fn().mockRejectedValue(requestError);
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await expect(service.getOpenRoles()).rejects.toBe(requestError);
@@ -162,8 +113,6 @@ describe("JobRoleService", () => {
     const mockGet = vi.fn().mockResolvedValue({ data: detailApiData });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     const result = await service.getRoleById(1);
@@ -189,8 +138,6 @@ describe("JobRoleService", () => {
     const mockGet = vi.fn().mockResolvedValue({ data: detailApiData });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await service.getRoleById(1, "Bearer token");
@@ -207,8 +154,6 @@ describe("JobRoleService", () => {
     });
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await expect(service.getRoleById(999)).resolves.toBeNull();
@@ -223,23 +168,9 @@ describe("JobRoleService", () => {
     const mockGet = vi.fn().mockRejectedValue(requestError);
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
     );
 
     await expect(service.getRoleById(1)).rejects.toBe(requestError);
   });
 
-  it("returns fallback role details by id when fallback mode is enabled", async () => {
-    const mockGet = vi.fn();
-    const service = new JobRoleService(
-      { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      true,
-    );
-
-    await expect(service.getRoleById(3)).resolves.toEqual(fallbackData[0]);
-    await expect(service.getRoleById(404)).resolves.toBeNull();
-    expect(mockGet).not.toHaveBeenCalled();
-  });
 });

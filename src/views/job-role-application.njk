@@ -14,8 +14,14 @@
 				src="/images/kainoslogo.png"
 				alt="Kainos home"
 			/></a>
-			<nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+			<nav class="kainos-header-actions" aria-label="Authentication actions">
+				{% if isLoggedIn %}
+				<form method="post" action="/logout">
+					<button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
+				</form>
+				{% else %}
 				<a class="kainos-header-link" href="/login">Log in</a>
+				{% endif %}
 			</nav>
 		</header>
 
@@ -98,6 +104,5 @@
 			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
-		<script src="/scripts/auth.js"></script>
 	</body>
 </html>
