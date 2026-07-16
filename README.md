@@ -80,8 +80,7 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 
 - `GET /` renders a hello-world HTML page.
 - `GET /login` renders the login page.
-- `GET /register` renders the registration page.
-- `POST /login` submits credentials to backend `POST /auth/login`.
+- `POST /login` submits credentials to backend `POST /login`.
 - `POST /logout` clears the frontend auth cookie.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
@@ -92,7 +91,7 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 
 ## Login Integration
 
-- Login form sends `email` and `password` to backend `/auth/login`.
+- Login form sends `email` and `password` to backend `/login`.
 - Backend is expected to return JSON: `{ "accessToken": "..." }`.
 - Frontend stores `accessToken` in an HttpOnly cookie named `access_token`.
 - Home page reads that cookie and displays a greeting when a token is present.
@@ -122,7 +121,7 @@ Example health response:
 ## Acceptance Criteria Checks
 
 1. Run `npm run build` and confirm `dist` is created.
-2. Run the backend API and ensure `POST /auth/login` is available.
+2. Run the backend API and ensure `POST /login` is available.
 3. Run frontend with `API_BASE_URL` pointing to backend, then open the frontend URL.
 4. Confirm `/` and `/login` render correctly.
 5. Submit invalid credentials and confirm `/login` shows an error.

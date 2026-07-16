@@ -30,7 +30,7 @@ describe("LoginService", () => {
 		});
 
 		expect(token).toBe("token-123");
-		expect(mockPost).toHaveBeenCalledWith("/auth/login", {
+		expect(mockPost).toHaveBeenCalledWith("/login", {
 			email: "test@example.com",
 			password: "Password123!",
 		});
