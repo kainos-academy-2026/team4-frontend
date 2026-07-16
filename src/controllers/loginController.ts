@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { isDemoAuthEnabled } from "../config/auth";
 import type { LoginRequestDto } from "../dto/loginDto";
 import { LoginService } from "../services/loginService";
 import { LoginServiceError } from "../services/loginServiceError";
@@ -15,7 +14,6 @@ export class LoginController {
 	getLogin = (_request: Request, response: Response): void => {
 		response.render("login", {
 			errorMessage: null,
-			demoAuthEnabled: isDemoAuthEnabled(),
 		});
 	};
 

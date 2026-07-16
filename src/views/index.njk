@@ -10,7 +10,6 @@
   <body
     class="kainos-page"
     data-page="home"
-    data-demo-auth-enabled="{{ demoAuthEnabled }}"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
       <a href="/"><img
@@ -18,7 +17,7 @@
         src="/images/kainoslogo.png"
         alt="Kainos home"
       /></a>
-      <nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+      <nav class="kainos-header-actions" aria-label="Authentication actions">
         {% if isAuthenticated %}
         <form method="post" action="/logout">
           <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
@@ -48,7 +47,6 @@
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
 
-    <script src="/scripts/auth.js"></script>
     <script src="/scripts/scroll-reveal.js"></script>
     <script>
       (function () {

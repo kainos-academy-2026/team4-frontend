@@ -14,8 +14,14 @@
 				src="/images/kainoslogo.png"
 				alt="Kainos home"
 			/></a>
-			<nav class="kainos-header-actions" aria-label="Authentication actions" data-auth-action>
+			<nav class="kainos-header-actions" aria-label="Authentication actions">
+				{% if isLoggedIn %}
+				<form method="post" action="/logout">
+					<button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
+				</form>
+				{% else %}
 				<a class="kainos-header-link" href="/login">Log in</a>
+				{% endif %}
 			</nav>
 		</header>
 
@@ -55,9 +61,11 @@
 				<section class="empty-state" aria-label="Apply for this role">
 					<h2>Apply for this role</h2>
 					<p>Applicants can upload a CV and start an application.</p>
-					<div class="alert alert-info" data-login-prompt hidden>
+					{% if not isLoggedIn %}
+					<div class="alert alert-info">
 						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
 					</div>
+					{% endif %}
 					{% if hasApplicationInProgress %}
 					<div class="alert alert-info" aria-live="polite">
 						You have an application in progress for this role. You can re-upload your CV using the Apply now button.
@@ -65,8 +73,9 @@
 					{% endif %}
 					<p>
 						<a
-							class="kainos-primary-action"
+							class="kainos-primary-action{% if not isLoggedIn %} kainos-primary-action--disabled{% endif %}"
 							href="/job-roles/{{ jobRole.id }}/apply"
+							{% if not isLoggedIn %}aria-disabled="true" tabindex="-1"{% endif %}
 						>
 							Apply now
 						</a>
@@ -93,6 +102,5 @@
 			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
-		<script src="/scripts/auth.js"></script>
 	</body>
 </html>

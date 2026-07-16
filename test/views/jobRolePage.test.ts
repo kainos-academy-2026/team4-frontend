@@ -58,6 +58,13 @@ describe("job role page templates", () => {
 		const htmlWithApply = environment.render("job-role-detail.njk", {
 			jobRole: openRole,
 			showApplyForRole: true,
+			isLoggedIn: true,
+		});
+
+		const htmlWithApplyLoggedOut = environment.render("job-role-detail.njk", {
+			jobRole: openRole,
+			showApplyForRole: true,
+			isLoggedIn: false,
 		});
 
 		const htmlWithoutApply = environment.render("job-role-detail.njk", {
@@ -75,6 +82,14 @@ describe("job role page templates", () => {
 		});
 
 		expect(htmlWithApply).toContain('href="/job-roles/5/apply"');
+		expect(htmlWithApply).not.toContain('kainos-primary-action--disabled');
+		expect(htmlWithApply).not.toContain('aria-disabled="true"');
+
+		expect(htmlWithApplyLoggedOut).toContain('href="/job-roles/5/apply"');
+		expect(htmlWithApplyLoggedOut).toContain('kainos-primary-action--disabled');
+		expect(htmlWithApplyLoggedOut).toContain('aria-disabled="true"');
+		expect(htmlWithApplyLoggedOut).toContain('tabindex="-1"');
+
 		expect(htmlWithoutApply).not.toContain('href="/job-roles/5/apply"');
 		expect(applicationHtml).not.toContain('Log in here.');
 		expect(applicationHtml).toContain('href="/#roles"');
