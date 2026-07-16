@@ -5,11 +5,13 @@ import homeRouter from "./homeRouter.js";
 import jobRoleRouter from "./jobRoleRouter.js";
 import loginRouter from "./loginRouter.js";
 import notFoundRouter from "./notFoundRouter.js";
+import registerRouter from "./registerRouter.js";
 
 const router = Router();
 
 router.use(homeRouter);
 router.use(loginRouter);
+router.use(registerRouter);
 router.use(healthRouter);
 router.use(notFoundRouter);
 router.use(jobRoleRouter);
