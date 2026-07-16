@@ -1,8 +1,5 @@
 import {
 	createRegistrationPayload,
-	mapRegistrationStatusToMessage,
-	registerUser,
-	validateRegistrationInput,
 } from "./registration.shared.js";
 
 (function () {
@@ -108,6 +105,29 @@ import {
 			}
 		};
 
+		const registerUser = async (payload) => {
+			const response = await fetch("/auth/register", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+
+			let data = null;
+
+			try {
+				data = await response.json();
+			} catch (_error) {
+				data = null;
+			}
+
+			return {
+				status: response.status,
+				data,
+			};
+		};
+
 		form.addEventListener("submit", async (event) => {
 			event.preventDefault();
 
@@ -117,15 +137,10 @@ import {
 
 			const email = emailInput.value;
 			const password = passwordInput.value;
-			const validation = validateRegistrationInput(email, password);
 
-			renderFieldError(emailError, validation.emailError);
-			renderFieldError(passwordError, validation.passwordError);
+			renderFieldError(emailError, "");
+			renderFieldError(passwordError, "");
 			renderStatus({ variant: "idle", message: "", cta: null });
-
-			if (!validation.isValid) {
-				return;
-			}
 
 			isSubmitting = true;
 			submitButton.disabled = true;
@@ -133,12 +148,21 @@ import {
 
 			try {
 				const payload = createRegistrationPayload(email, password);
-				const statusCode = await registerUser(payload);
-				const mappedStatus = mapRegistrationStatusToMessage(statusCode);
+				const registrationResult = await registerUser(payload);
+				const fieldErrors = registrationResult.data?.fieldErrors;
 
-				renderStatus(mappedStatus);
+				renderFieldError(emailError, fieldErrors?.email ?? "");
+				renderFieldError(passwordError, fieldErrors?.password ?? "");
 
-				if (statusCode === 201) {
+				renderStatus({
+					variant: registrationResult.data?.variant ?? "error",
+					message:
+						registrationResult.data?.message ??
+						"Something went wrong. Please try again.",
+					cta: null,
+				});
+
+				if (registrationResult.status === 201) {
 					form.reset();
 					renderFieldError(emailError, "");
 					renderFieldError(passwordError, "");
@@ -147,7 +171,11 @@ import {
 					}, 1500);
 				}
 			} catch (_error) {
-				renderStatus(mapRegistrationStatusToMessage(0));
+				renderStatus({
+					variant: "error",
+					message: "Something went wrong. Please try again.",
+					cta: null,
+				});
 			} finally {
 				isSubmitting = false;
 				submitButton.disabled = false;

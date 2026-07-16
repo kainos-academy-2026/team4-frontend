@@ -48,7 +48,11 @@ describe("RegisterController", () => {
 			password: "Password!",
 		});
 		expect(status).toHaveBeenCalledWith(201);
-		expect(json).toHaveBeenCalledWith(registeredUser);
+		expect(json).toHaveBeenCalledWith({
+			...registeredUser,
+			variant: "success",
+			message: "Registration Successful, redirecting you to the login page",
+		});
 	});
 
 	it("returns mapped service status when registration fails", async () => {
@@ -73,7 +77,11 @@ describe("RegisterController", () => {
 		);
 
 		expect(status).toHaveBeenCalledWith(409);
-		expect(json).toHaveBeenCalledWith({ message: "User already exists" });
+		expect(json).toHaveBeenCalledWith({
+			message:
+				"That email is already registered. Try logging in or use a different email.",
+			variant: "error",
+		});
 	});
 
 	it("returns 500 when registration fails unexpectedly", async () => {
@@ -96,6 +104,9 @@ describe("RegisterController", () => {
 		);
 
 		expect(status).toHaveBeenCalledWith(500);
-		expect(json).toHaveBeenCalledWith({ message: "Internal server error" });
+		expect(json).toHaveBeenCalledWith({
+			variant: "error",
+			message: "Something went wrong on our side. Please try again in a moment.",
+		});
 	});
 });

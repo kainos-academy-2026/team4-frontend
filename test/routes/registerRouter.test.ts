@@ -39,6 +39,8 @@ describe("POST /auth/register", () => {
 			id: "new-id",
 			email: "new.user@example.com",
 			role: "user",
+			variant: "success",
+			message: "Registration Successful, redirecting you to the login page",
 		});
 	});
 
@@ -77,7 +79,11 @@ describe("POST /auth/register", () => {
 		});
 
 		expect(response.status).toBe(409);
-		expect(response.body).toEqual({ message: "User already exists" });
+		expect(response.body).toEqual({
+			message:
+				"That email is already registered. Try logging in or use a different email.",
+			variant: "error",
+		});
 	});
 
 	it("returns 500 for unexpected backend failures", async () => {
@@ -91,6 +97,9 @@ describe("POST /auth/register", () => {
 		});
 
 		expect(response.status).toBe(500);
-		expect(response.body).toEqual({ message: "Internal server error" });
+		expect(response.body).toEqual({
+			variant: "error",
+			message: "Something went wrong on our side. Please try again in a moment.",
+		});
 	});
 });
