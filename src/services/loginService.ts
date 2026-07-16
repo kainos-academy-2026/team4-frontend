@@ -13,14 +13,12 @@ export class LoginService {
 			);
 
 			const payload = response.data;
-			if (
-				typeof payload.accessToken !== "string" ||
-				payload.accessToken.length === 0
-			) {
+			const accessToken = payload.accessToken ?? payload.token;
+			if (typeof accessToken !== "string" || accessToken.length === 0) {
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 
-			return payload.accessToken;
+			return accessToken;
 		} catch (error) {
 			if (error instanceof LoginServiceError) {
 				throw error;

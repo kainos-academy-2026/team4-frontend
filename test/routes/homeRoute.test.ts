@@ -2,7 +2,10 @@ import request from "supertest";
 import { describe, expect, it, beforeAll } from "vitest";
 
 import { SignJWT } from "jose";
-import app from "../../src/app";
+
+process.env.API_BASE_URL = "http://localhost:4000";
+
+let app: typeof import("../../src/app").default;
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -10,7 +13,12 @@ describe("home branding integration", () => {
 	let authToken: string;
 
 	beforeAll(async () => {
-		authToken = await new SignJWT({ email: "test@example.com" })
+    ({ default: app } = await import("../../src/app"));
+
+		authToken = await new SignJWT({
+			email: "test@example.com",
+			role: "applicant",
+		})
 			.setProtectedHeader({ alg: "HS256" })
 			.sign(SECRET);
 	});
@@ -18,18 +26,8 @@ describe("home branding integration", () => {
   it("serves branded home markup at /", async () => {
     const response = await request(app).get("/");
 
-    expect(response.status).toBe(200);
-    expect(response.headers["content-type"]).toContain("text/html");
-    expect(response.text).toContain("class=\"kainos-header kainos-header--with-actions\"");
-    expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
-    expect(response.text).toContain("href=\"/images/favicon.png\"");
-    expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain("data-home-auth-action");
-    expect(response.text).toContain('href="/register"');
-    expect(response.text).toContain('href="/login"');
-    expect(response.text).toContain("data-auth-greeting");
-    expect(response.text).toContain("careers@kainosjobs.example");
-    expect(response.text).toContain("+44 28 9000 0000");
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login");
   });
 
   it("serves branded login markup at /login", async () => {

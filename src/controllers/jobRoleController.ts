@@ -6,9 +6,10 @@ import type { JobRoleService } from "../services/jobRoleService";
 export class JobRoleController {
 	constructor(private readonly jobRoleService: JobRoleService) {}
 
-	async renderListPage(_request: Request, response: Response): Promise<void> {
+	async renderListPage(request: Request, response: Response): Promise<void> {
 		try {
-			const jobRoles = await this.jobRoleService.getOpenRoles();
+			const accessToken = request.cookies.access_token as string | undefined;
+			const jobRoles = await this.jobRoleService.getOpenRoles(accessToken ?? "");
 
 			const viewModel: JobRoleListPage = {
 				errorMessage: null,
@@ -28,6 +29,7 @@ export class JobRoleController {
 
 	async renderDetailPage(request: Request, response: Response): Promise<void> {
 		try {
+			const accessToken = request.cookies.access_token as string | undefined;
 			const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
 
 			if (!parsedJobRoleId.success) {
@@ -40,6 +42,7 @@ export class JobRoleController {
 
 			const jobRole = await this.jobRoleService.getRoleById(
 				parsedJobRoleId.data,
+				accessToken ?? "",
 			);
 
 			if (!jobRole) {
