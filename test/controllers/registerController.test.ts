@@ -84,6 +84,53 @@ describe("RegisterController", () => {
 		});
 	});
 
+	it("returns mapped 400 status message for invalid registration payload", async () => {
+		const registerService = {
+			register: vi
+				.fn()
+				.mockRejectedValue(new RegisterServiceError(400, "Invalid registration payload")),
+		};
+
+		const status = vi.fn().mockReturnThis();
+		const json = vi.fn();
+		const controller = new RegisterController(registerService as never);
+
+		await controller.postRegister(
+			{
+				body: {
+					email: "invalid-email",
+					password: "password",
+				},
+			} as Request,
+			{ status, json } as unknown as Response,
+		);
+
+		expect(status).toHaveBeenCalledWith(400);
+		expect(json).toHaveBeenCalledWith({
+			message:
+				"Your registration details are invalid. Check your email and password and try again.",
+			variant: "error",
+		});
+	});
+
+	it("falls back to default error message for unknown status mapping", () => {
+		const controller = new RegisterController({ register: vi.fn() } as never);
+
+		const mapped = (
+			controller as unknown as {
+				mapRegistrationStatusToResponse: (statusCode: number) => {
+					variant: "success" | "error";
+					message: string;
+				};
+			}
+		).mapRegistrationStatusToResponse(418);
+
+		expect(mapped).toEqual({
+			variant: "error",
+			message: "Something went wrong. Please try again.",
+		});
+	});
+
 	it("returns 500 when registration fails unexpectedly", async () => {
 		const registerService = {
 			register: vi.fn().mockRejectedValue(new Error("boom")),

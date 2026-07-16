@@ -75,4 +75,30 @@ describe("setAuthContext", () => {
 		});
 		expect(next).toHaveBeenCalledOnce();
 	});
+
+	it("sets userEmail to null when decoded token email claim is not a string", async () => {
+		const next = vi.fn() as unknown as NextFunction;
+		const token = await new SignJWT({ email: 12345 })
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(SECRET);
+		const response = {
+			locals: {},
+		} as Response;
+
+		setAuthContext(
+			{
+				cookies: {
+					access_token: token,
+				},
+			} as Request,
+			response,
+			next,
+		);
+
+		expect(response.locals).toEqual({
+			isAuthenticated: true,
+			userEmail: null,
+		});
+		expect(next).toHaveBeenCalledOnce();
+	});
 });
