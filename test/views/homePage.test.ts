@@ -97,5 +97,6 @@ describe("home page template", () => {
     expect(html).toContain('action="/logout"');
     expect(html).toContain("Log out");
     expect(html).not.toContain('href="/login"');
+    expect(html).toContain("Browse open roles");
   });
 });
