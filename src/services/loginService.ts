@@ -8,7 +8,7 @@ export class LoginService {
 	async authenticate(credentials: LoginRequestDto): Promise<string> {
 		try {
 			const response = await apiClient.post<LoginResponseDto>(
-				"/auth/login",
+				"/login",
 				credentials,
 			);
 
