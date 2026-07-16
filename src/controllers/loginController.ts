@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
-import type { LoginService } from "../services/loginService";
+import { LoginService } from "../services/loginService";
+import { LoginServiceError } from "../services/loginServiceError";
 import {
 	clearAccessTokenCookie,
 	setAccessTokenCookie,
@@ -53,6 +54,31 @@ export const getLogin = (_request: Request, response: Response): void => {
 	response.render("login", {
 		errorMessage: null,
 	});
+};
+
+const authLoginService = new LoginService();
+
+export const postLogin = async (
+	request: Request,
+	response: Response,
+): Promise<void> => {
+	try {
+		const result = await authLoginService.login({
+			email: request.body.email,
+			password: request.body.password,
+		});
+
+		response.status(200).json(result);
+	} catch (controllerError) {
+		if (controllerError instanceof LoginServiceError) {
+			response
+				.status(controllerError.statusCode)
+				.json({ message: controllerError.message });
+			return;
+		}
+
+		response.status(500).json({ message: "Internal server error" });
+	}
 };
 
 export const postLogout = (_request: Request, response: Response): void => {
