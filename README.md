@@ -77,9 +77,9 @@ API_BASE_URL=http://localhost:3000
 
 ## Endpoints
 
-- `GET /` renders a hello-world HTML page.
+- `GET /` renders the branded home page with open job roles.
 - `GET /login` renders the login page.
-- `POST /login` submits credentials to backend `POST /auth/login`.
+- `POST /api/login` proxies login to the backend auth endpoint.
 - `POST /logout` clears the frontend auth cookie.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
@@ -88,6 +88,13 @@ API_BASE_URL=http://localhost:3000
   - Calls backend `GET /job-roles` using Axios.
 - `GET /job-roles/:id` renders a specific job role detail page.
   - Calls backend `GET /job-roles/:id` using Axios.
+- `GET /job-roles/:id` renders the job role detail page.
+- `GET /job-roles/:id/apply` renders the job application page.
+- `POST /job-roles/:id/applications` uploads a CV for a role.
+- `GET /job-roles/:id/applications/me` fetches the logged-in user's application status.
+- `GET /job-roles/:id` renders the job role detail page.
+- `GET /job-roles/:id/apply` renders the job application page.
+- `POST /job-roles/:id/applications` uploads a CV for a role.
 
 ## Login Integration
 
@@ -96,23 +103,6 @@ API_BASE_URL=http://localhost:3000
 - Frontend stores `accessToken` in an HttpOnly cookie named `access_token`.
 - Home page reads that cookie and displays a greeting when a token is present.
 - Logout clears the cookie and redirects back to home.
-
-## Job Roles Integration
-
-- `GET /job-roles` fetches open job roles from backend `GET /job-roles`.
-- `GET /job-roles/:id` fetches job role details from backend `GET /job-roles/:id`.
-- Both endpoints require valid JWT authentication (Bearer token in Authorization header).
-- Frontend passes token via authorization middleware automatically.
-
-- Registration form sends `email` and `password` to backend `POST /auth/register`.
-- Frontend payload is limited to `email` and `password` only.
-- Password is never hashed in the browser; hashing/salting is backend-only.
-- Frontend handles backend outcomes:
-	- `201`: shows account-created success guidance with login CTA.
-	- `400`: shows invalid-payload guidance.
-	- `409`: shows duplicate-user guidance.
-	- `500` and network failures: shows generic retry guidance.
-- Submit button is disabled while a request is in-flight to prevent duplicate submissions.
 
 Example health response:
 
@@ -126,6 +116,25 @@ Example health response:
 ## Acceptance Criteria Checks
 
 1. Run `npm run build` and confirm `dist` is created.
+2. Run `npm run dev` and open `http://localhost:3000/`.
+3. Click `Log in` and confirm `http://localhost:3000/login` renders the branded login form.
+4. Submit invalid credentials and confirm the page stays on `/login` and shows an error.
+5. Submit `test@test.com` and `passwordtest` with `ENABLE_DEMO_AUTH=true` and confirm the app redirects to `/`, shows `Welcome back, test@test.com`, and swaps `Log in` for `Log out`.
+6. Click `Log out` and confirm the session is cleared and the home page returns to the logged-out state.
+7. Request `http://localhost:3000/health` and confirm `status` + `time`.
+8. Stop dev, run `npm run start`, and re-check `/`, `/login`, and `/health`.
+9. Run `npm ci` and `npm run build` again to confirm reproducibility.
+
+## STEPS FOR DEMO
+1. Run 'ENABLE_DEMO_AUTH=true npm run dev' to enter test mode.
+2. Navigate to login page
+3. *OPTIONAL* Enter invalid credentials first 
+	e.g - email without an @
+	e.g - random login details (random@test.com, password)
+	e.g - correct email, wrong password (test@test.com, test)
+4. Enter valid credentials (test@test.com, passwordtest)
+5. Renavigate to home page to show welcome message
+6. Click logout button
 2. Run the backend API and ensure `POST /login` is available.
 3. Run frontend with `API_BASE_URL` pointing to backend, then open the frontend URL.
 4. Confirm `/` and `/login` render correctly.

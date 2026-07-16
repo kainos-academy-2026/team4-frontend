@@ -14,15 +14,24 @@ describe("home page template", () => {
     const html = environment.render("index.njk", {
       isAuthenticated: false,
       userEmail: null,
+<<<<<<< HEAD
     });
 
     expect(html).toContain("Hello world");
+=======
+      jobRoles: [],
+      errorMessage: null,
+    });
+
+    expect(html).toContain("Welcome to Kainos Careers");
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
     expect(html).toContain("class=\"kainos-header kainos-header--with-actions\"");
     expect(html).toContain("src=\"/images/kainoslogo.png\"");
     expect(html).toContain("rel=\"icon\"");
     expect(html).toContain("href=\"/images/favicon.png\"");
     expect(html).toContain("href=\"/styles/branding.css\"");
     expect(html).toContain("class=\"kainos-footer\"");
+<<<<<<< HEAD
     expect(html).toContain("data-home-auth-action");
     expect(html).toContain('href="/register"');
     expect(html).toContain('href="/login"');
@@ -30,6 +39,58 @@ describe("home page template", () => {
     expect(html).not.toContain("/scripts/auth.js");
     expect(html).toContain("careers@kainosjobs.example");
     expect(html).toContain("+44 28 9000 0000");
+=======
+    expect(html).toContain('href="/login"');
+    expect(html).toContain("You must be logged in to apply for a role.");
+    expect(html).not.toContain('Log in here.');
+    expect(html).toContain("src=\"/scripts/scroll-reveal.js\"");
+    expect(html).toContain("careers@kainosjobs.example");
+    expect(html).toContain("+44 28 9000 0000");
+    expect(html).toContain("kainos-roles-panel");
+    expect(html).toContain("Open Job Roles at Kainos");
+  });
+
+  it("renders job roles in the panel when provided", () => {
+    const viewsPath = path.join(process.cwd(), "src/views");
+    const environment = nunjucks.configure(viewsPath, {
+      autoescape: true,
+      noCache: true,
+    });
+
+    const html = environment.render("index.njk", {
+      jobRoles: [
+        {
+          id: 1,
+          roleName: "Software Engineer",
+          location: "Belfast",
+          capability: "Engineering",
+          band: "Associate",
+          closingDate: new Date("2026-08-01"),
+          status: "open",
+        },
+      ],
+      errorMessage: null,
+    });
+
+    expect(html).toContain("Software Engineer");
+    expect(html).toContain('href="/job-roles/1"');
+    expect(html).toContain("Belfast");
+  });
+
+  it("renders empty state when no job roles are available", () => {
+    const viewsPath = path.join(process.cwd(), "src/views");
+    const environment = nunjucks.configure(viewsPath, {
+      autoescape: true,
+      noCache: true,
+    });
+
+    const html = environment.render("index.njk", {
+      jobRoles: [],
+      errorMessage: null,
+    });
+
+    expect(html).toContain("No open job roles are available right now.");
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
   });
 
   it("renders greeting and logout action when authenticated", () => {
@@ -47,7 +108,14 @@ describe("home page template", () => {
     expect(html).toContain("Welcome back, test@example.com");
     expect(html).toContain('action="/logout"');
     expect(html).toContain("Log out");
+<<<<<<< HEAD
     expect(html).not.toContain('href="/register"');
     expect(html).not.toContain('href="/login"');
   });
 });
+=======
+    expect(html).not.toContain('href="/login"');
+    expect(html).toContain("Browse open roles");
+  });
+});
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))

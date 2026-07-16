@@ -1,4 +1,5 @@
 import request from "supertest";
+<<<<<<< HEAD
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { SignJWT } from "jose";
 
@@ -91,10 +92,19 @@ describe("GET /job-roles/:id", () => {
     ({ default: app } = await import("../../src/app"));
   });
 
+=======
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import app from "../../src/app";
+import { JobRoleService } from "../../src/services/jobRoleService";
+
+describe("GET /job-roles/:id", () => {
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
+<<<<<<< HEAD
   it("redirects unauthenticated users to login", async () => {
     const response = await request(app).get("/job-roles/1");
 
@@ -104,6 +114,9 @@ describe("GET /job-roles/:id", () => {
 
   it("renders the job role detail page when the service returns a role", async () => {
     const token = await createAuthToken();
+=======
+  it("renders the job role detail page when the service returns a role", async () => {
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
       id: 1,
       roleName: "Software Engineer",
@@ -118,13 +131,18 @@ describe("GET /job-roles/:id", () => {
       numberOfOpenPositions: 2,
     });
 
+<<<<<<< HEAD
     const response = await request(app)
       .get("/job-roles/1")
       .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+=======
+    const response = await request(app).get("/job-roles/1");
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Software Engineer");
     expect(response.text).toContain("Build services");
+<<<<<<< HEAD
     expect(response.text).toContain("Apply on SharePoint");
   });
 
@@ -146,31 +164,147 @@ describe("GET /job-roles/:id", () => {
     const response = await request(app)
       .get("/job-roles/999")
       .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+=======
+    expect(response.text).toContain('href="/job-roles/1/apply"');
+    expect(response.text).toContain("Apply on SharePoint");
+  });
+
+  it("does not render the apply route link when no open positions remain", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 0,
+    });
+
+    const response = await request(app).get("/job-roles/1");
+
+    expect(response.status).toBe(200);
+    expect(response.text).not.toContain('href="/job-roles/1/apply"');
+  });
+
+  it("redirects to not found for an invalid id", async () => {
+    const response = await request(app).get("/job-roles/not-a-number");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/404");
+  });
+
+  it("redirects to the dedicated not found page when no role exists", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
+
+    const response = await request(app).get("/job-roles/999");
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("/404");
   });
 
   it("renders an error page when the service throws", async () => {
+<<<<<<< HEAD
     const token = await createAuthToken();
+=======
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockRejectedValue(
       new Error("Backend service is currently unavailable."),
     );
 
+<<<<<<< HEAD
     const response = await request(app)
       .get("/job-roles/1")
       .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+=======
+    const response = await request(app).get("/job-roles/1");
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Something went wrong. Please try again later.");
   });
 });
 
+<<<<<<< HEAD
 describe("GET /404", () => {
   beforeAll(async () => {
     ({ default: app } = await import("../../src/app"));
   });
 
+=======
+describe("GET /job-roles/:id/apply", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders the application page when the role can accept applications", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+
+    const response = await request(app).get("/job-roles/1/apply");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Apply: Software Engineer");
+    expect(response.text).toContain("CV Upload");
+    expect(response.text).toContain("Submit application");
+  });
+
+  it("renders closed message when role cannot accept applications", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "closed",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+
+    const response = await request(app).get("/job-roles/1/apply");
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Applications are closed for this role.");
+    expect(response.text).not.toContain("Submit application");
+  });
+
+  it("redirects to not found for an invalid id", async () => {
+    const response = await request(app).get("/job-roles/not-a-number/apply");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/404");
+  });
+
+  it("redirects to not found when no role exists", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
+
+    const response = await request(app).get("/job-roles/999/apply");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/404");
+  });
+});
+
+describe("GET /404", () => {
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
   it("renders the dedicated not-found page", async () => {
     const response = await request(app).get("/404");
 

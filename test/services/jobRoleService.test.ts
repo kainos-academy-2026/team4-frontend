@@ -43,6 +43,7 @@ const detailApiData: JobRoleDetailApi = {
   responsibilities: "Ship features",
   sharepointUrl: "https://example.com/role/1",
   numberOfOpenPositions: 2,
+  myApplication: null,
 };
 
 describe("JobRoleService", () => {
@@ -64,10 +65,27 @@ describe("JobRoleService", () => {
         band: "Associate",
         closingDate: new Date("2026-08-01"),
         status: "open",
+        myApplication: null,
       },
     ]);
   });
 
+<<<<<<< HEAD
+=======
+  it("forwards auth header when listing open roles", async () => {
+    const mockGet = vi.fn().mockResolvedValue({ data: listApiData });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+    );
+
+    await service.getOpenRoles("Bearer token");
+
+    expect(mockGet).toHaveBeenCalledWith("/job-roles", {
+      headers: { Authorization: "Bearer token" },
+    });
+  });
+
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
   it("returns an empty list when backend responds with 404", async () => {
     const mockGet = vi.fn().mockRejectedValue({
       isAxiosError: true,
@@ -78,6 +96,20 @@ describe("JobRoleService", () => {
     );
 
     await expect(service.getOpenRoles()).resolves.toEqual([]);
+  });
+
+  it("rethrows non-404 errors when listing roles", async () => {
+    const requestError = {
+      isAxiosError: true,
+      response: { status: 500 },
+      message: "Server error",
+    };
+    const mockGet = vi.fn().mockRejectedValue(requestError);
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+    );
+
+    await expect(service.getOpenRoles()).rejects.toBe(requestError);
   });
 
   it("returns full job role details from API by id", async () => {
@@ -101,9 +133,11 @@ describe("JobRoleService", () => {
       responsibilities: "Ship features",
       sharepointUrl: "https://example.com/role/1",
       numberOfOpenPositions: 2,
+      myApplication: null,
     });
   });
 
+<<<<<<< HEAD
   it("returns null when backend detail endpoint responds with 404", async () => {
     const mockGet = vi.fn().mockRejectedValue(
       new AxiosError("Not Found", "404", undefined, undefined, {
@@ -117,6 +151,26 @@ describe("JobRoleService", () => {
       }),
     );
 
+=======
+  it("forwards auth header when loading role details", async () => {
+    const mockGet = vi.fn().mockResolvedValue({ data: detailApiData });
+    const service = new JobRoleService(
+      { get: mockGet } as unknown as AxiosInstance,
+    );
+
+    await service.getRoleById(1, "Bearer token");
+
+    expect(mockGet).toHaveBeenCalledWith("/job-roles/1", {
+      headers: { Authorization: "Bearer token" },
+    });
+  });
+
+  it("returns null when detail endpoint responds with 404", async () => {
+    const mockGet = vi.fn().mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 404 },
+    });
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
     );
@@ -124,14 +178,25 @@ describe("JobRoleService", () => {
     await expect(service.getRoleById(999)).resolves.toBeNull();
   });
 
+<<<<<<< HEAD
   it("rethrows non-404 errors when listing job roles", async () => {
     const serviceError = new Error("Service unavailable");
     const mockGet = vi.fn().mockRejectedValue(serviceError);
 
+=======
+  it("rethrows non-404 errors when loading role details", async () => {
+    const requestError = {
+      isAxiosError: true,
+      response: { status: 500 },
+      message: "Server error",
+    };
+    const mockGet = vi.fn().mockRejectedValue(requestError);
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
     const service = new JobRoleService(
       { get: mockGet } as unknown as AxiosInstance,
     );
 
+<<<<<<< HEAD
     await expect(service.getOpenRoles()).rejects.toThrow("Service unavailable");
   });
 
@@ -145,4 +210,9 @@ describe("JobRoleService", () => {
 
     await expect(service.getRoleById(5)).rejects.toThrow("Gateway timeout");
   });
+=======
+    await expect(service.getRoleById(1)).rejects.toBe(requestError);
+  });
+
+>>>>>>> e6e9d44 (US024-Front-end-user-reg: Implement user registration functionality f… (#16))
 });

@@ -1,50 +1,107 @@
 import type { Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 
-import { getHome } from "../../src/controllers/homeController";
+import { HomeController } from "../../src/controllers/homeController";
+import type { JobRoleService } from "../../src/services/jobRoleService";
+import type { JobRoleListItem } from "../../src/models/jobRoleListModels";
 
-describe("getHome", () => {
-	it("renders logged-out state when no auth cookie is present", () => {
+describe("HomeController.getHome", () => {
+	it("renders logged-out state when no auth cookie is present with job roles", async () => {
+    const render = vi.fn();
+    const mockRoles: JobRoleListItem[] = [];
+    const mockService = {
+      getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
+    } as unknown as JobRoleService;
+
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { cookies: {} } as Request,
+      { render } as unknown as Response,
+    );
+
+    expect(render).toHaveBeenCalledWith("index", {
+      jobRoles: mockRoles,
+      errorMessage: null,
+    });
+  });
+
+  it("renders the index view with an error message when service fails", async () => {
 		const render = vi.fn();
+    const mockService = {
+      getOpenRoles: vi.fn().mockRejectedValue(new Error("Service error")),
+    } as unknown as JobRoleService;
 
-		getHome(
-			{ headers: {} } as Request,
-			{
-				locals: {},
-				render,
-			} as unknown as Response,
-		);
+    getHome(
+      { headers: {} } as Request,
+      {
+        locals: {
+          isAuthenticated: false,
+          userEmail: null,
+        },
+        render,
+      } as unknown as Response,
+    );
+
+    expect(render).toHaveBeenCalledWith("index", {
+      isAuthenticated: false,
+      userEmail: null,
+    });
+  });
+
+  it("renders the index view with job roles on success", async () => {
+    const render = vi.fn();
+    const mockRoles: JobRoleListItem[] = [{
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      myApplication: { status: "in_progress" },
+    }];
+    const mockService = {
+      getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
+    } as unknown as JobRoleService;
+
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { cookies: { access_token: "token" } } as Request,
+      { render } as unknown as Response,
+    );
+
+    expect(render).toHaveBeenCalledWith("index", {
+      jobRoles: [{ ...mockRoles[0], status: "In Progress" }],
+      errorMessage: null,
+    });
+    expect(mockService.getOpenRoles).toHaveBeenCalledWith("Bearer token");
+  });
+
+  it("keeps original status when role has no in-progress application", async () => {
+    const render = vi.fn();
+    const mockRoles: JobRoleListItem[] = [{
+      id: 2,
+      roleName: "Product Manager",
+      location: "Belfast",
+      capability: "Product",
+      band: "Manager",
+      closingDate: new Date("2026-09-01"),
+      status: "open",
+      myApplication: null,
+    }];
+    const mockService = {
+      getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
+    } as unknown as JobRoleService;
+
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { cookies: { access_token: "token" } } as Request,
+      { render } as unknown as Response,
+    );
 
 		expect(render).toHaveBeenCalledWith("index", {
-			isAuthenticated: false,
-			userEmail: null,
-		});
-	});
-
-	it("renders logged-in state when access token cookie is present", () => {
-		const render = vi.fn();
-
-		getHome(
-			{
-				headers: {
-					cookie: `access_token=token`,
-				},
-			} as Request,
-			{
-				locals: {
-					user: {
-						id: 1,
-						email: "test@example.com",
-						role: "user",
-					},
-				},
-				render,
-			} as unknown as Response,
-		);
-
-		expect(render).toHaveBeenCalledWith("index", {
-			isAuthenticated: true,
-			userEmail: "test@example.com",
+			jobRoles: mockRoles,
+			errorMessage: null,
 		});
 	});
 });

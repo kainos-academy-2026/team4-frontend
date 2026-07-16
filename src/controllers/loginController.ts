@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-
 import type { LoginRequestDto } from "../dto/loginDto";
 import type { LoginService } from "../services/loginService";
+import { LoginServiceError } from "../services/loginServiceError";
 import {
 	clearAccessTokenCookie,
 	setAccessTokenCookie,
@@ -18,7 +18,6 @@ export class LoginController {
 	};
 
 	postLogin = async (request: Request, response: Response): Promise<void> => {
-		// Check for errors from middleware
 		if (response.locals.errors) {
 			response.status(400).render("login", {
 				errorMessage: "Please enter both your email and password.",

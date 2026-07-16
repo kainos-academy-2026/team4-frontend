@@ -1,8 +1,11 @@
 import axios from "axios";
+import axios from "axios";
+
 import apiClient from "../config/apiClient";
 import type { LoginRequestDto, LoginResponseDto } from "../dto/loginDto";
 import { logger } from "../utils/logger";
 import { LoginServiceError } from "./loginServiceError";
+import type { LoginPayload, LoginResult } from "./loginServiceModels";
 
 export class LoginService {
 	async authenticate(credentials: LoginRequestDto): Promise<string> {
@@ -23,7 +26,10 @@ export class LoginService {
 						responseKeys: Object.keys(payload || {}),
 					},
 				);
-				throw new LoginServiceError(500, "Login failed. Please try again.");
+				throw new LoginServiceError(
+					502,
+					"Login service unavailable. Please try again later.",
+				);
 			}
 
 			return payload.accessToken;

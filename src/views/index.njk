@@ -12,12 +12,12 @@
     data-page="home"
   >
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
-      <img
+      <a href="/"><img
         class="kainos-logo"
         src="/images/kainoslogo.png"
-        alt="Kainos logo"
-      />
-      <nav class="kainos-header-actions" aria-label="Authentication actions" data-home-auth-action>
+        alt="Kainos home"
+      /></a>
+      <nav class="kainos-header-actions" aria-label="Authentication actions">
         {% if isAuthenticated %}
         <form method="post" action="/logout">
           <button class="kainos-header-link kainos-header-button" type="submit">Log out</button>
@@ -29,20 +29,199 @@
       </nav>
     </header>
 
-    <main class="kainos-hero" aria-label="Home">
-      <div class="kainos-home-copy">
-        <h1>Hello world</h1>
-        {% if isAuthenticated and userEmail %}
-        <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
-        {% else %}
-        <p class="kainos-greeting" data-auth-greeting hidden></p>
-        {% endif %}
-      </div>
+    <main>
+      <section class="kainos-hero" aria-label="Welcome to Kainos">
+        <div class="kainos-home-copy">
+          <h1>Welcome to Kainos Careers</h1>
+          {% if isAuthenticated and userEmail %}
+          <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
+          {% else %}
+          <p class="kainos-hero-subtitle">Explore open opportunities and take the next step in your career.</p>
+          {% endif %}
+          <a class="kainos-scroll-cta" href="#roles" aria-label="Browse open roles">
+            Browse open roles
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <section class="kainos-roles-panel" id="roles" aria-label="Open job roles">
+        <div class="kainos-roles-inner">
+          <h2>Open Job Roles at Kainos</h2>
+          <p class="subtitle">View current roles that are open for applications.</p>
+          {% if not isAuthenticated %}
+          <p class="kainos-login-note">
+            You must be logged in to apply for a role.
+          </p>
+          {% endif %}
+
+          {% if errorMessage %}
+          <div class="alert alert-error" role="alert">{{ errorMessage }}</div>
+          {% endif %}
+
+          {% set roles = jobRoles or [] %}
+
+          {% if roles.length > 0 %}
+          <div class="table-wrapper" aria-label="Open job roles list">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Role Name</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Capability</th>
+                  <th scope="col">Band</th>
+                  <th scope="col">Closing Date</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for jobRole in roles %}
+                <tr>
+                  <td>
+                    <a href="/job-roles/{{ jobRole.id }}">{{ jobRole.roleName }}</a>
+                  </td>
+                  <td>{{ jobRole.location }}</td>
+                  <td>{{ jobRole.capability }}</td>
+                  <td>{{ jobRole.band }}</td>
+                  <td>{{ jobRole.closingDate.toLocaleDateString('en-GB', { year: '2-digit', month: '2-digit', day: '2-digit' }) }}</td>
+                  <td>
+                    <span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% elif jobRole.status | lower == 'in progress' %} badge--in-progress{% endif %}" data-role-status-badge="{{ jobRole.id }}">
+                      {{ jobRole.status }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% elif not errorMessage %}
+          <div class="empty-state" aria-live="polite">
+            <p>No open job roles are available right now.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
     </main>
 
     <footer class="kainos-footer" aria-label="Contact information">
       <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
       <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
     </footer>
+
+    <script src="/scripts/scroll-reveal.js"></script>
+    <script>
+      (function () {
+        if ("scrollRestoration" in window.history) {
+          window.history.scrollRestoration = "manual";
+        }
+
+        window.addEventListener("load", function () {
+          var navEntries = window.performance.getEntriesByType("navigation");
+          var isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+
+          if (isReload) {
+            window.scrollTo(0, 0);
+
+            if (window.location.hash === "#roles") {
+              window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            }
+          }
+        });
+
+        var cta = document.querySelector(".kainos-scroll-cta");
+        if (!cta) {
+          return;
+        }
+
+        cta.addEventListener("click", function (e) {
+          e.preventDefault();
+          var target = document.getElementById("roles");
+          if (!target) {
+            return;
+          }
+
+          var start = window.scrollY;
+          var end = target.getBoundingClientRect().top + start;
+          var duration = 1200;
+          var startTime = null;
+
+          function ease(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+          }
+
+          function step(now) {
+            if (!startTime) {
+              startTime = now;
+            }
+
+            var progress = Math.min((now - startTime) / duration, 1);
+            window.scrollTo(0, start + (end - start) * ease(progress));
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+
+          window.requestAnimationFrame(step);
+        });
+      })();
+    </script>
+  </body>
+</html>
+    <script>
+      (function () {
+        if ("scrollRestoration" in window.history) {
+          window.history.scrollRestoration = "manual";
+        }
+
+        window.addEventListener("load", function () {
+          var navEntries = window.performance.getEntriesByType("navigation");
+          var isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+
+          if (isReload) {
+            window.scrollTo(0, 0);
+
+            if (window.location.hash === "#roles") {
+              window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            }
+          }
+        });
+
+        var cta = document.querySelector(".kainos-scroll-cta");
+        if (!cta) {
+          return;
+        }
+
+        cta.addEventListener("click", function (e) {
+          e.preventDefault();
+          var target = document.getElementById("roles");
+          if (!target) {
+            return;
+          }
+
+          var start = window.scrollY;
+          var end = target.getBoundingClientRect().top + start;
+          var duration = 1200;
+          var startTime = null;
+
+          function ease(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+          }
+
+          function step(now) {
+            if (!startTime) {
+              startTime = now;
+            }
+
+            var progress = Math.min((now - startTime) / duration, 1);
+            window.scrollTo(0, start + (end - start) * ease(progress));
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          }
+
+          window.requestAnimationFrame(step);
+        });
+      })();
+    </script>
   </body>
 </html>
