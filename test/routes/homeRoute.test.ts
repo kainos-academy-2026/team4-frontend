@@ -17,9 +17,10 @@ describe("home branding integration", () => {
 
 		authToken = await new SignJWT({
 			email: "test@example.com",
-			role: "applicant",
+      role: "user",
 		})
 			.setProtectedHeader({ alg: "HS256" })
+      .setSubject("1")
 			.sign(SECRET);
 	});
 
@@ -63,16 +64,16 @@ describe("home branding integration", () => {
     expect(response.text).not.toContain("/scripts/auth.js");
   });
 
-  it("renders logged-in home state when access_token cookie is present", async () => {
+  it("renders default home state when access_token cookie is present", async () => {
     const response = await request(app)
       .get("/")
       .set("Cookie", [`access_token=${encodeURIComponent(authToken)}`]);
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain("Welcome back, test@example.com");
-    expect(response.text).toContain('action="/logout"');
-    expect(response.text).toContain("Log out");
-    expect(response.text).not.toContain('href="/login"');
+    expect(response.text).toContain('href="/login"');
+    expect(response.text).not.toContain("Welcome back, test@example.com");
+    expect(response.text).not.toContain('action="/logout"');
+    expect(response.text).not.toContain("Log out");
   });
 
   it("serves required static branding assets", async () => {

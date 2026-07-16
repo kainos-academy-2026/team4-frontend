@@ -1,142 +1,98 @@
 import type { NextFunction, Request, Response } from "express";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SignJWT } from "jose";
-import { setAuthContext } from "../../src/middleware/authContext";
+import { authorize } from "../../src/middleware/authContext";
+import { Role } from "../../src/models/role";
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
-describe("setAuthContext", () => {
-	afterEach(() => {
-		vi.restoreAllMocks();
-		vi.resetModules();
-	});
-
-	it("stores auth state in res.locals", async () => {
-		const next = vi.fn() as unknown as NextFunction;
-		const token = await new SignJWT({
-			email: "test@example.com",
-			role: "applicant",
-		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(SECRET);
-		const response = {
-			locals: {},
-		} as Response;
-
-		setAuthContext(
-			{
-				cookies: {
-					access_token: token,
-				},
-			} as Request,
-			response,
-			next,
-		);
-
-		expect(response.locals).toEqual({
-			accessToken: token,
-			isAuthenticated: true,
-			userEmail: "test@example.com",
-			userRole: "applicant",
-		});
-		expect(next).toHaveBeenCalledOnce();
-	});
-
-	it("marks unauthenticated requests with null email", () => {
-		const next = vi.fn() as unknown as NextFunction;
-		const response = {
-			locals: {},
-		} as Response;
-
-		setAuthContext({ cookies: {} } as Request, response, next);
-
-		expect(response.locals).toEqual({
-			accessToken: null,
-			isAuthenticated: false,
-			userEmail: null,
-			userRole: null,
-		});
-		expect(next).toHaveBeenCalledOnce();
-	});
-
-	it("accepts user role from backend tokens", async () => {
+describe("authorize", () => {
+	it("stores user in res.locals and calls next for allowed role", async () => {
 		const next = vi.fn() as unknown as NextFunction;
 		const token = await new SignJWT({
 			email: "test@example.com",
 			role: "user",
 		})
 			.setProtectedHeader({ alg: "HS256" })
+			.setSubject("1")
 			.sign(SECRET);
 		const response = {
 			locals: {},
-		} as Response;
+			redirect: vi.fn(),
+			status: vi.fn(() => ({ render: vi.fn() })),
+		} as unknown as Response;
+		const middleware = authorize([Role.User, Role.Admin]);
 
-		setAuthContext(
+		await middleware(
 			{
 				cookies: {
 					access_token: token,
 				},
-			} as Request,
+			} as unknown as Request,
 			response,
 			next,
 		);
 
 		expect(response.locals).toEqual({
-			accessToken: token,
-			isAuthenticated: true,
-			userEmail: "test@example.com",
-			userRole: "user",
+			user: {
+				id: 1,
+				email: "test@example.com",
+				role: "user",
+			},
 		});
 		expect(next).toHaveBeenCalledOnce();
 	});
 
-	it("handles invalid JWT tokens without throwing", () => {
+	it("redirects to login when token is missing", async () => {
 		const next = vi.fn() as unknown as NextFunction;
+		const redirect = vi.fn();
 		const response = {
 			locals: {},
-		} as Response;
+			redirect,
+			status: vi.fn(() => ({ render: vi.fn() })),
+		} as unknown as Response;
+		const middleware = authorize([Role.User, Role.Admin]);
 
-		setAuthContext(
-			{
-				cookies: {
-					access_token: "not-a-valid-jwt",
-				},
-			} as Request,
-			response,
-			next,
-		);
+		await middleware({ cookies: {} } as unknown as Request, response, next);
 
-		expect(response.locals).toEqual({
-			isAuthenticated: true,
-			userEmail: null,
-		});
-		expect(next).toHaveBeenCalledOnce();
+		expect(redirect).toHaveBeenCalledWith("/login");
+		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("sets userEmail to null when decoded token email claim is not a string", async () => {
+	it("renders forbidden when role is not allowed", async () => {
 		const next = vi.fn() as unknown as NextFunction;
-		const token = await new SignJWT({ email: 12345 })
+		const render = vi.fn();
+		const status = vi.fn(() => ({ render }));
+		const token = await new SignJWT({
+			email: "test@example.com",
+			role: "admin",
+		})
 			.setProtectedHeader({ alg: "HS256" })
+			.setSubject("1")
 			.sign(SECRET);
 		const response = {
 			locals: {},
-		} as Response;
+			redirect: vi.fn(),
+			status,
+		} as unknown as Response;
+		const middleware = authorize([Role.User]);
 
-		setAuthContext(
+		await middleware(
 			{
 				cookies: {
 					access_token: token,
 				},
-			} as Request,
+			} as unknown as Request,
 			response,
 			next,
 		);
 
-		expect(response.locals).toEqual({
-			isAuthenticated: true,
-			userEmail: null,
+		expect(status).toHaveBeenCalledWith(403);
+		expect(render).toHaveBeenCalledWith("not-found", {
+			title: "Forbidden",
+			message: "You do not have access to this page.",
 		});
-		expect(next).toHaveBeenCalledOnce();
+		expect(next).not.toHaveBeenCalled();
 	});
 });

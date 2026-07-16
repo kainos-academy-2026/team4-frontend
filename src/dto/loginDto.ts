@@ -11,6 +11,5 @@ export const LoginRequestSchema = z.object({
 export type LoginRequestDto = z.infer<typeof LoginRequestSchema>;
 
 export type LoginResponseDto = {
-	accessToken?: string;
-	token?: string;
+	token: string;
 };

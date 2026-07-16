@@ -1,11 +1,11 @@
 import { Router } from "express";
 
 import { getHome } from "../controllers/homeController";
-import { requireRoleHtml } from "../middleware/authContext";
+import { authorize } from "../middleware/authContext";
+import { Role } from "../models/role";
 
 const homeRouter = Router();
-const readAccessRoles = ["applicant", "recruitment_admin", "user"] as const;
 
-homeRouter.get("/", requireRoleHtml(readAccessRoles), getHome);
+homeRouter.get("/", authorize([Role.User, Role.Admin]), getHome);
 
 export default homeRouter;

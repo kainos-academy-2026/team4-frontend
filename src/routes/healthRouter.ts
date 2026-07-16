@@ -1,10 +1,9 @@
 import { Router } from "express";
 
 import { getHealth } from "../controllers/healthController";
-import { requireAuthJson } from "../middleware/authContext";
 
 const healthRouter = Router();
 
-healthRouter.get("/health", requireAuthJson, getHealth);
+healthRouter.get("/health", getHealth);
 
 export default healthRouter;

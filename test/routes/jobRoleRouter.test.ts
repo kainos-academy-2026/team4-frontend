@@ -11,8 +11,9 @@ let app: typeof import("../../src/app").default;
 const SECRET = new TextEncoder().encode("test-secret-key");
 
 const createAuthToken = async (): Promise<string> =>
-	new SignJWT({ email: "test@example.com", role: "applicant" })
+  new SignJWT({ email: "test@example.com", role: "user" })
 		.setProtectedHeader({ alg: "HS256" })
+    .setSubject("1")
 		.sign(SECRET);
 
 describe("GET /job-roles", () => {
