@@ -3,11 +3,10 @@ import { Router } from "express";
 import {
 	getLogin,
 	LoginController,
-	postLogin,
 	postLogout,
 } from "../controllers/loginController";
 import { LoginRequestSchema } from "../dto/loginDto";
-import { validateLoginUser } from "../middleware/loginUserMiddleware";
+import { requireAuthHtml } from "../middleware/authContext";
 import { validateBody } from "../middleware/loginValidation";
 import { LoginService } from "../services/loginService";
 
@@ -20,7 +19,6 @@ loginRouter.get("/login", getLogin);
 loginRouter.post("/login", validateBody(LoginRequestSchema), (req, res) =>
 	loginController.postLogin(req, res),
 );
-loginRouter.post("/logout", postLogout);
-loginRouter.post("/auth/login", validateLoginUser, postLogin);
+loginRouter.post("/logout", requireAuthHtml, postLogout);
 
 export default loginRouter;

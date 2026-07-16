@@ -71,9 +71,13 @@ describe("JobRoleService", () => {
       false,
     );
 
-    const result = await service.getOpenRoles();
+    const result = await service.getOpenRoles("test-token");
 
-    expect(mockGet).toHaveBeenCalledWith("/job-roles");
+    expect(mockGet).toHaveBeenCalledWith("/job-roles", {
+      headers: {
+        Authorization: "Bearer test-token",
+      },
+    });
     expect(result).toEqual([
       {
         id: 1,
@@ -95,7 +99,7 @@ describe("JobRoleService", () => {
       true,
     );
 
-    const result = await service.getOpenRoles();
+    const result = await service.getOpenRoles("test-token");
 
     expect(mockGet).not.toHaveBeenCalled();
     expect(result).toEqual([
@@ -122,7 +126,7 @@ describe("JobRoleService", () => {
       false,
     );
 
-    await expect(service.getOpenRoles()).resolves.toEqual([]);
+    await expect(service.getOpenRoles("test-token")).resolves.toEqual([]);
   });
 
   it("returns full job role details from API by id", async () => {
@@ -133,9 +137,13 @@ describe("JobRoleService", () => {
       false,
     );
 
-    const result = await service.getRoleById(1);
+    const result = await service.getRoleById(1, "test-token");
 
-    expect(mockGet).toHaveBeenCalledWith("/job-roles/1");
+    expect(mockGet).toHaveBeenCalledWith("/job-roles/1", {
+      headers: {
+        Authorization: "Bearer test-token",
+      },
+    });
     expect(result).toEqual({
       id: 1,
       roleName: "Software Engineer",
