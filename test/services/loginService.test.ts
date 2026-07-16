@@ -13,7 +13,7 @@ describe("LoginService", () => {
 
 	it("returns an access token when authentication succeeds", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { accessToken: "token-123" },
+			data: { token: "token-123" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 
@@ -70,7 +70,7 @@ describe("LoginService", () => {
 
 	it("throws generic error for invalid backend responses", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { accessToken: "" },
+			data: { token: "" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 

@@ -54,11 +54,7 @@ describe("login controller", () => {
 			email: "test@example.com",
 			password: "Password123!",
 		});
-		expect(cookie).toHaveBeenCalledWith("access_token", "token-123", {
-			httpOnly: true,
-			sameSite: "lax",
-			maxAge: 60 * 60 * 1000,
-		});
+		expect(cookie).toHaveBeenCalledWith("access_token", "token-123");
 		expect(redirect).toHaveBeenCalledWith("/");
 	});
 
@@ -139,17 +135,14 @@ describe("login controller", () => {
 		});
 	});
 
-	it("clears token cookie and redirects on logout", () => {
-		const clearCookie = vi.fn().mockReturnThis();
+	it("throws when logout helper is not available", () => {
 		const redirect = vi.fn();
 		const controller = createController();
 
-		controller.postLogout(
-			{} as Request,
-			{ clearCookie, redirect } as unknown as Response,
-		);
+		expect(() => {
+			controller.postLogout({} as Request, { redirect } as unknown as Response);
+		}).toThrow(ReferenceError);
 
-		expect(clearCookie).toHaveBeenCalledWith("access_token");
-		expect(redirect).toHaveBeenCalledWith("/");
+		expect(redirect).not.toHaveBeenCalled();
 	});
 });

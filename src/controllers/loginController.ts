@@ -2,10 +2,6 @@ import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
 import type { LoginService } from "../services/loginService";
-import {
-	clearAccessTokenCookie,
-	setAccessTokenCookie,
-} from "../utils/cookieHelpers";
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
@@ -33,7 +29,7 @@ export class LoginController {
 				password,
 			});
 
-			setAccessTokenCookie(response, accessToken);
+			response.cookie("access_token", accessToken)
 			response.redirect("/");
 		} catch (_error) {
 			response.status(401).render("login", {
