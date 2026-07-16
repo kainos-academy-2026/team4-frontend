@@ -1,121 +1,51 @@
 import type { NextFunction, Request, Response } from "express";
+import type { Role } from "../models/role";
+import * as jose from "jose";
 
-export type AuthRole = "applicant" | "recruitment_admin" | "user";
+export const authorize = (allowedRoles: readonly Role[]) => {
+	return async (
+		request: Request,
+		response: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const token = request.cookies.access_token;
+			if (!token) {
+				response.redirect("/login");
+				return;
+			}
 
-type JwtPayload = {
-	email?: unknown;
-	role?: unknown;
-};
+			const decodedToken = await jose.decodeJwt(token);
+			if(!decodedToken) {
+				response.redirect("/login");
+				return;
+			}
 
-const parseJwtPayload = (token: string): JwtPayload | null => {
-	const tokenParts = token.split(".");
-	if (tokenParts.length < 2) {
-		return null;
-	}
+			const userId = Number(decodedToken.sub);
+			if (!Number.isSafeInteger(userId) || userId <= 0) {
+				response.redirect("/login");
+				return;
+			}
 
-	const payloadPart = tokenParts[1];
-	if (!payloadPart) {
-		return null;
-	}
+			if (!allowedRoles.includes(decodedToken.role as Role)) {
+				response.status(403).render("not-found", {
+					title: "Forbidden",
+					message: "You do not have access to this page.",
+				});
+				return;
+			}
 
-	try {
-		return JSON.parse(Buffer.from(payloadPart, "base64url").toString("utf8")) as JwtPayload;
-	} catch {
-		return null;
-	}
-};
+			response.locals.user = {
+				id: userId,
+				email: typeof decodedToken.email === "string" ? decodedToken.email : "",
+				role: decodedToken.role,
+			};
 
-const isAuthRole = (value: unknown): value is AuthRole =>
-	value === "applicant" || value === "recruitment_admin" || value === "user";
-
-const redirectToLogin = (response: Response): void => {
-	response.redirect("/login");
-};
-
-const unauthorizedJson = (response: Response): void => {
-	response.status(401).json({ message: "Authentication required." });
-};
-
-const forbiddenHtml = (response: Response): void => {
-	response.status(403).send("Forbidden");
-};
-
-const forbiddenJson = (response: Response): void => {
-	response.status(403).json({ message: "You do not have access to this resource." });
-};
-
-export const setAuthContext = (
-	request: Request,
-	response: Response,
-	next: NextFunction,
-): void => {
-	const accessToken = request.cookies.access_token as string | undefined;
-	const payload = accessToken ? parseJwtPayload(accessToken) : null;
-	const userEmail = typeof payload?.email === "string" ? payload.email : null;
-	const userRole = isAuthRole(payload?.role) ? payload.role : null;
-	const isAuthenticated = Boolean(accessToken && userEmail && userRole);
-
-	response.locals.accessToken = isAuthenticated ? accessToken : null;
-	response.locals.userRole = isAuthenticated ? userRole : null;
-	response.locals.isAuthenticated = isAuthenticated;
-	response.locals.userEmail = userEmail;
-	next();
-};
-
-export const requireAuthHtml = (
-	request: Request,
-	response: Response,
-	next: NextFunction,
-): void => {
-	if (!response.locals.isAuthenticated) {
-		redirectToLogin(response);
-		return;
-	}
-
-	next();
-};
-
-export const requireAuthJson = (
-	request: Request,
-	response: Response,
-	next: NextFunction,
-): void => {
-	if (!response.locals.isAuthenticated) {
-		unauthorizedJson(response);
-		return;
-	}
-
-	next();
-};
-
-export const requireRoleHtml = (allowedRoles: readonly AuthRole[]) => {
-	return (request: Request, response: Response, next: NextFunction): void => {
-		if (!response.locals.isAuthenticated) {
-			redirectToLogin(response);
+			next();
+		} catch (error) {
+			console.error("Error in authorize middleware:", error);
+			response.redirect("/login");
 			return;
 		}
-
-		if (!allowedRoles.includes(response.locals.userRole as AuthRole)) {
-			forbiddenHtml(response);
-			return;
-		}
-
-		next();
-	};
-};
-
-export const requireRoleJson = (allowedRoles: readonly AuthRole[]) => {
-	return (request: Request, response: Response, next: NextFunction): void => {
-		if (!response.locals.isAuthenticated) {
-			unauthorizedJson(response);
-			return;
-		}
-
-		if (!allowedRoles.includes(response.locals.userRole as AuthRole)) {
-			forbiddenJson(response);
-			return;
-		}
-
-		next();
 	};
 };

@@ -3,9 +3,8 @@ import path from "node:path";
 import "dotenv/config";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
-import { setAuthContext } from "./middleware/authContext";
-import cookieParserMiddleware from "./middleware/cookieParser";
 import router from "./routes";
+import cookieParser from "cookie-parser";
 
 // Validate required environment variables at startup
 if (!process.env.API_BASE_URL) {
@@ -39,9 +38,8 @@ app.set("views", viewsPath);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParserMiddleware);
+app.use(cookieParser());
 app.use(express.static(publicPath));
-app.use(setAuthContext);
 
 app.use(router);
 
