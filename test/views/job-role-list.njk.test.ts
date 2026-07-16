@@ -3,8 +3,8 @@ import path from "node:path";
 import nunjucks from "nunjucks";
 import { describe, expect, it } from "vitest";
 
-describe("job role page templates", () => {
-	it("renders closed badges with the closed modifier class", () => {
+describe("job-role-list template", () => {
+	it("renders closed role badges with closed modifier class", () => {
 		const viewsPath = path.join(process.cwd(), "src/views");
 		const environment = nunjucks.configure(viewsPath, {
 			autoescape: true,
@@ -28,11 +28,7 @@ describe("job role page templates", () => {
 		const listHtml = environment.render("job-role-list.njk", {
 			jobRoles: [closedRole],
 		});
-		const detailHtml = environment.render("job-role-detail.njk", {
-			jobRole: closedRole,
-		});
 
 		expect(listHtml).toContain('class="badge badge--closed"');
-		expect(detailHtml).toContain('class="badge badge--closed"');
 	});
 });

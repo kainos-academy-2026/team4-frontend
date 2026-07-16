@@ -2,7 +2,7 @@ import request from "supertest";
 import { describe, expect, it, beforeAll } from "vitest";
 
 import { SignJWT } from "jose";
-import app from "../src/app";
+import app from "../../src/app";
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -25,6 +25,7 @@ describe("home branding integration", () => {
     expect(response.text).toContain("href=\"/images/favicon.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
     expect(response.text).toContain("data-home-auth-action");
+    expect(response.text).toContain('href="/register"');
     expect(response.text).toContain('href="/login"');
     expect(response.text).toContain("data-auth-greeting");
     expect(response.text).toContain("careers@kainosjobs.example");

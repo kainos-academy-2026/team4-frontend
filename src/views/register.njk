@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kainos | Register</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/styles/branding.css" />
+  </head>
+  <body class="kainos-page" data-page="register">
+    <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
+      <img class="kainos-logo" src="/images/kainoslogo.png" alt="Kainos logo" />
+      <nav class="kainos-header-actions kainos-header-actions--row" aria-label="Page navigation">
+        <a class="kainos-header-link" href="/">Home</a>
+        <a class="kainos-header-link" href="/login">Log in</a>
+      </nav>
+    </header>
+
+    <main class="kainos-hero" aria-label="Register">
+      <form class="kainos-auth-card" data-register-form novalidate>
+        <h1 class="kainos-auth-title">Create account</h1>
+
+        <label class="kainos-field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required data-register-email />
+          <p class="kainos-field-error" data-register-email-error aria-live="polite" hidden></p>
+        </label>
+
+        <label class="kainos-field">
+          <span>Password</span>
+          <input
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            required
+            data-register-password
+          />
+          <p class="kainos-password-hint">
+            Use at least 8 characters with uppercase, lowercase, and a special character.
+          </p>
+          <p class="kainos-field-error" data-register-password-error aria-live="polite" hidden></p>
+        </label>
+
+        <p class="kainos-form-status" data-register-status aria-live="polite" hidden></p>
+        <button class="kainos-primary-action" type="submit" data-register-submit>Create account</button>
+      </form>
+    </main>
+
+    <footer class="kainos-footer" aria-label="Contact information">
+      <p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
+      <p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
+    </footer>
+
+    <script type="module" src="/scripts/auth.js"></script>
+  </body>
+</html>

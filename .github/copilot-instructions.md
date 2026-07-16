@@ -7,6 +7,8 @@
 - Route registration lives in `src/routes/`.
 - Request handling should follow the existing layering: route -> controller -> service -> mapper/model -> view.
 - Keep tests mirrored by concern under `test/`, matching the source area being changed.
+- Prefer one-to-one source/test symmetry: if a file exists in `src/<area>/`, place its nearest tests under `test/<area>/` and use matching names where practical (for example `src/routes/loginRouter.ts` -> `test/routes/loginRouter.test.ts`, `src/views/login.njk` -> `test/views/login.njk.test.ts`).
+- When creating new source folders under `src/`, create the corresponding folder under `test/` in the same change when tests are needed.
 
 ## Conventions
 
