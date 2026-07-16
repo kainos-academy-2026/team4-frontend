@@ -110,8 +110,8 @@ describe("job role page templates", () => {
 		expect(html).toContain('type="file"');
 		expect(html).toContain("data-application-confirmation");
 		expect(html).toContain('src="/scripts/job-application.js"');
-		expect(detailHtml).not.toContain('Log in here.');
-		expect(detailHtml).toContain('href="/#roles"');
+		expect(html).not.toContain('Log in here.');
+		expect(html).toContain('href="/#roles"');
 	});
 
 	it("renders the apply CTA only when role is open and has open positions", () => {

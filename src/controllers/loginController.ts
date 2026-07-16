@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-
+import { isDemoAuthEnabled } from "../config/auth";
 import type { LoginRequestDto } from "../dto/loginDto";
 import type { LoginService } from "../services/loginService";
 import {
@@ -13,11 +13,11 @@ export class LoginController {
 	getLogin = (_request: Request, response: Response): void => {
 		response.render("login", {
 			errorMessage: null,
+			demoAuthEnabled: isDemoAuthEnabled(),
 		});
 	};
 
 	postLogin = async (request: Request, response: Response): Promise<void> => {
-		// Check for errors from middleware
 		if (response.locals.errors) {
 			response.status(400).render("login", {
 				errorMessage: "Please enter both your email and password.",
@@ -47,15 +47,3 @@ export class LoginController {
 		response.redirect("/");
 	};
 }
-
-// Export handler functions for routing
-export const getLogin = (_request: Request, response: Response): void => {
-	response.render("login", {
-		errorMessage: null,
-	});
-};
-
-export const postLogout = (_request: Request, response: Response): void => {
-	clearAccessTokenCookie(response);
-	response.redirect("/");
-};

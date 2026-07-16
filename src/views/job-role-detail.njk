@@ -7,9 +7,9 @@
 		<link rel="icon" type="image/png" href="/images/favicon.png" />
 		<link rel="stylesheet" href="/styles/branding.css" />
 	</head>
-	<body class="kainos-page" data-page="job-role-detail" data-page="job-role-detail">
-		<header class="kainos-header kainos-header--with-actions kainos-header--with-actions" aria-label="Kainos brand banner">
-			<a href="/"><a href="/"><img
+	<body class="kainos-page" data-page="job-role-detail">
+		<header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
+			<a href="/"><img
 				class="kainos-logo"
 				src="/images/kainoslogo.png"
 				alt="Kainos home"
@@ -32,7 +32,7 @@
 			<h1>{{ jobRole.roleName }}</h1>
 			<p class="subtitle">Review the role details and continue to apply.</p>
 
-			<section class="empty-state" aria-label="Job role detail">
+			<section class="empty-state" aria-label="Job role detail" data-apply-section data-job-role-id="{{ jobRole.id }}">
 				<p><strong>Location:</strong> {{ jobRole.location }}</p>
 				<p><strong>Capability:</strong> {{ jobRole.capability }}</p>
 				<p><strong>Band:</strong> {{ jobRole.band }}</p>
@@ -42,7 +42,7 @@
 				</p>
 				<p>
 					<strong>Status:</strong>
-					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
+					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}" data-role-status-badge="{{ jobRole.id }}">
 						{{ jobRole.status }}
 					</span>
 				</p>
@@ -59,14 +59,6 @@
 						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
 					</div>
 					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
-					<div class="alert alert-info" data-login-prompt hidden>
-						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
-					</div>
-					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
-					<div class="alert alert-info" data-login-prompt hidden>
-						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
-					</div>
-					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
 					<p>
 						<a
 							class="kainos-primary-action"
@@ -76,18 +68,6 @@
 							Apply now
 						</a>
 					</p>
-				</section>
-				{% endif %}
-				{% if showApplyForRole %}
-				<section class="empty-state" aria-label="Apply for this role">
-					<h2>Apply for this role</h2>
-					<p>Applicants can upload a CV and start an application.</p>
-					<a
-						class="kainos-primary-action"
-						href="/job-roles/{{ jobRole.id }}/apply"
-					>
-						Apply now
-					</a>
 				</section>
 				{% endif %}
 				<p>
@@ -110,6 +90,7 @@
 			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
+		<script src="/scripts/auth.js"></script>
 		<script src="/scripts/job-application.js"></script>
 	</body>
 </html>

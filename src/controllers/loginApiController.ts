@@ -1,26 +1,26 @@
 import axios from "axios";
 import type { Request, Response } from "express";
 
+import type { LoginRequestDto } from "../dto/loginDto";
 import type { AuthService } from "../services/authService.js";
+import { setAccessTokenCookie } from "../utils/cookieHelpers.js";
 
 export class LoginApiController {
 	constructor(private readonly authService: AuthService) {}
 
 	async login(request: Request, response: Response): Promise<void> {
-		const { email, password } = request.body as {
-			email?: unknown;
-			password?: unknown;
-		};
-
-		if (typeof email !== "string" || typeof password !== "string") {
+		if (response.locals.errors) {
 			response
 				.status(400)
 				.json({ message: "Email and password are required." });
 			return;
 		}
 
+		const { email, password } = request.body as LoginRequestDto;
+
 		try {
 			const loginResponse = await this.authService.login(email, password);
+			setAccessTokenCookie(response, loginResponse.accessToken);
 			response.status(200).json(loginResponse);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {

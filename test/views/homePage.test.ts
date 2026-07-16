@@ -12,13 +12,8 @@ describe("home page template", () => {
     });
 
     const html = environment.render("index.njk", {
-     
       isAuthenticated: false,
-      jobRoles: [],
-      errorMessage: null,
-   ,
       userEmail: null,
-   ,
       jobRoles: [],
       errorMessage: null,
     });
@@ -35,7 +30,6 @@ describe("home page template", () => {
     expect(html).toContain("data-auth-greeting");
     expect(html).toContain("You must be logged in to apply for a role.");
     expect(html).not.toContain('Log in here.');
-    expect(html).not.toContain("/scripts/auth.js");
     expect(html).toContain("src=\"/scripts/scroll-reveal.js\"");
     expect(html).toContain("careers@kainosjobs.example");
     expect(html).toContain("+44 28 9000 0000");
@@ -85,24 +79,6 @@ describe("home page template", () => {
     });
 
     expect(html).toContain("No open job roles are available right now.");
-  });
-
-  it("renders greeting and logout action when authenticated", () => {
-    const viewsPath = path.join(process.cwd(), "src/views");
-    const environment = nunjucks.configure(viewsPath, {
-      autoescape: true,
-      noCache: true,
-    });
-
-    const html = environment.render("index.njk", {
-      isAuthenticated: true,
-      userEmail: "test@example.com",
-    });
-
-    expect(html).toContain("Welcome back, test@example.com");
-    expect(html).toContain('action="/logout"');
-    expect(html).toContain("Log out");
-    expect(html).not.toContain('href="/login"');
   });
 
   it("renders greeting and logout action when authenticated", () => {

@@ -37,52 +37,6 @@ a.kainos-secondary-action:visited {
   color: var(--kainos-primary-blue);
 }
 
-a {
-  color: var(--kainos-primary-blue);
-}
-
-a:visited {
-  color: var(--kainos-primary-blue);
-}
-
-a.kainos-primary-action,
-a.kainos-primary-action:visited {
-  color: #ffffff;
-}
-
-a.kainos-header-link,
-a.kainos-header-link:visited {
-  color: var(--kainos-primary-blue);
-}
-
-a.kainos-secondary-action,
-a.kainos-secondary-action:visited {
-  color: var(--kainos-primary-blue);
-}
-
-a {
-  color: var(--kainos-primary-blue);
-}
-
-a:visited {
-  color: var(--kainos-primary-blue);
-}
-
-a.kainos-primary-action,
-a.kainos-primary-action:visited {
-  color: #ffffff;
-}
-
-a.kainos-header-link,
-a.kainos-header-link:visited {
-  color: var(--kainos-primary-blue);
-}
-
-a.kainos-secondary-action,
-a.kainos-secondary-action:visited {
-  color: var(--kainos-primary-blue);
-}
-
 body.kainos-page {
   margin: 0;
   min-height: 100vh;
@@ -117,18 +71,6 @@ body.kainos-page {
   display: block;
   width: clamp(85px, 12vw, 130px);
   height: auto;
-  margin-right: 5%;
-  margin-right: 5%;
-}
-
-a:has(> .kainos-logo) {
-  display: contents;
-  outline-offset: 4px;
-}
-
-a:has(> .kainos-logo):focus-visible {
-  outline: 2px solid var(--kainos-primary-blue);
-  border-radius: 4px;
 }
 
 a:has(> .kainos-logo) {
@@ -591,24 +533,6 @@ a:has(> .kainos-logo):focus-visible {
 @media (max-width: 900px) {
   .kainos-hero {
     min-height: 100svh;
-  }
-}
-
-@media (max-width: 540px) {
-  .kainos-header {
-    padding-inline: 1rem;
-  }
-
-  .kainos-header--with-actions {
-    flex-wrap: wrap;
-  }
-
-  .kainos-hero {
-    min-height: 100svh;
-  }
-
-  .kainos-auth-card {
-    width: 100%;
   }
 }
 

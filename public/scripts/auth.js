@@ -24,18 +24,6 @@
 		window.sessionStorage.removeItem(demoAuthStorageKeys.token);
 	};
 
-	const createFakeJwt = (email) => {
-		const header = window.btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-		const payload = window.btoa(
-			JSON.stringify({
-				email,
-				exp: Math.floor(Date.now() / 1000) + 60 * 60,
-			})
-		);
-
-		return `${header}.${payload}.demo-signature`;
-	};
-
 	const setError = (message) => {
 		const errorRegion = document.querySelector("[data-login-error]");
 		if (!errorRegion) {
@@ -77,8 +65,14 @@
 
 		const logoutTrigger = authAction.querySelector("[data-logout-trigger]");
 		if (logoutTrigger) {
-			logoutTrigger.addEventListener("click", () => {
+			logoutTrigger.addEventListener("click", async () => {
 				clearSession();
+
+				try {
+					await window.fetch("/logout", { method: "POST" });
+				} catch {
+					// best-effort; proceed with redirect regardless
+				}
 
 				if (page === "job-application") {
 					const form = document.querySelector("[data-job-application-form]");
@@ -176,7 +170,7 @@
 
 			window.sessionStorage.setItem(demoAuthStorageKeys.email, email);
 			window.sessionStorage.setItem(demoAuthStorageKeys.token, token);
-			window.location.assign("/");
+			window.location.assign(returnTo);
 		});
 	};
 

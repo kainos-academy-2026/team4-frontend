@@ -8,11 +8,20 @@ type FakeInput = {
 	value: string;
 };
 
+type SubmitButton = {
+	clickHandler?: (event: { preventDefault: () => void }) => void;
+	addEventListener: (
+		eventName: string,
+		handler: (event: { preventDefault: () => void }) => void,
+	) => void;
+};
+
 type FakeForm = {
 	fields: Map<string, string>;
 	emailInput: FakeInput;
 	passwordInput: FakeInput;
 	submitHandler?: (event: { preventDefault: () => void }) => void;
+	submitButton?: SubmitButton | null;
 	querySelector: (selector: string) => unknown;
 	addEventListener: (
 		eventName: string,
@@ -23,9 +32,20 @@ type FakeForm = {
 const scriptPath = path.join(process.cwd(), "public/scripts/auth.js");
 const script = readFileSync(scriptPath, "utf8");
 
-const createLoginForm = (initialEmail = "", initialPassword = ""): FakeForm => {
+const createLoginForm = (initialEmail = "", initialPassword = "", withSubmitButton = false): FakeForm => {
 	const emailInput = { value: initialEmail };
 	const passwordInput = { value: initialPassword };
+
+	const submitButton: SubmitButton | null = withSubmitButton
+		? {
+				clickHandler: undefined,
+				addEventListener(eventName: string, handler: (event: { preventDefault: () => void }) => void) {
+					if (eventName === "click") {
+						this.clickHandler = handler;
+					}
+				},
+			}
+		: null;
 
 	return {
 		fields: new Map([
@@ -34,6 +54,7 @@ const createLoginForm = (initialEmail = "", initialPassword = ""): FakeForm => {
 		]),
 		emailInput,
 		passwordInput,
+		submitButton,
 		querySelector(selector: string) {
 			if (selector === 'input[name="email"]') {
 				return emailInput;
@@ -41,6 +62,10 @@ const createLoginForm = (initialEmail = "", initialPassword = ""): FakeForm => {
 
 			if (selector === 'input[name="password"]') {
 				return passwordInput;
+			}
+
+			if (selector === '[type="submit"]') {
+				return submitButton;
 			}
 
 			return null;
@@ -66,6 +91,8 @@ const runScript = ({
 	search = "",
 	sessionEntries = [],
 	fetchMock,
+	jobApplicationFormRoleId,
+	launchMinigame,
 }: {
 	page?: string;
 	demoAuthEnabled?: boolean;
@@ -79,6 +106,8 @@ const runScript = ({
 	search?: string;
 	sessionEntries?: Array<[string, string]>;
 	fetchMock?: ReturnType<typeof vi.fn>;
+	jobApplicationFormRoleId?: string;
+	launchMinigame?: () => void;
 }) => {
 	const sessionValues = new Map<string, string>(sessionEntries);
 	const loginPrompt = { hidden: true };
@@ -120,6 +149,12 @@ const runScript = ({
 		);
 	}
 
+	const jobApplicationFormEl = jobApplicationFormRoleId
+		? Object.assign(Object.create(FakeHtmlFormElement.prototype), {
+				dataset: { jobRoleId: jobApplicationFormRoleId },
+			})
+		: null;
+
 	class FakeFormData {
 		constructor(private readonly form: FakeForm) {}
 
@@ -155,6 +190,7 @@ const runScript = ({
 				},
 			},
 			fetch: fetchMock ?? vi.fn().mockRejectedValue(new Error("network unavailable")),
+			...(launchMinigame ? { launchMinigame } : {}),
 		},
 		document: {
 			body: {
@@ -178,6 +214,10 @@ const runScript = ({
 
 				if (selector === "[data-login-error]") {
 					return withErrorRegion ? errorRegion : null;
+				}
+
+				if (selector === "[data-job-application-form]") {
+					return jobApplicationFormEl;
 				}
 
 				return null;
@@ -293,23 +333,26 @@ describe("auth browser script", () => {
 		expect(result.greeting.textContent).toBe("");
 	});
 
-	it("reloads the page after logout", () => {
+	it("reloads the page after logout", async () => {
+		const fetchMock = vi.fn().mockResolvedValue({ ok: true });
 		const result = runScript({
 			page: "home",
 			sessionEntries: [
 				["demoAuthEmail", "test@test.com"],
 				["demoAuthToken", "demo-token"],
 			],
+			fetchMock,
 		});
 
 		expect(result.logoutTrigger.clickHandler).toBeTypeOf("function");
 		expect(result.greeting.hidden).toBe(false);
 		expect(result.greeting.textContent).toBe("Welcome back, test@test.com");
 
-		result.logoutTrigger.clickHandler?.();
+		await result.logoutTrigger.clickHandler?.();
 
 		expect(result.sessionValues.get("demoAuthEmail")).toBeUndefined();
 		expect(result.sessionValues.get("demoAuthToken")).toBeUndefined();
+		expect(fetchMock).toHaveBeenCalledWith("/logout", { method: "POST" });
 		expect(result.reload).toHaveBeenCalledTimes(1);
 	});
 
@@ -453,115 +496,121 @@ describe("auth browser script", () => {
 			result.form?.submitHandler?.({ preventDefault: () => undefined }),
 		).not.toThrow();
 	});
-});import { readFileSync } from "node:fs";
-import path from "node:path";
-import vm from "node:vm";
 
-import { describe, expect, it, vi } from "vitest";
+	it("shows error when login response JSON is unparseable", async () => {
+		const form = createLoginForm("test@test.com", "passwordtest");
 
-describe("auth browser script", () => {
-	it("reloads the page after logout", () => {
-		const scriptPath = path.join(process.cwd(), "public/scripts/auth.js");
-		const script = readFileSync(scriptPath, "utf8");
-
-		const sessionValues = new Map<string, string>([
-			["demoAuthEmail", "test@test.com"],
-			["demoAuthToken", "demo-token"],
-		]);
-
-		const logoutTrigger = {
-			clickHandler: undefined as undefined | (() => void),
-			addEventListener(eventName: string, handler: () => void) {
-				if (eventName === "click") {
-					this.clickHandler = handler;
-				}
-			},
-		};
-
-		const authAction = {
-			innerHTML: "",
-			querySelector(selector: string) {
-				if (selector === "[data-logout-trigger]") {
-					return logoutTrigger;
-				}
-
-				return null;
-			},
-		};
-
-		const greeting = {
-			hidden: true,
-			textContent: "",
-		};
-
-		const loginPrompt = {
-			hidden: true,
-		};
-
-		const reload = vi.fn();
-
-		const sandbox = {
-			window: {
-				btoa: (value: string) => Buffer.from(value, "binary").toString("base64"),
-				location: {
-					pathname: "/job-roles/1/apply",
-					reload,
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: true,
+				status: 200,
+				json: async () => {
+					throw new Error("invalid json");
 				},
-				sessionStorage: {
-					getItem(key: string) {
-						return sessionValues.get(key) ?? null;
-					},
-					removeItem(key: string) {
-						sessionValues.delete(key);
-					},
-					setItem(key: string, value: string) {
-						sessionValues.set(key, value);
-					},
-				},
-			},
-			document: {
-				body: {
-					dataset: {
-						page: "home",
-						demoAuthEnabled: "false",
-					},
-				},
-				querySelector(selector: string) {
-					if (selector === "[data-auth-action]") {
-						return authAction;
-					}
+			}),
+		});
 
-					if (selector === "[data-auth-greeting]") {
-						return greeting;
-					}
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
 
-					return null;
-				},
-				querySelectorAll(selector: string) {
-					if (selector === "[data-login-prompt]") {
-						return [loginPrompt];
-					}
+		expect(result.errorRegion.hidden).toBe(false);
+		expect(result.errorRegion.textContent).toBe("Login failed. Please try again.");
+		expect(result.assign).not.toHaveBeenCalled();
+	});
 
-					return [];
-				},
-			},
-			console,
-			Buffer,
-			Math,
-			Date,
-			JSON,
-			setTimeout,
-			clearTimeout,
-		};
+	it("shows error when login response contains no access token", async () => {
+		const form = createLoginForm("test@test.com", "passwordtest");
 
-		vm.runInNewContext(script, sandbox, { filename: scriptPath });
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: true,
+				status: 200,
+				json: async () => ({}),
+			}),
+		});
 
-		expect(logoutTrigger.clickHandler).toBeTypeOf("function");
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
 
-		logoutTrigger.clickHandler?.();
+		expect(result.errorRegion.hidden).toBe(false);
+		expect(result.errorRegion.textContent).toBe("Login failed. Please try again.");
+		expect(result.assign).not.toHaveBeenCalled();
+	});
 
-		expect(sessionValues.get("demoAuthEmail")).toBeUndefined();
-		expect(sessionValues.get("demoAuthToken")).toBeUndefined();
-		expect(reload).toHaveBeenCalledTimes(1);
+	it("redirects to job role page on logout from the job-application page", async () => {
+		const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+		const result = runScript({
+			page: "job-application",
+			jobApplicationFormRoleId: "42",
+			sessionEntries: [
+				["demoAuthEmail", "test@test.com"],
+				["demoAuthToken", "demo-token"],
+			],
+			fetchMock,
+		});
+
+		expect(result.logoutTrigger.clickHandler).toBeTypeOf("function");
+
+		await result.logoutTrigger.clickHandler?.();
+
+		expect(result.assign).toHaveBeenCalledWith("/job-roles/42");
+		expect(result.reload).not.toHaveBeenCalled();
+	});
+
+	it("triggers the minigame when the easter egg credentials are used", () => {
+		const launchMinigame = vi.fn();
+		const form = createLoginForm("fun", "forme", true);
+
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			launchMinigame,
+		});
+
+		expect(result.form?.submitButton?.clickHandler).toBeTypeOf("function");
+
+		const event = { preventDefault: vi.fn() };
+		result.form?.submitButton?.clickHandler?.(event);
+
+		expect(event.preventDefault).toHaveBeenCalledTimes(1);
+		expect(launchMinigame).toHaveBeenCalledTimes(1);
+	});
+
+	it("prevents default without calling minigame when window.launchMinigame is not defined", () => {
+		const form = createLoginForm("fun", "forme", true);
+
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			// no launchMinigame option → window.launchMinigame is undefined
+		});
+
+		const event = { preventDefault: vi.fn() };
+		result.form?.submitButton?.clickHandler?.(event);
+
+		expect(event.preventDefault).toHaveBeenCalledTimes(1);
+	});
+
+	it("uses the default error message when 401 response body has no string message", async () => {
+		const form = createLoginForm("test@test.com", "wrong");
+
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: false,
+				status: 401,
+				json: async () => ({}), // no message field
+			}),
+		});
+
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
+
+		expect(result.errorRegion.textContent).toBe("Invalid email or password. Please try again.");
 	});
 });

@@ -26,6 +26,7 @@ describe("login controller", () => {
 
 		expect(render).toHaveBeenCalledWith("login", {
 			errorMessage: null,
+			demoAuthEnabled: expect.any(Boolean),
 		});
 	});
 
