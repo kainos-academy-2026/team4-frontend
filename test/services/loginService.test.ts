@@ -31,6 +31,22 @@ describe("LoginService", () => {
 		});
 	});
 
+	it("returns token when backend responds with token field", async () => {
+		const mockPost = vi.fn().mockResolvedValue({
+			data: { token: "token-456" },
+		});
+		vi.mocked(apiClient).post = mockPost;
+
+		const service = new LoginService();
+
+		const token = await service.authenticate({
+			email: "test@example.com",
+			password: "Password123!",
+		});
+
+		expect(token).toBe("token-456");
+	});
+
 	it("throws generic error for any auth failure", async () => {
 		const mockError = new Error("401");
 		mockError.message = "401 Unauthorized";

@@ -1,15 +1,38 @@
 import request from "supertest";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { SignJWT } from "jose";
 
-import app from "../../src/app";
+process.env.API_BASE_URL = "http://localhost:4000";
+
 import { JobRoleService } from "../../src/services/jobRoleService";
 
+let app: typeof import("../../src/app").default;
+
+const SECRET = new TextEncoder().encode("test-secret-key");
+
+const createAuthToken = async (): Promise<string> =>
+	new SignJWT({ email: "test@example.com", role: "applicant" })
+		.setProtectedHeader({ alg: "HS256" })
+		.sign(SECRET);
+
 describe("GET /job-roles", () => {
+  beforeAll(async () => {
+    ({ default: app } = await import("../../src/app"));
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
+  it("redirects unauthenticated users to login", async () => {
+    const response = await request(app).get("/job-roles");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login");
+  });
+
   it("renders open job roles when service returns data", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockResolvedValue([
       {
         id: 1,
@@ -26,7 +49,9 @@ describe("GET /job-roles", () => {
       },
     ]);
 
-    const response = await request(app).get("/job-roles");
+    const response = await request(app)
+      .get("/job-roles")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Open Job Roles at Kainos");
@@ -34,20 +59,26 @@ describe("GET /job-roles", () => {
   });
 
   it("renders empty state when service returns no open roles", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockResolvedValue([]);
 
-    const response = await request(app).get("/job-roles");
+    const response = await request(app)
+      .get("/job-roles")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("No open job roles are available right now.");
   });
 
   it("renders error state when service throws", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getOpenRoles").mockRejectedValue(
       new Error("Backend service is currently unavailable."),
     );
 
-    const response = await request(app).get("/job-roles");
+    const response = await request(app)
+      .get("/job-roles")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Something went wrong. Please try again later.");
@@ -55,11 +86,23 @@ describe("GET /job-roles", () => {
 });
 
 describe("GET /job-roles/:id", () => {
+  beforeAll(async () => {
+    ({ default: app } = await import("../../src/app"));
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
+  it("redirects unauthenticated users to login", async () => {
+    const response = await request(app).get("/job-roles/1");
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login");
+  });
+
   it("renders the job role detail page when the service returns a role", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
       id: 1,
       roleName: "Software Engineer",
@@ -74,7 +117,9 @@ describe("GET /job-roles/:id", () => {
       numberOfOpenPositions: 2,
     });
 
-    const response = await request(app).get("/job-roles/1");
+    const response = await request(app)
+      .get("/job-roles/1")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Software Engineer");
@@ -83,7 +128,10 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("renders an invalid id error page", async () => {
-    const response = await request(app).get("/job-roles/not-a-number");
+    const token = await createAuthToken();
+    const response = await request(app)
+      .get("/job-roles/not-a-number")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Job Role Detail");
@@ -91,20 +139,26 @@ describe("GET /job-roles/:id", () => {
   });
 
   it("redirects to the dedicated not found page when no role exists", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
 
-    const response = await request(app).get("/job-roles/999");
+    const response = await request(app)
+      .get("/job-roles/999")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("/404");
   });
 
   it("renders an error page when the service throws", async () => {
+    const token = await createAuthToken();
     vi.spyOn(JobRoleService.prototype, "getRoleById").mockRejectedValue(
       new Error("Backend service is currently unavailable."),
     );
 
-    const response = await request(app).get("/job-roles/1");
+    const response = await request(app)
+      .get("/job-roles/1")
+      .set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
     expect(response.status).toBe(200);
     expect(response.text).toContain("Something went wrong. Please try again later.");
@@ -112,6 +166,10 @@ describe("GET /job-roles/:id", () => {
 });
 
 describe("GET /404", () => {
+  beforeAll(async () => {
+    ({ default: app } = await import("../../src/app"));
+  });
+
   it("renders the dedicated not-found page", async () => {
     const response = await request(app).get("/404");
 
