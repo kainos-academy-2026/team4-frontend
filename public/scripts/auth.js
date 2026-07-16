@@ -141,7 +141,9 @@
 			}
 
 			if (!loginResponse.ok) {
-				let message = "Invalid email or password. Please try again.";
+				let message = loginResponse.status === 401
+					? "Invalid email or password. Please try again."
+					: "Login service unavailable. Please try again later.";
 				try {
 					const body = await loginResponse.json();
 					if (typeof body.message === "string" && body.message.length > 0) {

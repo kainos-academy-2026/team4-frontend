@@ -32,7 +32,7 @@
 			<h1>{{ jobRole.roleName }}</h1>
 			<p class="subtitle">Review the role details and continue to apply.</p>
 
-			<section class="empty-state" aria-label="Job role detail" data-apply-section data-job-role-id="{{ jobRole.id }}">
+			<section class="empty-state" aria-label="Job role detail">
 				<p><strong>Location:</strong> {{ jobRole.location }}</p>
 				<p><strong>Capability:</strong> {{ jobRole.capability }}</p>
 				<p><strong>Band:</strong> {{ jobRole.band }}</p>
@@ -42,8 +42,8 @@
 				</p>
 				<p>
 					<strong>Status:</strong>
-					<span class="badge{% if jobRole.status | lower == 'closed' %} badge--closed{% endif %}" data-role-status-badge="{{ jobRole.id }}">
-						{{ jobRole.status }}
+					<span class="badge{% if hasApplicationInProgress %} badge--in-progress{% elif jobRole.status | lower == 'closed' %} badge--closed{% endif %}">
+						{% if hasApplicationInProgress %}In Progress{% else %}{{ jobRole.status }}{% endif %}
 					</span>
 				</p>
 				<p><strong>Open Positions:</strong> {{ jobRole.numberOfOpenPositions }}</p>
@@ -58,12 +58,15 @@
 					<div class="alert alert-info" data-login-prompt hidden>
 						You must <a href="/login?returnTo=/job-roles/{{ jobRole.id }}/apply">log in</a> to apply for this role.
 					</div>
-					<div class="alert alert-info" data-application-status hidden aria-live="polite"></div>
+					{% if hasApplicationInProgress %}
+					<div class="alert alert-info" aria-live="polite">
+						You have an application in progress for this role. You can re-upload your CV using the Apply now button.
+					</div>
+					{% endif %}
 					<p>
 						<a
 							class="kainos-primary-action"
 							href="/job-roles/{{ jobRole.id }}/apply"
-							data-apply-now
 						>
 							Apply now
 						</a>
@@ -91,6 +94,5 @@
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
 		<script src="/scripts/auth.js"></script>
-		<script src="/scripts/job-application.js"></script>
 	</body>
 </html>

@@ -613,4 +613,25 @@ describe("auth browser script", () => {
 
 		expect(result.errorRegion.textContent).toBe("Invalid email or password. Please try again.");
 	});
+
+	it("uses the default server error message when non-401 response has no string message", async () => {
+		const form = createLoginForm("test@test.com", "passwordtest");
+
+		const result = runScript({
+			page: "login",
+			loginForm: form,
+			withErrorRegion: true,
+			fetchMock: vi.fn().mockResolvedValue({
+				ok: false,
+				status: 502,
+				json: async () => ({}), // no message field
+			}),
+		});
+
+		await result.form?.submitHandler?.({ preventDefault: () => undefined });
+
+		expect(result.errorRegion.textContent).toBe(
+			"Login service unavailable. Please try again later.",
+		);
+	});
 });

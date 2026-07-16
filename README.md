@@ -81,9 +81,7 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 - `GET /` renders the branded home page with open job roles.
 - `GET /login` renders the login page.
 - `POST /api/login` proxies login to the backend auth endpoint.
-- `POST /login` submits credentials to backend `POST /auth/login`.
 - `POST /logout` clears the frontend auth cookie.
-- `POST /api/login` proxies login to the backend auth endpoint.
 - `GET /health` returns JSON with:
 	- `status`: `UP`
 	- `time`: current timestamp in ISO-8601 format

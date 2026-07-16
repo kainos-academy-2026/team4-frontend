@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import app from "../../src/app";
 import { LoginService } from "../../src/services/loginService";
+import { LoginServiceError } from "../../src/services/loginServiceError";
 
 describe("POST /login", () => {
 	afterEach(() => {
@@ -24,7 +25,24 @@ describe("POST /login", () => {
 		);
 	});
 
-	it("renders login with error on failed authentication", async () => {
+	it("renders login with invalid credentials message on 401 failures", async () => {
+		vi.spyOn(LoginService.prototype, "authenticate").mockRejectedValue(
+			new LoginServiceError(
+				401,
+				"Invalid email or password. Please try again.",
+			),
+		);
+
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "test@test.com", password: "wrong" });
+
+		expect(response.status).toBe(401);
+		expect(response.text).toContain("Invalid email or password. Please try again.");
+	});
+
+	it("renders login with server error on backend failures", async () => {
 		vi.spyOn(LoginService.prototype, "authenticate").mockRejectedValue(
 			new Error("auth failed"),
 		);
@@ -34,7 +52,7 @@ describe("POST /login", () => {
 			.type("form")
 			.send({ email: "test@test.com", password: "wrong" });
 
-		expect(response.status).toBe(401);
-		expect(response.text).toContain("Login failed.");
+		expect(response.status).toBe(502);
+		expect(response.text).toContain("Login service unavailable. Please try again later.");
 	});
 });

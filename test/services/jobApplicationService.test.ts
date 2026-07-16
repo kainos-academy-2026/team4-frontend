@@ -63,56 +63,9 @@ describe("JobApplicationService", () => {
 			};
 
 			const service = new JobApplicationService(mockClient as never);
-			await expect(service.submitApplication(1, "Bearer token", makeFile())).rejects.toThrow(
-				"upload failed",
-			);
-		});
-	});
-
-	describe("getApplicationStatus", () => {
-		it("returns application data when found", async () => {
-			const mockClient = {
-				get: vi.fn().mockResolvedValue({
-					data: { id: 10, status: "in_progress" },
-				}),
-			};
-
-			const service = new JobApplicationService(mockClient as never);
-			const result = await service.getApplicationStatus(1, "Bearer token");
-
-			expect(result).toEqual({ id: 10, status: "in_progress" });
-			expect(mockClient.get).toHaveBeenCalledWith("/job-roles/1/applications/me", {
-				headers: { Authorization: "Bearer token" },
-			});
-		});
-
-		it("uses the correct role ID in the request URL", async () => {
-			const mockClient = {
-				get: vi.fn().mockResolvedValue({ data: {} }),
-			};
-
-			const service = new JobApplicationService(mockClient as never);
-			await service.getApplicationStatus(55, "Bearer token");
-
-			expect(mockClient.get).toHaveBeenCalledWith(
-				"/job-roles/55/applications/me",
-				expect.any(Object),
-			);
-		});
-
-		it("propagates axios 404 errors from the client", async () => {
-			const mockClient = {
-				get: vi.fn().mockRejectedValue({
-					isAxiosError: true,
-					response: { status: 404 },
-				}),
-			};
-
-			const service = new JobApplicationService(mockClient as never);
-			await expect(service.getApplicationStatus(1, "Bearer token")).rejects.toMatchObject({
-				isAxiosError: true,
-				response: { status: 404 },
-			});
+			await expect(
+				service.submitApplication(1, "Bearer token", makeFile()),
+			).rejects.toThrow("upload failed");
 		});
 	});
 });

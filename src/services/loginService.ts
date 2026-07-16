@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import apiClient from "../config/apiClient";
 import type { LoginRequestDto, LoginResponseDto } from "../dto/loginDto";
 import { LoginServiceError } from "./loginServiceError";
@@ -15,7 +17,10 @@ export class LoginService {
 				typeof payload.accessToken !== "string" ||
 				payload.accessToken.length === 0
 			) {
-				throw new LoginServiceError(500, "Login failed. Please try again.");
+				throw new LoginServiceError(
+					502,
+					"Login service unavailable. Please try again later.",
+				);
 			}
 
 			return payload.accessToken;
@@ -24,8 +29,17 @@ export class LoginService {
 				throw error;
 			}
 
-			// Generic error for all failures
-			throw new LoginServiceError(500, "Login failed. Please try again.");
+			if (axios.isAxiosError(error) && error.response?.status === 401) {
+				throw new LoginServiceError(
+					401,
+					"Invalid email or password. Please try again.",
+				);
+			}
+
+			throw new LoginServiceError(
+				502,
+				"Login service unavailable. Please try again later.",
+			);
 		}
 	}
 }

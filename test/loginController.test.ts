@@ -113,11 +113,11 @@ describe("login controller", () => {
 
 		expect(status).toHaveBeenCalledWith(401);
 		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Login failed. Please try again.",
+			errorMessage: "Invalid email or password. Please try again.",
 		});
 	});
 
-	it("renders a generic 500 error for unexpected service failures", async () => {
+	it("renders a server error for unexpected service failures", async () => {
 		const authenticate = vi.fn().mockRejectedValue(new Error("boom"));
 		const controller = createController(authenticate);
 
@@ -134,9 +134,9 @@ describe("login controller", () => {
 			{ locals: {}, status } as unknown as Response,
 		);
 
-		expect(status).toHaveBeenCalledWith(401);
+		expect(status).toHaveBeenCalledWith(502);
 		expect(render).toHaveBeenCalledWith("login", {
-			errorMessage: "Login failed. Please try again.",
+			errorMessage: "Login service unavailable. Please try again later.",
 		});
 	});
 

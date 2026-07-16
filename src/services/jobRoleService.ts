@@ -20,14 +20,17 @@ export class JobRoleService {
 			.USE_JOB_ROLE_FALLBACK_MOCK === "true",
 	) {}
 
-	async getOpenRoles(): Promise<JobRoleListItem[]> {
+	async getOpenRoles(authHeader?: string): Promise<JobRoleListItem[]> {
 		if (this.useFallbackMock) {
 			return this.getFallbackOpenRoles();
 		}
 
 		try {
-			const jobRoleListResponse =
-				await this.client.get<JobRoleListApi[]>("/job-roles");
+			const jobRoleListResponse = authHeader
+				? await this.client.get<JobRoleListApi[]>("/job-roles", {
+						headers: { Authorization: authHeader },
+					})
+				: await this.client.get<JobRoleListApi[]>("/job-roles");
 			return this.filterOpenRoles(
 				jobRoleListResponse.data.map(mapJobRoleListApiToItem),
 			);
@@ -42,15 +45,20 @@ export class JobRoleService {
 		}
 	}
 
-	async getRoleById(jobRoleId: number): Promise<JobRole | null> {
+	async getRoleById(
+		jobRoleId: number,
+		authHeader?: string,
+	): Promise<JobRole | null> {
 		if (this.useFallbackMock) {
 			return this.getFallbackJobRoleById(jobRoleId);
 		}
 
 		try {
-			const jobRoleDetailResponse = await this.client.get<JobRoleDetailApi>(
-				`/job-roles/${jobRoleId}`,
-			);
+			const jobRoleDetailResponse = authHeader
+				? await this.client.get<JobRoleDetailApi>(`/job-roles/${jobRoleId}`, {
+						headers: { Authorization: authHeader },
+					})
+				: await this.client.get<JobRoleDetailApi>(`/job-roles/${jobRoleId}`);
 			return mapJobRoleDetailApiToModel(jobRoleDetailResponse.data);
 		} catch (requestError) {
 			if (
