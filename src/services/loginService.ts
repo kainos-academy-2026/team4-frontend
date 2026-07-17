@@ -13,12 +13,12 @@ export class LoginService {
 			);
 
 			const payload = response.data;
-			if (!payload?.token) {
+			if (!payload?.accessToken) {
 				console.error("Login response missing token:", payload);
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 
-			return payload.token;
+			return payload.accessToken;
 		} catch (error) {
 			if (error instanceof LoginServiceError) {
 				throw error;

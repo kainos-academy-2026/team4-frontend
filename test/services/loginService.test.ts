@@ -18,7 +18,7 @@ describe("LoginService", () => {
 
 	it("returns an access token when authentication succeeds", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { token: "token-123" },
+			data: { accessToken: "token-123" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 
@@ -38,7 +38,7 @@ describe("LoginService", () => {
 
 	it("returns token when backend responds with token field", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { token: "token-456" },
+			data: { accessToken: "token-456" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 
@@ -75,7 +75,7 @@ describe("LoginService", () => {
 
 	it("throws generic error for invalid backend responses", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { token: "" },
+			data: { accessToken: "" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 
@@ -96,7 +96,7 @@ describe("LoginService", () => {
 
 	it("returns login result when API login succeeds", async () => {
 		const mockPost = vi.fn().mockResolvedValue({
-			data: { token: "jwt-token", email: "test@example.com" },
+			data: { accessToken: "jwt-token", email: "test@example.com" },
 		});
 		vi.mocked(apiClient).post = mockPost;
 
@@ -107,7 +107,7 @@ describe("LoginService", () => {
 			password: "Password123!",
 		});
 
-		expect(result).toEqual({ token: "jwt-token", email: "test@example.com" });
+		expect(result).toEqual({ accessToken: "jwt-token", email: "test@example.com" });
 		expect(mockPost).toHaveBeenCalledWith("/auth/login", {
 			email: "test@example.com",
 			password: "Password123!",
