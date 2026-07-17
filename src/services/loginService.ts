@@ -13,7 +13,8 @@ export class LoginService {
 			);
 
 			const payload = response.data;
-			if (!payload.token) {
+			if (!payload?.token) {
+				console.error("Login response missing token:", payload);
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 
@@ -23,6 +24,26 @@ export class LoginService {
 				throw error;
 			}
 
+			if (axios.isAxiosError(error)) {
+				console.error("Login API error:", {
+					status: error.response?.status,
+					data: error.response?.data,
+				});
+
+				if (error.response?.status === 400) {
+					throw new LoginServiceError(400, "Invalid login payload");
+				}
+
+				if (error.response?.status === 401) {
+					throw new LoginServiceError(401, "Invalid email or password");
+				}
+
+				if (error.response?.status === 500) {
+					throw new LoginServiceError(500, "Server error. Please try again.");
+				}
+			}
+
+			console.error("Login error:", error);
 			// Generic error for all failures
 			throw new LoginServiceError(500, "Login failed. Please try again.");
 		}
