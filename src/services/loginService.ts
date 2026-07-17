@@ -1,8 +1,8 @@
 import axios from "axios";
 import apiClient from "../config/apiClient";
 import type { LoginRequestDto, LoginResponseDto } from "../dto/loginDto";
+import { logger } from "../utils/logger";
 import { LoginServiceError } from "./loginServiceError";
-import type { LoginPayload, LoginResult } from "./loginServiceModels";
 
 export class LoginService {
 	async authenticate(credentials: LoginRequestDto): Promise<string> {
@@ -14,7 +14,15 @@ export class LoginService {
 
 			const payload = response.data;
 			if (!payload?.accessToken) {
-				console.error("Login response missing token:", payload);
+				logger.error(
+					"Backend login endpoint returned response without accessToken",
+					null,
+					{
+						endpoint: "POST /auth/login",
+						email: credentials.email,
+						responseKeys: Object.keys(payload || {}),
+					},
+				);
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 
@@ -25,50 +33,33 @@ export class LoginService {
 			}
 
 			if (axios.isAxiosError(error)) {
-				console.error("Login API error:", {
-					status: error.response?.status,
-					data: error.response?.data,
+				const status = error.response?.status;
+
+				logger.error("Backend login endpoint returned HTTP error", error, {
+					endpoint: "POST /auth/login",
+					httpStatus: status,
+					email: credentials.email,
 				});
 
-				if (error.response?.status === 400) {
+				if (status === 400) {
 					throw new LoginServiceError(400, "Invalid login payload");
 				}
 
-				if (error.response?.status === 401) {
+				if (status === 401) {
 					throw new LoginServiceError(401, "Invalid email or password");
 				}
 
-				if (error.response?.status === 500) {
+				if (status === 500) {
 					throw new LoginServiceError(500, "Server error. Please try again.");
 				}
 			}
 
-			console.error("Login error:", error);
-			// Generic error for all failures
+			logger.error("Unexpected error during authentication", error, {
+				endpoint: "POST /auth/login",
+				email: credentials.email,
+			});
+
 			throw new LoginServiceError(500, "Login failed. Please try again.");
-		}
-	}
-
-	async login(payload: LoginPayload): Promise<LoginResult> {
-		try {
-			const loginResponse = await apiClient.post<LoginResult>(
-				"/auth/login",
-				payload,
-			);
-
-			return loginResponse.data;
-		} catch (requestError) {
-			if (axios.isAxiosError(requestError)) {
-				if (requestError.response?.status === 400) {
-					throw new LoginServiceError(400, "Invalid login payload");
-				}
-
-				if (requestError.response?.status === 401) {
-					throw new LoginServiceError(401, "Invalid email or password");
-				}
-			}
-
-			throw new LoginServiceError(500, "Internal server error");
 		}
 	}
 }

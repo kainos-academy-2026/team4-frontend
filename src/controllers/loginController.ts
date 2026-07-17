@@ -6,6 +6,7 @@ import {
 	clearAccessTokenCookie,
 	setAccessTokenCookie,
 } from "../utils/cookieHelpers";
+import { logger } from "../utils/logger";
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
@@ -35,7 +36,13 @@ export class LoginController {
 
 			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
-		} catch (_error) {
+		} catch (error) {
+			logger.warn("Login attempt failed", {
+				email,
+				endpoint: "POST /login",
+				errorType: error instanceof Error ? error.constructor.name : "Unknown",
+			});
+
 			response.status(401).render("login", {
 				errorMessage: "Login failed. Please try again.",
 			});
