@@ -1,38 +1,52 @@
 import type { NextFunction, Request, Response } from "express";
+import type { Role } from "../models/role";
 
-let decodeJwtFn: ((token: string) => Record<string, unknown>) | undefined;
-
-const getDecoder = async () => {
-	if (!decodeJwtFn) {
-		const jose = await import("jose");
-		decodeJwtFn = jose.decodeJwt;
-	}
-	return decodeJwtFn;
-};
-
-// Preload decoder to avoid first-request latency
-getDecoder().catch(() => {
-	// Initialization error - will retry on first use
-});
-
-export const setAuthContext = (
-	request: Request,
-	response: Response,
-	next: NextFunction,
-): void => {
-	const accessToken = request.cookies.access_token as string | undefined;
-
-	let userEmail: string | null = null;
-	if (accessToken && decodeJwtFn) {
+export const authorize = (allowedRoles: readonly Role[]) => {
+	return async (
+		request: Request,
+		response: Response,
+		next: NextFunction,
+	): Promise<void> => {
 		try {
-			const payload = decodeJwtFn(accessToken) as { email?: unknown };
-			userEmail = typeof payload.email === "string" ? payload.email : null;
-		} catch {
-			// ignore JWT decoding errors
-		}
-	}
+			const token = request.cookies.access_token;
+			if (!token) {
+				response.redirect("/login");
+				return;
+			}
 
-	response.locals.isAuthenticated = Boolean(accessToken);
-	response.locals.userEmail = userEmail;
-	next();
+			// Dynamically import decodeJwt to handle ESM module
+			const { decodeJwt } = await import("jose");
+			const decodedToken = await decodeJwt(token);
+			if (!decodedToken) {
+				response.redirect("/login");
+				return;
+			}
+
+			const userIdFromToken = decodedToken.sub;
+			if (typeof userIdFromToken !== "string" || !userIdFromToken.trim()) {
+				response.redirect("/login");
+				return;
+			}
+
+			if (!allowedRoles.includes(decodedToken.role as Role)) {
+				response.status(403).render("not-found", {
+					title: "Forbidden",
+					message: "You do not have access to this page.",
+				});
+				return;
+			}
+
+			response.locals.user = {
+				id: userIdFromToken,
+				email: typeof decodedToken.email === "string" ? decodedToken.email : "",
+				role: decodedToken.role,
+			};
+
+			next();
+		} catch (error) {
+			console.error("Error in authorize middleware:", error);
+			response.redirect("/login");
+			return;
+		}
+	};
 };

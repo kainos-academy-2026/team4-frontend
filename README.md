@@ -71,16 +71,14 @@ PORT=4000 npm run start
 Frontend API connection values can be set in `.env`:
 
 ```ini
-PORT=3000
-API_BASE_URL=http://localhost:4000
-USE_JOB_ROLE_FALLBACK_MOCK=true
+PORT=3001
+API_BASE_URL=http://localhost:3000
 ```
 
 ## Endpoints
 
 - `GET /` renders a hello-world HTML page.
 - `GET /login` renders the login page.
-- `GET /register` renders the registration page.
 - `POST /login` submits credentials to backend `POST /auth/login`.
 - `POST /logout` clears the frontend auth cookie.
 - `GET /health` returns JSON with:
@@ -88,17 +86,23 @@ USE_JOB_ROLE_FALLBACK_MOCK=true
 	- `time`: current timestamp in ISO-8601 format
 - `GET /job-roles` renders open job roles.
   - Calls backend `GET /job-roles` using Axios.
-  - Falls back to frontend mock data when backend is unavailable and `USE_JOB_ROLE_FALLBACK_MOCK=true`.
+- `GET /job-roles/:id` renders a specific job role detail page.
+  - Calls backend `GET /job-roles/:id` using Axios.
 
 ## Login Integration
 
-- Login form sends `email` and `password` to backend `/auth/login`.
+- Login form sends `email` and `password` to backend `POST /auth/login`.
 - Backend is expected to return JSON: `{ "accessToken": "..." }`.
 - Frontend stores `accessToken` in an HttpOnly cookie named `access_token`.
 - Home page reads that cookie and displays a greeting when a token is present.
 - Logout clears the cookie and redirects back to home.
 
-## Registration Integration
+## Job Roles Integration
+
+- `GET /job-roles` fetches open job roles from backend `GET /job-roles`.
+- `GET /job-roles/:id` fetches job role details from backend `GET /job-roles/:id`.
+- Both endpoints require valid JWT authentication (Bearer token in Authorization header).
+- Frontend passes token via authorization middleware automatically.
 
 - Registration form sends `email` and `password` to backend `POST /auth/register`.
 - Frontend payload is limited to `email` and `password` only.
@@ -122,7 +126,7 @@ Example health response:
 ## Acceptance Criteria Checks
 
 1. Run `npm run build` and confirm `dist` is created.
-2. Run the backend API and ensure `POST /auth/login` is available.
+2. Run the backend API and ensure `POST /login` is available.
 3. Run frontend with `API_BASE_URL` pointing to backend, then open the frontend URL.
 4. Confirm `/` and `/login` render correctly.
 5. Submit invalid credentials and confirm `/login` shows an error.

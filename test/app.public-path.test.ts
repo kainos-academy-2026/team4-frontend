@@ -1,6 +1,8 @@
  import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+process.env.API_BASE_URL = "http://localhost:4000";
+
 describe("app module public static path selection", () => {
   const originalApiBaseUrl = process.env.API_BASE_URL;
 

@@ -4,7 +4,7 @@ export interface LoginPayload {
 }
 
 export interface LoginResult {
-	token?: string;
+	accessToken?: string;
 	email?: string;
 	[key: string]: unknown;
 }

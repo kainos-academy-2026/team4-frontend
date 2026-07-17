@@ -1,12 +1,12 @@
 import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
-import { LoginService } from "../services/loginService";
-import { LoginServiceError } from "../services/loginServiceError";
+import type { LoginService } from "../services/loginService";
 import {
 	clearAccessTokenCookie,
 	setAccessTokenCookie,
 } from "../utils/cookieHelpers";
+import { logger } from "../utils/logger";
 
 export class LoginController {
 	constructor(private readonly loginService: LoginService) {}
@@ -36,7 +36,13 @@ export class LoginController {
 
 			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
-		} catch (_error) {
+		} catch (error) {
+			logger.warn("Login attempt failed", {
+				email,
+				endpoint: "POST /login",
+				errorType: error instanceof Error ? error.constructor.name : "Unknown",
+			});
+
 			response.status(401).render("login", {
 				errorMessage: "Login failed. Please try again.",
 			});
@@ -51,34 +57,14 @@ export class LoginController {
 
 // Export handler functions for routing
 export const getLogin = (_request: Request, response: Response): void => {
+	if (response.locals.isAuthenticated) {
+		response.redirect("/");
+		return;
+	}
+
 	response.render("login", {
 		errorMessage: null,
 	});
-};
-
-const authLoginService = new LoginService();
-
-export const postLogin = async (
-	request: Request,
-	response: Response,
-): Promise<void> => {
-	try {
-		const result = await authLoginService.login({
-			email: request.body.email,
-			password: request.body.password,
-		});
-
-		response.status(200).json(result);
-	} catch (controllerError) {
-		if (controllerError instanceof LoginServiceError) {
-			response
-				.status(controllerError.statusCode)
-				.json({ message: controllerError.message });
-			return;
-		}
-
-		response.status(500).json({ message: "Internal server error" });
-	}
 };
 
 export const postLogout = (_request: Request, response: Response): void => {
