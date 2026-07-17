@@ -26,11 +26,12 @@ export class JobApplicationService {
 		jobRoleId: number,
 		authHeader: string,
 		fileName: string,
+		mimeType: string,
 	): Promise<UploadUrlResponse> {
 		const response = await this.backendClient.get<UploadUrlResponse>(
 			`/job-roles/${jobRoleId}/applications/upload-url`,
 			{
-				params: { fileName },
+				params: { fileName, mimeType },
 				headers: { Authorization: authHeader },
 			},
 		);

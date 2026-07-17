@@ -119,19 +119,56 @@ export class JobRoleController {
 			typeof request.query.fileName === "string" && request.query.fileName
 				? request.query.fileName
 				: "cv";
+		const mimeType =
+			typeof request.query.mimeType === "string" ? request.query.mimeType : "";
 
 		try {
 			const result = await this.jobApplicationService.getUploadUrl(
 				parsedJobRoleId.data,
 				authHeader,
 				fileName,
+				mimeType,
 			);
 			response.json(result);
 		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				const backendStatus = error.response.status;
+				const backendMessage =
+					typeof error.response.data === "object" &&
+					error.response.data !== null &&
+					"message" in error.response.data &&
+					typeof error.response.data.message === "string"
+						? error.response.data.message
+						: null;
+
+				if (backendStatus === 400) {
+					response.status(400).json({
+						message:
+							backendMessage ?? "Could not prepare upload. Please try again.",
+					});
+					return;
+				}
+
+				if (backendStatus === 401) {
+					response.status(401).json({ message: "Unauthorised." });
+					return;
+				}
+
+				if (backendStatus === 404) {
+					response.status(404).json({ message: "Job role not found." });
+					return;
+				}
+
+				response
+					.status(502)
+					.json({ message: "Could not prepare upload. Please try again." });
+				return;
+			}
+
 			console.error(error);
 			response
 				.status(502)
-				.json({ message: "Could not generate upload URL. Please try again." });
+				.json({ message: "Could not prepare upload. Please try again." });
 		}
 	}
 
@@ -189,12 +226,16 @@ export class JobRoleController {
 			this.getExistingApplicationStatusFromRole(authenticatedJobRole);
 
 		try {
-			await this.jobApplicationService.submitApplication(jobRole.id, authHeader, {
-				s3Key: body.s3Key,
-				cvFileName: body.cvFileName,
-				cvMimeType: body.cvMimeType,
-				cvSizeBytes: body.cvSizeBytes ?? 0,
-			});
+			await this.jobApplicationService.submitApplication(
+				jobRole.id,
+				authHeader,
+				{
+					s3Key: body.s3Key,
+					cvFileName: body.cvFileName,
+					cvMimeType: body.cvMimeType,
+					cvSizeBytes: body.cvSizeBytes ?? 0,
+				},
+			);
 
 			const params = new URLSearchParams({
 				submitted: "true",
@@ -225,11 +266,10 @@ export class JobRoleController {
 						? error.response.data.message
 						: null;
 
-				response
-					.status(backendStatus ?? 502)
-					.json({
-						message: backendMessage ?? "CV upload failed. Please try again later.",
-					});
+				response.status(backendStatus ?? 502).json({
+					message:
+						backendMessage ?? "CV upload failed. Please try again later.",
+				});
 				return;
 			}
 

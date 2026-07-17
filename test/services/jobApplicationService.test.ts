@@ -21,7 +21,12 @@ describe("JobApplicationService", () => {
 			};
 
 			const service = new JobApplicationService(mockClient as never);
-			const result = await service.getUploadUrl(1, "Bearer token", "cv.pdf");
+			const result = await service.getUploadUrl(
+				1,
+				"Bearer token",
+				"cv.pdf",
+				"application/pdf",
+			);
 
 			expect(result).toEqual({
 				presignedUrl: "https://s3.example.com/signed",
@@ -30,7 +35,7 @@ describe("JobApplicationService", () => {
 			expect(mockClient.get).toHaveBeenCalledWith(
 				"/job-roles/1/applications/upload-url",
 				expect.objectContaining({
-					params: { fileName: "cv.pdf" },
+					params: { fileName: "cv.pdf", mimeType: "application/pdf" },
 					headers: expect.objectContaining({ Authorization: "Bearer token" }),
 				}),
 			);
@@ -42,7 +47,9 @@ describe("JobApplicationService", () => {
 			};
 
 			const service = new JobApplicationService(mockClient as never);
-			await expect(service.getUploadUrl(1, "Bearer token", "cv.pdf")).rejects.toThrow("network failure");
+			await expect(
+				service.getUploadUrl(1, "Bearer token", "cv.pdf", "application/pdf"),
+			).rejects.toThrow("network failure");
 		});
 	});
 
