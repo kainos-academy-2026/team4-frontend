@@ -71,4 +71,32 @@ describe("HomeController.getHome", () => {
     });
     expect(mockService.getOpenRoles).toHaveBeenCalledWith("Bearer token");
   });
+
+  it("keeps original status when role has no in-progress application", async () => {
+    const render = vi.fn();
+    const mockRoles: JobRoleListItem[] = [{
+      id: 2,
+      roleName: "Product Manager",
+      location: "Belfast",
+      capability: "Product",
+      band: "Manager",
+      closingDate: new Date("2026-09-01"),
+      status: "open",
+      myApplication: null,
+    }];
+    const mockService = {
+      getOpenRoles: vi.fn().mockResolvedValue(mockRoles),
+    } as unknown as JobRoleService;
+
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { cookies: { access_token: "token" } } as Request,
+      { render } as unknown as Response,
+    );
+
+    expect(render).toHaveBeenCalledWith("index", {
+      jobRoles: mockRoles,
+      errorMessage: null,
+    });
+  });
 });
