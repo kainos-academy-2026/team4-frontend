@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 import type { Role } from "../models/role";
-import * as jose from "jose";
 
 export const authorize = (allowedRoles: readonly Role[]) => {
 	return async (
@@ -15,8 +14,10 @@ export const authorize = (allowedRoles: readonly Role[]) => {
 				return;
 			}
 
-			const decodedToken = await jose.decodeJwt(token);
-			if(!decodedToken) {
+			// Dynamically import decodeJwt to handle ESM module
+			const { decodeJwt } = await import("jose");
+			const decodedToken = await decodeJwt(token);
+			if (!decodedToken) {
 				response.redirect("/login");
 				return;
 			}

@@ -26,12 +26,14 @@ export class JobRoleService {
 		}
 
 		try {
-			const jobRoleListResponse =
-				await this.client.get<JobRoleListApi[]>("/job-roles", {
+			const jobRoleListResponse = await this.client.get<JobRoleListApi[]>(
+				"/job-roles",
+				{
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
-				});
+				},
+			);
 			return this.filterOpenRoles(
 				jobRoleListResponse.data.map(mapJobRoleListApiToItem),
 			);

@@ -12,9 +12,8 @@ export class LoginService {
 				credentials,
 			);
 
-
 			const payload = response.data;
-			if(!payload.token) {
+			if (!payload.token) {
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 

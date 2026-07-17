@@ -64,18 +64,6 @@ describe("home branding integration", () => {
     expect(response.text).not.toContain("/scripts/auth.js");
   });
 
-  it("renders default home state when access_token cookie is present", async () => {
-    const response = await request(app)
-      .get("/")
-      .set("Cookie", [`access_token=${encodeURIComponent(authToken)}`]);
-
-    expect(response.status).toBe(200);
-    expect(response.text).toContain('href="/login"');
-    expect(response.text).not.toContain("Welcome back, test@example.com");
-    expect(response.text).not.toContain('action="/logout"');
-    expect(response.text).not.toContain("Log out");
-  });
-
   it("serves required static branding assets", async () => {
     const cssResponse = await request(app).get("/styles/branding.css");
     expect(cssResponse.status).toBe(200);

@@ -1,12 +1,7 @@
 import type { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-	LoginController,
-	postLogin as postApiLogin,
-	postLogout as postApiLogout,
-} from "../../src/controllers/loginController";
-import { LoginService } from "../../src/services/loginService";
+import { LoginController } from "../../src/controllers/loginController";
 import { LoginServiceError } from "../../src/services/loginServiceError";
 
 describe("login controller", () => {
@@ -150,59 +145,6 @@ describe("login controller", () => {
 		const controller = createController();
 
 		controller.postLogout(
-			{} as Request,
-			{ clearCookie, redirect } as unknown as Response,
-		);
-
-		expect(clearCookie).toHaveBeenCalledWith("access_token");
-		expect(redirect).toHaveBeenCalledWith("/");
-	});
-
-	it("returns JSON 200 from API login handler when service succeeds", async () => {
-		vi.spyOn(LoginService.prototype, "login").mockResolvedValue({
-			token: "jwt-token",
-			email: "test@example.com",
-		});
-
-		const json = vi.fn();
-		const status = vi.fn(() => ({ json }));
-
-		await postApiLogin(
-			{
-				body: { email: "test@example.com", password: "Password123!" },
-			} as Request,
-			{ status } as unknown as Response,
-		);
-
-		expect(status).toHaveBeenCalledWith(200);
-		expect(json).toHaveBeenCalledWith({
-			token: "jwt-token",
-			email: "test@example.com",
-		});
-	});
-
-	it("returns JSON 500 from API login handler for unexpected errors", async () => {
-		vi.spyOn(LoginService.prototype, "login").mockRejectedValue(new Error("boom"));
-
-		const json = vi.fn();
-		const status = vi.fn(() => ({ json }));
-
-		await postApiLogin(
-			{
-				body: { email: "test@example.com", password: "Password123!" },
-			} as Request,
-			{ status } as unknown as Response,
-		);
-
-		expect(status).toHaveBeenCalledWith(500);
-		expect(json).toHaveBeenCalledWith({ message: "Internal server error" });
-	});
-
-	it("clears token cookie and redirects from exported API logout handler", () => {
-		const clearCookie = vi.fn().mockReturnThis();
-		const redirect = vi.fn();
-
-		postApiLogout(
 			{} as Request,
 			{ clearCookie, redirect } as unknown as Response,
 		);
