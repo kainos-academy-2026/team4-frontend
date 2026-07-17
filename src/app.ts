@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
 import router from "./routes";
-import cookieParser from "cookie-parser";
 
 // Validate required environment variables at startup
 if (!process.env.API_BASE_URL) {

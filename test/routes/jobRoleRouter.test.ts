@@ -1,12 +1,9 @@
 import request from "supertest";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { SignJWT } from "jose";
-
-process.env.API_BASE_URL = "http://localhost:4000";
+import app from "../../src/app";
 
 import { JobRoleService } from "../../src/services/jobRoleService";
-
-let app: typeof import("../../src/app").default;
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -17,10 +14,6 @@ const createAuthToken = async (): Promise<string> =>
 		.sign(SECRET);
 
 describe("GET /job-roles", () => {
-  beforeAll(async () => {
-    ({ default: app } = await import("../../src/app"));
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -87,10 +80,6 @@ describe("GET /job-roles", () => {
 });
 
 describe("GET /job-roles/:id", () => {
-  beforeAll(async () => {
-    ({ default: app } = await import("../../src/app"));
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -167,10 +156,6 @@ describe("GET /job-roles/:id", () => {
 });
 
 describe("GET /404", () => {
-  beforeAll(async () => {
-    ({ default: app } = await import("../../src/app"));
-  });
-
   it("renders the dedicated not-found page", async () => {
     const response = await request(app).get("/404");
 

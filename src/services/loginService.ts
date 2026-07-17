@@ -8,17 +8,16 @@ export class LoginService {
 	async authenticate(credentials: LoginRequestDto): Promise<string> {
 		try {
 			const response = await apiClient.post<LoginResponseDto>(
-				"/login",
+				"/auth/login",
 				credentials,
 			);
 
-
 			const payload = response.data;
-			if(!payload.token) {
+			if (!payload.accessToken) {
 				throw new LoginServiceError(500, "Login failed. Please try again.");
 			}
 
-			return payload.token;
+			return payload.accessToken;
 		} catch (error) {
 			if (error instanceof LoginServiceError) {
 				throw error;

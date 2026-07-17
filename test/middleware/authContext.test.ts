@@ -15,7 +15,7 @@ describe("authorize", () => {
 			role: "user",
 		})
 			.setProtectedHeader({ alg: "HS256" })
-			.setSubject("1")
+			.setSubject("user-cuid-1")
 			.sign(SECRET);
 		const response = {
 			locals: {},
@@ -36,7 +36,7 @@ describe("authorize", () => {
 
 		expect(response.locals).toEqual({
 			user: {
-				id: 1,
+				id: "user-cuid-1",
 				email: "test@example.com",
 				role: "user",
 			},
@@ -69,7 +69,7 @@ describe("authorize", () => {
 			role: "admin",
 		})
 			.setProtectedHeader({ alg: "HS256" })
-			.setSubject("1")
+			.setSubject("user-cuid-2")
 			.sign(SECRET);
 		const response = {
 			locals: {},

@@ -34,7 +34,7 @@ export class LoginController {
 				password,
 			});
 
-			response.cookie("access_token", accessToken)
+			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
 		} catch (_error) {
 			response.status(401).render("login", {

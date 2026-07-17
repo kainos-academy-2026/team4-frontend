@@ -2,10 +2,7 @@ import request from "supertest";
 import { describe, expect, it, beforeAll } from "vitest";
 
 import { SignJWT } from "jose";
-
-process.env.API_BASE_URL = "http://localhost:4000";
-
-let app: typeof import("../../src/app").default;
+import app from "../../src/app";
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -13,8 +10,6 @@ describe("home branding integration", () => {
 	let authToken: string;
 
 	beforeAll(async () => {
-    ({ default: app } = await import("../../src/app"));
-
 		authToken = await new SignJWT({
 			email: "test@example.com",
       role: "user",

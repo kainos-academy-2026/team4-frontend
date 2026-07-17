@@ -1,6 +1,31 @@
 import type { NextFunction, Request, Response } from "express";
 import type { Role } from "../models/role";
-import * as jose from "jose";
+
+type DecodedToken = {
+	sub?: unknown;
+	email?: unknown;
+	role?: unknown;
+};
+
+const decodeJwtPayload = (token: string): DecodedToken | null => {
+	const tokenParts = token.split(".");
+	if (tokenParts.length < 2) {
+		return null;
+	}
+
+	const payloadPart = tokenParts[1];
+	if (!payloadPart) {
+		return null;
+	}
+
+	try {
+		return JSON.parse(
+			Buffer.from(payloadPart, "base64url").toString("utf8"),
+		) as DecodedToken;
+	} catch {
+		return null;
+	}
+};
 
 export const authorize = (allowedRoles: readonly Role[]) => {
 	return async (
@@ -15,14 +40,17 @@ export const authorize = (allowedRoles: readonly Role[]) => {
 				return;
 			}
 
-			const decodedToken = await jose.decodeJwt(token);
-			if(!decodedToken) {
+			const decodedToken = decodeJwtPayload(token);
+			if (!decodedToken) {
 				response.redirect("/login");
 				return;
 			}
 
-			const userId = Number(decodedToken.sub);
-			if (!Number.isSafeInteger(userId) || userId <= 0) {
+			const userId =
+				typeof decodedToken.sub === "string" && decodedToken.sub.trim() !== ""
+					? decodedToken.sub
+					: null;
+			if (!userId) {
 				response.redirect("/login");
 				return;
 			}

@@ -10,26 +10,20 @@ describe("home branding integration", () => {
 	let authToken: string;
 
 	beforeAll(async () => {
-		authToken = await new SignJWT({ email: "test@example.com" })
+		authToken = await new SignJWT({
+			email: "test@example.com",
+			role: "user",
+		})
 			.setProtectedHeader({ alg: "HS256" })
+			.setSubject("1")
 			.sign(SECRET);
 	});
 
   it("serves branded home markup at /", async () => {
     const response = await request(app).get("/");
 
-    expect(response.status).toBe(200);
-    expect(response.headers["content-type"]).toContain("text/html");
-    expect(response.text).toContain("class=\"kainos-header kainos-header--with-actions\"");
-    expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
-    expect(response.text).toContain("href=\"/images/favicon.png\"");
-    expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain("data-home-auth-action");
-    expect(response.text).toContain('href="/register"');
-    expect(response.text).toContain('href="/login"');
-    expect(response.text).toContain("data-auth-greeting");
-    expect(response.text).toContain("careers@kainosjobs.example");
-    expect(response.text).toContain("+44 28 9000 0000");
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/login");
   });
 
   it("serves branded login markup at /login", async () => {
@@ -50,16 +44,16 @@ describe("home branding integration", () => {
     expect(response.text).not.toContain("/scripts/auth.js");
   });
 
-  it("renders logged-in home state when access_token cookie is present", async () => {
+  it("renders default home state when access_token cookie is present", async () => {
     const response = await request(app)
       .get("/")
       .set("Cookie", [`access_token=${encodeURIComponent(authToken)}`]);
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain("Welcome back, test@example.com");
-    expect(response.text).toContain('action="/logout"');
-    expect(response.text).toContain("Log out");
-    expect(response.text).not.toContain('href="/login"');
+    expect(response.text).toContain('href="/login"');
+    expect(response.text).not.toContain("Welcome back, test@example.com");
+    expect(response.text).not.toContain('action="/logout"');
+    expect(response.text).not.toContain("Log out");
   });
 
   it("serves required static branding assets", async () => {

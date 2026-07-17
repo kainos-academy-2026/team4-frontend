@@ -9,7 +9,9 @@ export class JobRoleController {
 	async renderListPage(request: Request, response: Response): Promise<void> {
 		try {
 			const accessToken = request.cookies.access_token as string | undefined;
-			const jobRoles = await this.jobRoleService.getOpenRoles(accessToken ?? "");
+			const jobRoles = await this.jobRoleService.getOpenRoles(
+				accessToken ?? "",
+			);
 
 			const viewModel: JobRoleListPage = {
 				errorMessage: null,
