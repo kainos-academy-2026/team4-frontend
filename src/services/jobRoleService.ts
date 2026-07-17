@@ -6,34 +6,17 @@ import {
 	type JobRoleListApi,
 	mapJobRoleDetailApiToModel,
 	mapJobRoleListApiToItem,
-	mapJobRoleToListItem,
 } from "../mappers/jobRoleMapper";
-import { fallbackJobRoles } from "../mocks/jobRoles";
 import type { JobRole } from "../models/jobRole";
 import type { JobRoleListItem } from "../models/jobRoleListModels";
 
 export class JobRoleService {
-	constructor(
-		private readonly client: AxiosInstance = apiClient,
-		private readonly fallbackData: JobRole[] = fallbackJobRoles,
-		private readonly useFallbackMock: boolean = process.env
-			.USE_JOB_ROLE_FALLBACK_MOCK !== "false",
-	) {}
+	constructor(private readonly client: AxiosInstance = apiClient) {}
 
-	async getOpenRoles(token: string): Promise<JobRoleListItem[]> {
-		if (this.useFallbackMock) {
-			return this.getFallbackOpenRoles();
-		}
-
+	async getOpenRoles(): Promise<JobRoleListItem[]> {
 		try {
-			const jobRoleListResponse = await this.client.get<JobRoleListApi[]>(
-				"/job-roles",
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-			);
+			const jobRoleListResponse =
+				await this.client.get<JobRoleListApi[]>("/job-roles");
 			return this.filterOpenRoles(
 				jobRoleListResponse.data.map(mapJobRoleListApiToItem),
 			);
@@ -48,19 +31,10 @@ export class JobRoleService {
 		}
 	}
 
-	async getRoleById(jobRoleId: number, token: string): Promise<JobRole | null> {
-		if (this.useFallbackMock) {
-			return this.getFallbackJobRoleById(jobRoleId);
-		}
-
+	async getRoleById(jobRoleId: number): Promise<JobRole | null> {
 		try {
 			const jobRoleDetailResponse = await this.client.get<JobRoleDetailApi>(
 				`/job-roles/${jobRoleId}`,
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
 			);
 			return mapJobRoleDetailApiToModel(jobRoleDetailResponse.data);
 		} catch (requestError) {
@@ -72,16 +46,6 @@ export class JobRoleService {
 			}
 			throw requestError;
 		}
-	}
-
-	private getFallbackOpenRoles(): JobRoleListItem[] {
-		return this.filterOpenRoles(this.fallbackData.map(mapJobRoleToListItem));
-	}
-
-	private getFallbackJobRoleById(jobRoleId: number): JobRole | null {
-		return (
-			this.fallbackData.find((jobRole) => jobRole.id === jobRoleId) ?? null
-		);
 	}
 
 	private filterOpenRoles(
