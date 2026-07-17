@@ -24,10 +24,9 @@ describe("home branding integration", () => {
     expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
     expect(response.text).toContain("href=\"/images/favicon.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain("data-home-auth-action");
-    expect(response.text).toContain('href="/register"');
     expect(response.text).toContain('href="/login"');
-    expect(response.text).toContain("data-auth-greeting");
+    expect(response.text).toContain("You must be logged in to apply for a role.");
+    expect(response.text).not.toContain('Log in here.');
     expect(response.text).toContain("careers@kainosjobs.example");
     expect(response.text).toContain("+44 28 9000 0000");
   });
@@ -39,7 +38,6 @@ describe("home branding integration", () => {
     expect(response.headers["content-type"]).toContain("text/html");
     expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
     expect(response.text).toContain("href=\"/styles/branding.css\"");
-    expect(response.text).toContain('href="/">Home</a>');
     expect(response.text).toContain("data-login-form");
     expect(response.text).toContain('method="post"');
     expect(response.text).toContain('action="/login"');
@@ -47,7 +45,6 @@ describe("home branding integration", () => {
     expect(response.text).toContain('type="password"');
     expect(response.text).toContain("data-login-error");
     expect(response.text).not.toContain('href="/login">Log in</a>');
-    expect(response.text).not.toContain("/scripts/auth.js");
   });
 
   it("renders logged-in home state when access_token cookie is present", async () => {
@@ -66,6 +63,10 @@ describe("home branding integration", () => {
     const cssResponse = await request(app).get("/styles/branding.css");
     expect(cssResponse.status).toBe(200);
     expect(cssResponse.headers["content-type"]).toContain("text/css");
+
+    const scrollRevealResponse = await request(app).get("/scripts/scroll-reveal.js");
+    expect(scrollRevealResponse.status).toBe(200);
+    expect(scrollRevealResponse.headers["content-type"]).toContain("javascript");
 
     const logoResponse = await request(app).get("/images/kainoslogo.png");
     expect(logoResponse.status).toBe(200);

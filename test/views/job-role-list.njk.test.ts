@@ -3,7 +3,7 @@ import path from "node:path";
 import nunjucks from "nunjucks";
 import { describe, expect, it } from "vitest";
 
-describe("job-role-list template", () => {
+describe("job role list badge rendering", () => {
 	it("renders closed role badges with closed modifier class", () => {
 		const viewsPath = path.join(process.cwd(), "src/views");
 		const environment = nunjucks.configure(viewsPath, {
@@ -25,8 +25,9 @@ describe("job-role-list template", () => {
 			numberOfOpenPositions: 0,
 		};
 
-		const listHtml = environment.render("job-role-list.njk", {
+		const listHtml = environment.render("index.njk", {
 			jobRoles: [closedRole],
+			errorMessage: null,
 		});
 
 		expect(listHtml).toContain('class="badge badge--closed"');

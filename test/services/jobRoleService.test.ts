@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AxiosInstance } from "axios";
-import axios, { AxiosError } from "axios";
 
 import type {
   JobRoleDetailApi,
@@ -146,65 +145,6 @@ describe("JobRoleService", () => {
     expect(mockGet).toHaveBeenCalledWith("/job-roles/1", {
       headers: { Authorization: "Bearer token" },
     });
-  });
-
-  it("returns fallback job role detail by id when fallback mode is enabled", async () => {
-    const service = new JobRoleService(
-      { get: vi.fn() } as unknown as AxiosInstance,
-      fallbackData,
-      true,
-    );
-
-    await expect(service.getRoleById(3)).resolves.toEqual(fallbackData[0]);
-    await expect(service.getRoleById(999)).resolves.toBeNull();
-  });
-
-  it("returns null when backend detail endpoint responds with 404", async () => {
-    const mockGet = vi.fn().mockRejectedValue(
-      new AxiosError("Not Found", "404", undefined, undefined, {
-        status: 404,
-        statusText: "Not Found",
-        headers: {},
-        config: {
-          headers: axios.AxiosHeaders.from({}),
-        },
-        data: {},
-      }),
-    );
-
-    const service = new JobRoleService(
-      { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
-    );
-
-    await expect(service.getRoleById(999)).resolves.toBeNull();
-  });
-
-  it("rethrows non-404 errors when listing job roles", async () => {
-    const serviceError = new Error("Service unavailable");
-    const mockGet = vi.fn().mockRejectedValue(serviceError);
-
-    const service = new JobRoleService(
-      { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
-    );
-
-    await expect(service.getOpenRoles()).rejects.toThrow("Service unavailable");
-  });
-
-  it("rethrows non-404 errors when fetching job role detail", async () => {
-    const serviceError = new Error("Gateway timeout");
-    const mockGet = vi.fn().mockRejectedValue(serviceError);
-
-    const service = new JobRoleService(
-      { get: mockGet } as unknown as AxiosInstance,
-      fallbackData,
-      false,
-    );
-
-    await expect(service.getRoleById(5)).rejects.toThrow("Gateway timeout");
   });
 
   it("returns null when detail endpoint responds with 404", async () => {

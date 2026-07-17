@@ -13,17 +13,6 @@ describe("home page template", () => {
 
     const html = environment.render("index.njk", {
       isAuthenticated: false,
-<<<<<<< HEAD:test/views/index.njk.test.ts
-<<<<<<< HEAD:test/views/index.njk.test.ts
-      userEmail: null,
-   ,
-=======
->>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
-      jobRoles: [],
-      errorMessage: null,
-   ,
-=======
->>>>>>> 28abf4e (Fix CV upload auth and application form duplication):test/views/homePage.test.ts
       userEmail: null,
       jobRoles: [],
       errorMessage: null,
@@ -36,11 +25,6 @@ describe("home page template", () => {
     expect(html).toContain("href=\"/images/favicon.png\"");
     expect(html).toContain("href=\"/styles/branding.css\"");
     expect(html).toContain("class=\"kainos-footer\"");
-<<<<<<< HEAD:test/views/index.njk.test.ts
-    expect(html).toContain("data-auth-action");
-    expect(html).toContain('href="/register"');
-=======
->>>>>>> 87efe42 (Removing demo stuff):test/views/homePage.test.ts
     expect(html).toContain('href="/login"');
     expect(html).toContain("You must be logged in to apply for a role.");
     expect(html).not.toContain('Log in here.');
@@ -108,36 +92,7 @@ describe("home page template", () => {
     expect(html).toContain("Welcome back, test@example.com");
     expect(html).toContain('action="/logout"');
     expect(html).toContain("Log out");
-<<<<<<< HEAD:test/views/index.njk.test.ts
-    expect(html).not.toContain('href="/register"');
-=======
->>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
     expect(html).not.toContain('href="/login"');
     expect(html).toContain("Browse open roles");
   });
-<<<<<<< HEAD:test/views/index.njk.test.ts
-
-  it("renders greeting and logout action when authenticated", () => {
-    const viewsPath = path.join(process.cwd(), "src/views");
-    const environment = nunjucks.configure(viewsPath, {
-      autoescape: true,
-      noCache: true,
-    });
-
-    const html = environment.render("index.njk", {
-      isAuthenticated: true,
-      userEmail: "test@example.com",
-    });
-
-    expect(html).toContain("Welcome back, test@example.com");
-    expect(html).toContain('action="/logout"');
-    expect(html).toContain("Log out");
-<<<<<<< HEAD:test/views/index.njk.test.ts
-    expect(html).not.toContain('href="/register"');
-=======
->>>>>>> d5d5ae0 (Wired login with backend (#14)):test/views/homePage.test.ts
-    expect(html).not.toContain('href="/login"');
-  });
-=======
->>>>>>> 28abf4e (Fix CV upload auth and application form duplication):test/views/homePage.test.ts
 });

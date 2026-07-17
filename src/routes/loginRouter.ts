@@ -1,13 +1,7 @@
 import { Router } from "express";
 
-import {
-	getLogin,
-	LoginController,
-	postLogin,
-	postLogout,
-} from "../controllers/loginController";
+import { LoginController } from "../controllers/loginController";
 import { LoginRequestSchema } from "../dto/loginDto";
-import { validateLoginUser } from "../middleware/loginUserMiddleware";
 import { validateBody } from "../middleware/loginValidation";
 import { LoginService } from "../services/loginService";
 

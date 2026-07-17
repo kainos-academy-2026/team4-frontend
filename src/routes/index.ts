@@ -15,7 +15,7 @@ router.use(loginRouter);
 router.use(registerRouter);
 router.use(loginApiRouter);
 router.use(healthRouter);
-router.use(notFoundRouter);
 router.use(jobRoleRouter);
+router.use(notFoundRouter);
 
 export default router;

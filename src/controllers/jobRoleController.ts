@@ -287,12 +287,11 @@ export class JobRoleController {
 			return;
 		}
 
-		const token = request.cookies.access_token as string | undefined;
-		if (!token) {
+		const authHeader = this.getAuthHeader(request);
+		if (!authHeader) {
 			response.status(401).json({ message: "Unauthorised." });
 			return;
 		}
-		const authHeader = `Bearer ${token}`;
 
 		const body = (request.body ?? {}) as {
 			s3Key?: string;
