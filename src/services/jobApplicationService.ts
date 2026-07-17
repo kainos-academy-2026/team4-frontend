@@ -1,5 +1,4 @@
 import type { AxiosInstance } from "axios";
-import FormData from "form-data";
 
 import apiClient from "../config/apiClient.js";
 
@@ -8,25 +7,45 @@ export type BackendApplicationResponse = {
 	data: unknown;
 };
 
+export type UploadUrlResponse = {
+	presignedUrl: string;
+	s3Key: string;
+};
+
+export type SubmitApplicationPayload = {
+	s3Key: string;
+	cvFileName: string;
+	cvMimeType: string;
+	cvSizeBytes: number;
+};
+
 export class JobApplicationService {
 	constructor(private readonly backendClient: AxiosInstance = apiClient) {}
+
+	async getUploadUrl(
+		jobRoleId: number,
+		authHeader: string,
+		fileName: string,
+	): Promise<UploadUrlResponse> {
+		const response = await this.backendClient.get<UploadUrlResponse>(
+			`/job-roles/${jobRoleId}/applications/upload-url`,
+			{
+				params: { fileName },
+				headers: { Authorization: authHeader },
+			},
+		);
+		return response.data;
+	}
 
 	async submitApplication(
 		jobRoleId: number,
 		authHeader: string,
-		file: Express.Multer.File,
+		payload: SubmitApplicationPayload,
 	): Promise<BackendApplicationResponse> {
-		const formData = new FormData();
-		formData.append("cvFile", file.buffer, {
-			filename: file.originalname,
-			contentType: file.mimetype,
-			knownLength: file.size,
-		});
-
 		const backendResponse = await this.backendClient.post(
 			`/job-roles/${jobRoleId}/applications`,
-			formData,
-			{ headers: { Authorization: authHeader, ...formData.getHeaders() } },
+			payload,
+			{ headers: { Authorization: authHeader } },
 		);
 
 		return {

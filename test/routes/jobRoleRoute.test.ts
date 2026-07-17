@@ -179,166 +179,93 @@ describe("POST /job-roles/:id/apply", () => {
     vi.restoreAllMocks();
   });
 
-  it("redirects to not found for an invalid role id", async () => {
+  it("returns 400 for an invalid role id", async () => {
     const response = await request(app)
       .post("/job-roles/not-a-number/apply")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toBe("/404");
-  });
-
-  it("redirects to login when cookie is missing", async () => {
-    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
-      id: 1,
-      roleName: "Software Engineer",
-      location: "Belfast",
-      capability: "Engineering",
-      band: "Associate",
-      closingDate: new Date("2026-08-01"),
-      status: "open",
-      description: "Build services",
-      responsibilities: "Ship features",
-      sharepointUrl: "https://example.com/role/1",
-      numberOfOpenPositions: 2,
-    });
-
-    const response = await request(app)
-      .post("/job-roles/1/apply")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toBe("/login?returnTo=/job-roles/1/apply");
-  });
-
-  it("renders an error message when cvFile is missing", async () => {
-    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
-      id: 1,
-      roleName: "Software Engineer",
-      location: "Belfast",
-      capability: "Engineering",
-      band: "Associate",
-      closingDate: new Date("2026-08-01"),
-      status: "open",
-      description: "Build services",
-      responsibilities: "Ship features",
-      sharepointUrl: "https://example.com/role/1",
-      numberOfOpenPositions: 2,
-    });
-    const response = await request(app)
-      .post("/job-roles/1/apply")
-      .set("Cookie", "access_token=fake.jwt.token");
+      .set("Content-Type", "application/json")
+      .send({ s3Key: "cvs/k", cvFileName: "cv.pdf", cvMimeType: "application/pdf" });
 
     expect(response.status).toBe(400);
-    expect(response.text).toContain("No CV file provided.");
-  });
-
-  it("redirects back to apply page with submission status when upload succeeds", async () => {
-    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
-      id: 1,
-      roleName: "Software Engineer",
-      location: "Belfast",
-      capability: "Engineering",
-      band: "Associate",
-      closingDate: new Date("2026-08-01"),
-      status: "open",
-      description: "Build services",
-      responsibilities: "Ship features",
-      sharepointUrl: "https://example.com/role/1",
-      numberOfOpenPositions: 2,
-    });
-    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
-      status: 201,
-      data: { id: 10, status: "in_progress" },
-    });
-
-    const response = await request(app)
-      .post("/job-roles/1/apply")
-      .set("Cookie", "access_token=fake.jwt.token")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toContain("/job-roles/1/apply?submitted=true");
-    expect(response.headers.location).toContain("updated=false");
-    expect(response.headers.location).toContain("cvFileName=cv.pdf");
-  });
-});
-
-describe("POST /job-roles/:id/applications", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("returns 404 for an invalid role id", async () => {
-    const response = await request(app)
-      .post("/job-roles/not-a-number/applications")
-      .set("Cookie", "access_token=fake.jwt.token")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({ message: "Job role not found." });
+    expect(response.body).toEqual({ message: "Invalid job role ID." });
   });
 
   it("returns 401 when cookie is missing", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+
     const response = await request(app)
-      .post("/job-roles/1/applications")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+      .post("/job-roles/1/apply")
+      .set("Content-Type", "application/json")
+      .send({ s3Key: "cvs/k", cvFileName: "cv.pdf", cvMimeType: "application/pdf" });
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({ message: "Unauthorised." });
   });
 
-  it("returns 400 when cvFile is missing", async () => {
+  it("returns 400 when required upload fields are missing", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
+
     const response = await request(app)
-      .post("/job-roles/1/applications")
-      .set("Cookie", "access_token=fake.jwt.token");
+      .post("/job-roles/1/apply")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .set("Content-Type", "application/json")
+      .send({});
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: "No CV file provided." });
+    expect(response.body).toEqual({ message: "Missing required upload fields." });
   });
 
-  it("forwards backend success response", async () => {
+  it("returns redirectUrl when upload succeeds", async () => {
+    vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+      id: 1,
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capability: "Engineering",
+      band: "Associate",
+      closingDate: new Date("2026-08-01"),
+      status: "open",
+      description: "Build services",
+      responsibilities: "Ship features",
+      sharepointUrl: "https://example.com/role/1",
+      numberOfOpenPositions: 2,
+    });
     vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
       status: 201,
       data: { id: 10, status: "in_progress" },
     });
 
     const response = await request(app)
-      .post("/job-roles/1/applications")
+      .post("/job-roles/1/apply")
       .set("Cookie", "access_token=fake.jwt.token")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
+      .set("Content-Type", "application/json")
+      .send({ s3Key: "cvs/k", cvFileName: "cv.pdf", cvMimeType: "application/pdf", cvSizeBytes: 100 });
 
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual({ id: 10, status: "in_progress" });
-  });
-
-  it("forwards backend error status and body when service throws an axios error", async () => {
-    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue({
-      isAxiosError: true,
-      response: { status: 422, data: { message: "Invalid file type." } },
-    });
-
-    const response = await request(app)
-      .post("/job-roles/1/applications")
-      .set("Cookie", "access_token=fake.jwt.token")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(422);
-    expect(response.body).toEqual({ message: "Invalid file type." });
-  });
-
-  it("returns 502 when service throws an unexpected error", async () => {
-    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue(
-      new Error("network failure"),
-    );
-
-    const response = await request(app)
-      .post("/job-roles/1/applications")
-      .set("Cookie", "access_token=fake.jwt.token")
-      .attach("cvFile", Buffer.from("cv"), "cv.pdf");
-
-    expect(response.status).toBe(502);
-    expect(response.body).toEqual({ message: "CV upload failed. Please try again later." });
+    expect(response.status).toBe(200);
+    expect(response.body.redirectUrl).toContain("/job-roles/1/apply?submitted=true");
+    expect(response.body.redirectUrl).toContain("cvFileName=cv.pdf");
   });
 });
 
@@ -353,5 +280,91 @@ describe("POST /logout", () => {
     expect(response.headers["set-cookie"]).toEqual(
       expect.arrayContaining([expect.stringContaining("access_token=;")]),
     );
+  });
+});
+
+describe("POST /job-roles/:id/applications", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const validPayload = {
+    s3Key: "cvs/1/uid/uuid.pdf",
+    cvFileName: "cv.pdf",
+    cvMimeType: "application/pdf",
+    cvSizeBytes: 100,
+  };
+
+  it("returns 404 for an invalid role id", async () => {
+    const response = await request(app)
+      .post("/job-roles/not-a-number/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .send(validPayload);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "Job role not found." });
+  });
+
+  it("returns 401 when cookie is missing", async () => {
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .send(validPayload);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ message: "Unauthorised." });
+  });
+
+  it("returns 400 when required fields are missing", async () => {
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: "Missing required upload fields." });
+  });
+
+  it("forwards backend success response", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
+      status: 201,
+      data: { id: 10, status: "in_progress" },
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .send(validPayload);
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ id: 10, status: "in_progress" });
+  });
+
+  it("forwards backend error status and body when service throws an axios error", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 422, data: { message: "Invalid file type." } },
+    });
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .send(validPayload);
+
+    expect(response.status).toBe(422);
+    expect(response.body).toEqual({ message: "Invalid file type." });
+  });
+
+  it("returns 502 when service throws an unexpected error", async () => {
+    vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue(
+      new Error("network failure"),
+    );
+
+    const response = await request(app)
+      .post("/job-roles/1/applications")
+      .set("Cookie", "access_token=fake.jwt.token")
+      .send(validPayload);
+
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({ message: "CV upload failed. Please try again later." });
   });
 });

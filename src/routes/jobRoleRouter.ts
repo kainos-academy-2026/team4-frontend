@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { JobRoleController } from "../controllers/jobRoleController";
-import upload from "../middleware/upload";
 import { JobApplicationService } from "../services/jobApplicationService";
 import { JobRoleService } from "../services/jobRoleService";
 
@@ -13,12 +12,14 @@ const jobRoleController = new JobRoleController(
 
 jobRoleRouter.post(
 	"/job-roles/:id/applications",
-	upload.single("cvFile"),
 	(request, response) => jobRoleController.submitApplication(request, response),
+);
+jobRoleRouter.get(
+	"/job-roles/:id/upload-url",
+	(request, response) => jobRoleController.getUploadUrl(request, response),
 );
 jobRoleRouter.post(
 	"/job-roles/:id/apply",
-	upload.single("cvFile"),
 	(request, response) =>
 		jobRoleController.submitApplicationPage(request, response),
 );
