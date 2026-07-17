@@ -22,8 +22,8 @@ export const authorize = (allowedRoles: readonly Role[]) => {
 				return;
 			}
 
-			const userId = Number(decodedToken.sub);
-			if (!Number.isSafeInteger(userId) || userId <= 0) {
+			const userIdFromToken = decodedToken.sub;
+			if (typeof userIdFromToken !== "string" || !userIdFromToken.trim()) {
 				response.redirect("/login");
 				return;
 			}
@@ -37,7 +37,7 @@ export const authorize = (allowedRoles: readonly Role[]) => {
 			}
 
 			response.locals.user = {
-				id: userId,
+				id: userIdFromToken,
 				email: typeof decodedToken.email === "string" ? decodedToken.email : "",
 				role: decodedToken.role,
 			};
