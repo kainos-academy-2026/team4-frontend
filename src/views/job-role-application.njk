@@ -58,9 +58,9 @@
 			<form
 				class="kainos-auth-card"
 				data-job-application-form
+				data-job-role-id="{{ jobRole.id }}"
 				method="post"
 				action="/job-roles/{{ jobRole.id }}/apply"
-				enctype="multipart/form-data"
 			>
 				<label class="kainos-field" for="cvFile">
 					<span>CV Upload</span>
@@ -104,5 +104,6 @@
 			<p>Email: <a href="mailto:careers@kainosjobs.example">careers@kainosjobs.example</a></p>
 			<p>Phone: <a href="tel:+442890000000">+44 28 9000 0000</a></p>
 		</footer>
+		<script src="/scripts/cv-upload.js"></script>
 	</body>
 </html>

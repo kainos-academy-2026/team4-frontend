@@ -102,37 +102,78 @@ export class JobRoleController {
 		}
 	}
 
+	async getUploadUrl(request: Request, response: Response): Promise<void> {
+		const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
+		if (!parsedJobRoleId.success) {
+			response.status(400).json({ message: "Invalid job role ID." });
+			return;
+		}
+
+		const authHeader = this.getAuthHeader(request);
+		if (!authHeader) {
+			response.status(401).json({ message: "Unauthorised." });
+			return;
+		}
+
+		const fileName =
+			typeof request.query.fileName === "string" && request.query.fileName
+				? request.query.fileName
+				: "cv";
+
+		try {
+			const result = await this.jobApplicationService.getUploadUrl(
+				parsedJobRoleId.data,
+				authHeader,
+				fileName,
+			);
+			response.json(result);
+		} catch (error) {
+			console.error(error);
+			response
+				.status(502)
+				.json({ message: "Could not generate upload URL. Please try again." });
+		}
+	}
+
 	async submitApplicationPage(
 		request: Request,
 		response: Response,
 	): Promise<void> {
 		const parsedJobRoleId = jobRoleIdSchema.safeParse(request.params.id);
 		if (!parsedJobRoleId.success) {
-			response.redirect("/404");
+			response.status(400).json({ message: "Invalid job role ID." });
 			return;
 		}
 
 		const jobRole = await this.jobRoleService.getRoleById(parsedJobRoleId.data);
 		if (!jobRole) {
-			response.redirect("/404");
+			response.status(404).json({ message: "Job role not found." });
 			return;
 		}
 
 		const canApply = this.canAcceptApplications(jobRole);
 		if (!canApply) {
-			response.status(400).render("job-role-application", {
-				errorMessage: "Applications are closed for this role.",
-				jobRole,
-				canApply: false,
-				existingApplicationStatus: null,
-				submissionStatus: null,
-			});
+			response
+				.status(400)
+				.json({ message: "Applications are closed for this role." });
 			return;
 		}
 
 		const authHeader = this.getAuthHeader(request);
 		if (authHeader === null) {
-			response.redirect(`/login?returnTo=/job-roles/${jobRole.id}/apply`);
+			response.status(401).json({ message: "Unauthorised." });
+			return;
+		}
+
+		const body = (request.body ?? {}) as {
+			s3Key?: string;
+			cvFileName?: string;
+			cvMimeType?: string;
+			cvSizeBytes?: number;
+		};
+
+		if (!body.s3Key || !body.cvFileName || !body.cvMimeType) {
+			response.status(400).json({ message: "Missing required upload fields." });
 			return;
 		}
 
@@ -141,47 +182,38 @@ export class JobRoleController {
 			authHeader,
 		);
 		if (!authenticatedJobRole) {
-			response.redirect("/404");
+			response.status(404).json({ message: "Job role not found." });
 			return;
 		}
 		const existingApplicationStatus =
 			this.getExistingApplicationStatusFromRole(authenticatedJobRole);
 
-		const file = request.file;
-		if (!file) {
-			response.status(400).render("job-role-application", {
-				errorMessage: "No CV file provided.",
-				jobRole,
-				canApply: true,
-				existingApplicationStatus,
-				submissionStatus: null,
-			});
-			return;
-		}
-
 		try {
-			await this.jobApplicationService.submitApplication(
-				jobRole.id,
-				authHeader,
-				file,
-			);
+			await this.jobApplicationService.submitApplication(jobRole.id, authHeader, {
+				s3Key: body.s3Key,
+				cvFileName: body.cvFileName,
+				cvMimeType: body.cvMimeType,
+				cvSizeBytes: body.cvSizeBytes ?? 0,
+			});
 
 			const params = new URLSearchParams({
 				submitted: "true",
 				updated: existingApplicationStatus === null ? "false" : "true",
-				cvFileName: file.originalname,
+				cvFileName: body.cvFileName,
 			});
-			response.redirect(`/job-roles/${jobRole.id}/apply?${params.toString()}`);
+			response.json({
+				redirectUrl: `/job-roles/${jobRole.id}/apply?${params.toString()}`,
+			});
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
 				const backendStatus = error.response?.status;
 				if (backendStatus === 401) {
-					response.redirect(`/login?returnTo=/job-roles/${jobRole.id}/apply`);
+					response.status(401).json({ message: "Unauthorised." });
 					return;
 				}
 
 				if (backendStatus === 404) {
-					response.redirect("/404");
+					response.status(404).json({ message: "Job role not found." });
 					return;
 				}
 
@@ -193,25 +225,18 @@ export class JobRoleController {
 						? error.response.data.message
 						: null;
 
-				response.status(backendStatus ?? 502).render("job-role-application", {
-					errorMessage:
-						backendMessage ?? "CV upload failed. Please try again later.",
-					jobRole,
-					canApply: true,
-					existingApplicationStatus,
-					submissionStatus: null,
-				});
+				response
+					.status(backendStatus ?? 502)
+					.json({
+						message: backendMessage ?? "CV upload failed. Please try again later.",
+					});
 				return;
 			}
 
 			console.error(error);
-			response.status(502).render("job-role-application", {
-				errorMessage: "CV upload failed. Please try again later.",
-				jobRole,
-				canApply: true,
-				existingApplicationStatus,
-				submissionStatus: null,
-			});
+			response
+				.status(502)
+				.json({ message: "CV upload failed. Please try again later." });
 		}
 	}
 
@@ -229,9 +254,15 @@ export class JobRoleController {
 		}
 		const authHeader = `Bearer ${token}`;
 
-		const file = request.file;
-		if (!file) {
-			response.status(400).json({ message: "No CV file provided." });
+		const body = (request.body ?? {}) as {
+			s3Key?: string;
+			cvFileName?: string;
+			cvMimeType?: string;
+			cvSizeBytes?: number;
+		};
+
+		if (!body.s3Key || !body.cvFileName || !body.cvMimeType) {
+			response.status(400).json({ message: "Missing required upload fields." });
 			return;
 		}
 
@@ -240,7 +271,12 @@ export class JobRoleController {
 				await this.jobApplicationService.submitApplication(
 					parsedJobRoleId.data,
 					authHeader,
-					file,
+					{
+						s3Key: body.s3Key,
+						cvFileName: body.cvFileName,
+						cvMimeType: body.cvMimeType,
+						cvSizeBytes: body.cvSizeBytes ?? 0,
+					},
 				);
 			response.status(backendResponse.status).json(backendResponse.data);
 		} catch (error) {
