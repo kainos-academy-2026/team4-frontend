@@ -84,20 +84,3 @@ export class LoginController {
 		response.redirect("/");
 	};
 }
-
-// Export handler functions for routing
-export const getLogin = (_request: Request, response: Response): void => {
-	if (response.locals.isAuthenticated) {
-		response.redirect("/");
-		return;
-	}
-
-	response.render("login", {
-		errorMessage: null,
-	});
-};
-
-export const postLogout = (_request: Request, response: Response): void => {
-	clearAccessTokenCookie(response);
-	response.redirect("/");
-};

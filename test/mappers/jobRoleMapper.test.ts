@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
 	mapJobRoleDetailApiToModel,
 	mapJobRoleListApiToItem,
-	mapJobRoleToListItem,
 } from "../../src/mappers/jobRoleMapper";
 
 describe("mapJobRoleDetailApiToModel", () => {
@@ -83,34 +82,6 @@ describe("mapJobRoleDetailApiToModel", () => {
 			closingDate: new Date("2026-09-20"),
 			status: "open",
 			myApplication: { status: "in_progress", cvFileName: "cv.pdf" },
-		});
-	});
-
-	it("maps detail model into list item", () => {
-		const result = mapJobRoleToListItem({
-			id: 4,
-			roleName: "Data Engineer",
-			location: "London",
-			capability: "Data",
-			band: "Associate",
-			closingDate: new Date("2026-10-10"),
-			status: "open",
-			description: "Build pipelines",
-			responsibilities: "Design ETL",
-			sharepointUrl: "https://example.com/role/4",
-			numberOfOpenPositions: 1,
-			myApplication: null,
-		});
-
-		expect(result).toEqual({
-			id: 4,
-			roleName: "Data Engineer",
-			location: "London",
-			capability: "Data",
-			band: "Associate",
-			closingDate: new Date("2026-10-10"),
-			status: "open",
-			myApplication: null,
 		});
 	});
 });

@@ -1,16 +1,15 @@
 import axios from "axios";
 import type { Request, Response } from "express";
 
+import {
+	SubmitApplicationBodySchema,
+	UploadUrlQuerySchema,
+} from "../dto/jobApplicationDto";
+import { mapJobRoleToApplicationStatus } from "../mappers/jobRoleMapper";
 import type { JobRole } from "../models/jobRole";
 import { jobRoleIdSchema } from "../models/jobRole";
 import type { JobApplicationService } from "../services/jobApplicationService";
 import type { JobRoleService } from "../services/jobRoleService";
-
-type ApplicationStatusPayload = {
-	status?: string;
-	cvFileName?: string;
-};
-
 import { logger } from "../utils/logger";
 
 export class JobRoleController {
@@ -86,7 +85,7 @@ export class JobRoleController {
 
 			const canApply = this.canAcceptApplications(jobRole);
 			const existingApplicationStatus = canApply
-				? this.getExistingApplicationStatusFromRole(jobRole)
+				? mapJobRoleToApplicationStatus(jobRole)
 				: null;
 			const submissionStatus = this.getSubmissionStatus(request);
 
@@ -122,12 +121,10 @@ export class JobRoleController {
 			return;
 		}
 
-		const fileName =
-			typeof request.query.fileName === "string" && request.query.fileName
-				? request.query.fileName
-				: "cv";
-		const mimeType =
-			typeof request.query.mimeType === "string" ? request.query.mimeType : "";
+		const parsedQuery = UploadUrlQuerySchema.safeParse(request.query);
+		const { fileName, mimeType } = parsedQuery.success
+			? parsedQuery.data
+			: { fileName: "cv", mimeType: "" };
 
 		try {
 			const result = await this.jobApplicationService.getUploadUrl(
@@ -209,17 +206,12 @@ export class JobRoleController {
 			return;
 		}
 
-		const body = (request.body ?? {}) as {
-			s3Key?: string;
-			cvFileName?: string;
-			cvMimeType?: string;
-			cvSizeBytes?: number;
-		};
-
-		if (!body.s3Key || !body.cvFileName || !body.cvMimeType) {
+		const parsedBody = SubmitApplicationBodySchema.safeParse(request.body);
+		if (!parsedBody.success) {
 			response.status(400).json({ message: "Missing required upload fields." });
 			return;
 		}
+		const body = parsedBody.data;
 
 		const authenticatedJobRole = await this.jobRoleService.getRoleById(
 			jobRole.id,
@@ -230,7 +222,7 @@ export class JobRoleController {
 			return;
 		}
 		const existingApplicationStatus =
-			this.getExistingApplicationStatusFromRole(authenticatedJobRole);
+			mapJobRoleToApplicationStatus(authenticatedJobRole);
 
 		try {
 			await this.jobApplicationService.submitApplication(
@@ -300,17 +292,12 @@ export class JobRoleController {
 			return;
 		}
 
-		const body = (request.body ?? {}) as {
-			s3Key?: string;
-			cvFileName?: string;
-			cvMimeType?: string;
-			cvSizeBytes?: number;
-		};
-
-		if (!body.s3Key || !body.cvFileName || !body.cvMimeType) {
+		const parsedBody = SubmitApplicationBodySchema.safeParse(request.body);
+		if (!parsedBody.success) {
 			response.status(400).json({ message: "Missing required upload fields." });
 			return;
 		}
+		const body = parsedBody.data;
 
 		try {
 			const backendResponse =
@@ -354,20 +341,7 @@ export class JobRoleController {
 	}
 
 	private hasApplicationInProgress(jobRole: JobRole): boolean {
-		return this.getExistingApplicationStatusFromRole(jobRole) !== null;
-	}
-
-	private getExistingApplicationStatusFromRole(
-		jobRole: JobRole,
-	): ApplicationStatusPayload | null {
-		const myApplication = jobRole.myApplication;
-		if (!myApplication) {
-			return null;
-		}
-		return {
-			status: myApplication.status,
-			cvFileName: myApplication.cvFileName,
-		};
+		return mapJobRoleToApplicationStatus(jobRole) !== null;
 	}
 
 	private getSubmissionStatus(request: Request): {

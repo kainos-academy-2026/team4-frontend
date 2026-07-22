@@ -69,17 +69,20 @@ export const mapJobRoleListApiToItem = (
 	};
 };
 
-export const mapJobRoleToListItem = (
-	jobRoleDetail: JobRole,
-): JobRoleListItem => {
+export type ApplicationStatusPayload = {
+	status?: string;
+	cvFileName?: string;
+};
+
+export const mapJobRoleToApplicationStatus = (
+	jobRole: JobRole,
+): ApplicationStatusPayload | null => {
+	const myApplication = jobRole.myApplication;
+	if (!myApplication) {
+		return null;
+	}
 	return {
-		id: jobRoleDetail.id,
-		roleName: jobRoleDetail.roleName,
-		location: jobRoleDetail.location,
-		capability: jobRoleDetail.capability,
-		band: jobRoleDetail.band,
-		closingDate: new Date(jobRoleDetail.closingDate),
-		status: jobRoleDetail.status,
-		myApplication: jobRoleDetail.myApplication ?? null,
+		status: myApplication.status,
+		cvFileName: myApplication.cvFileName,
 	};
 };

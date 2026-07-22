@@ -1,12 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import type {
-	JobRoleListItem,
-	JobRoleListPage,
-} from "../../src/models/jobRoleListModels";
+import type { JobRoleListItem } from "../../src/models/jobRoleListModels";
 
 describe("jobRole list model types", () => {
-	it("supports constructing list page objects with nullable error message", () => {
+	it("supports constructing job role list items", () => {
 		const jobRoles: JobRoleListItem[] = [
 			{
 				id: 1,
@@ -19,12 +16,7 @@ describe("jobRole list model types", () => {
 			},
 		];
 
-		const page: JobRoleListPage = {
-			errorMessage: null,
-			jobRoles,
-		};
-
-		expect(page.jobRoles[0].roleName).toBe("Software Engineer");
-		expect(page.errorMessage).toBeNull();
+		expect(jobRoles[0].roleName).toBe("Software Engineer");
 	});
 });
+
