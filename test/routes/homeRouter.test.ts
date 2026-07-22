@@ -40,6 +40,7 @@ describe("home branding integration", () => {
 		expect(response.headers["content-type"]).toContain("text/html");
 		expect(response.text).toContain('class="kainos-header kainos-header--with-actions"');
 		expect(response.text).toContain('src="/images/kainoslogo.png"');
+		expect(response.text).toContain('src="/images/rocket-hero.png"');
 		expect(response.text).toContain('href="/images/favicon.png"');
 		expect(response.text).toContain('href="/styles/branding.css"');
 		expect(response.text).toContain("Welcome back, test@example.com");
@@ -86,5 +87,9 @@ describe("home branding integration", () => {
 		const faviconResponse = await request(app).get("/images/favicon.png");
 		expect(faviconResponse.status).toBe(200);
 		expect(faviconResponse.headers["content-type"]).toContain("image/png");
+
+		const rocketResponse = await request(app).get("/images/rocket-hero.png");
+		expect(rocketResponse.status).toBe(200);
+		expect(rocketResponse.headers["content-type"]).toContain("image/png");
 	});
 });
