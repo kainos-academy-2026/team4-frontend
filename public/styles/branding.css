@@ -254,15 +254,53 @@ a:has(> .kainos-logo):focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 6vw, 4rem);
+}
+
+.kainos-hero-layout {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.2rem);
 }
 
 .kainos-home-copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  text-align: left;
   gap: 1rem;
+}
+
+.kainos-hero-visual {
+  margin: 0;
+  width: 100%;
+}
+
+.kainos-hero-visual img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 22px 40px rgba(15, 36, 95, 0.2));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kainos-hero-visual img {
+    animation: kainosRocketFloat 4.2s ease-in-out infinite;
+  }
+}
+
+@keyframes kainosRocketFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .kainos-hero h1 {
@@ -578,6 +616,20 @@ a:has(> .kainos-logo):focus-visible {
 @media (max-width: 900px) {
   .kainos-hero {
     min-height: 100svh;
+  }
+
+  .kainos-hero-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .kainos-home-copy {
+    align-items: center;
+    text-align: center;
+  }
+
+  .kainos-hero-visual {
+    width: min(100%, 420px);
   }
 }
 
