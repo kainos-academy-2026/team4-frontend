@@ -20,7 +20,12 @@ export const resolvePublicPath = (
 	distPath: string,
 	sourcePath: string,
 	fsModule: Pick<typeof fs, "existsSync"> = fs,
+	runtimeEnv = process.env.NODE_ENV,
 ): string => {
+	if (runtimeEnv === "test") {
+		return sourcePath;
+	}
+
 	const distBrandingCssPath = path.join(distPath, "styles", "branding.css");
 	return fsModule.existsSync(distBrandingCssPath) ? distPath : sourcePath;
 };
