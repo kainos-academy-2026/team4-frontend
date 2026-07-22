@@ -3,20 +3,33 @@ import { Router } from "express";
 import { JobRoleController } from "../controllers/jobRoleController";
 import { authorize } from "../middleware/authContext";
 import { Role } from "../models/role";
+import { JobApplicationService } from "../services/jobApplicationService";
 import { JobRoleService } from "../services/jobRoleService";
 
 const jobRoleRouter = Router();
-const jobRoleController = new JobRoleController(new JobRoleService());
+const jobRoleController = new JobRoleController(
+	new JobRoleService(),
+	new JobApplicationService(),
+);
 
-jobRoleRouter.get(
-	"/job-roles",
-	authorize([Role.User, Role.Admin]),
-	(request, response) => jobRoleController.renderListPage(request, response),
+jobRoleRouter.post("/job-roles/:id/applications", (request, response) =>
+	jobRoleController.submitApplication(request, response),
 );
 jobRoleRouter.get(
-	"/job-roles/:id",
+	"/job-roles/:id/applications/upload-url",
+	(request, response) => jobRoleController.getUploadUrl(request, response),
+);
+jobRoleRouter.post("/job-roles/:id/apply", (request, response) =>
+	jobRoleController.submitApplicationPage(request, response),
+);
+jobRoleRouter.get(
+	"/job-roles/:id/apply",
 	authorize([Role.User, Role.Admin]),
-	(request, response) => jobRoleController.renderDetailPage(request, response),
+	(request, response) =>
+		jobRoleController.renderApplicationPage(request, response),
+);
+jobRoleRouter.get("/job-roles/:id", (request, response) =>
+	jobRoleController.renderDetailPage(request, response),
 );
 
 export default jobRoleRouter;

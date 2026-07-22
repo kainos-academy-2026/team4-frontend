@@ -12,6 +12,13 @@ export const JobRoleSchema = z.object({
 	responsibilities: z.string(),
 	sharepointUrl: z.string(),
 	numberOfOpenPositions: z.number(),
+	myApplication: z
+		.object({
+			status: z.string().optional(),
+			cvFileName: z.string().optional(),
+		})
+		.nullable()
+		.optional(),
 });
 
 export type JobRole = z.infer<typeof JobRoleSchema>;

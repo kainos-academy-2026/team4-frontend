@@ -1,10 +1,12 @@
 :root {
   --kainos-primary-blue: #2e36a5;
-  --kainos-surface: #ffffff;
   --kainos-text-navy: #1f2b4d;
-  --kainos-page-bg: #efedf7;
-  --kainos-shadow-soft: 0 10px 30px rgba(24, 38, 97, 0.12);
-  --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.2);
+  --kainos-surface: #ffffff;
+  --kainos-page-bg: #f3f6fb;
+  --kainos-accent-green: #00bf63;
+  --kainos-border-soft: #d4dceb;
+  --kainos-shadow-soft: 0 12px 28px rgba(20, 37, 94, 0.11);
+  --kainos-shadow-header: 0 8px 24px rgba(12, 27, 85, 0.12);
   --kainos-radius: 14px;
 }
 
@@ -12,22 +14,55 @@
   box-sizing: border-box;
 }
 
+a {
+  color: var(--kainos-primary-blue);
+}
+
+a:visited {
+  color: var(--kainos-primary-blue);
+}
+
+a.kainos-primary-action,
+a.kainos-primary-action:visited {
+  color: #ffffff;
+}
+
+a.kainos-header-link,
+a.kainos-header-link:visited {
+  color: var(--kainos-primary-blue);
+}
+
+a.kainos-header-link.kainos-header-button,
+a.kainos-header-link.kainos-header-button:visited {
+  color: #ffffff;
+}
+
+a.kainos-secondary-action,
+a.kainos-secondary-action:visited {
+  color: var(--kainos-primary-blue);
+}
+
 body.kainos-page {
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--kainos-page-bg);
   color: var(--kainos-text-navy);
   font-family: "Inter", "Poppins", "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(0, 191, 99, 0.13), transparent 42%),
+    linear-gradient(180deg, #f7faff 0%, var(--kainos-page-bg) 56%, #eef3fb 100%);
 }
 
 .kainos-header {
   width: 100%;
-  background: var(--kainos-surface);
-  padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(1.8rem, 4.5vw, 3.5rem);
-  border-bottom: 0;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.95);
+  padding: clamp(0.25rem, 0.5vw, 0.4rem) clamp(0.8rem, 3vw, 2.5rem);
+  box-shadow: var(--kainos-shadow-header);
+  border-bottom: 1px solid rgba(31, 43, 77, 0.08);
+  backdrop-filter: blur(6px);
+  position: relative;
+  z-index: 10;
 }
 
 .kainos-header--with-actions {
@@ -39,8 +74,18 @@ body.kainos-page {
 
 .kainos-logo {
   display: block;
-  width: clamp(84px, 10vw, 118px);
+  width: clamp(85px, 12vw, 130px);
   height: auto;
+}
+
+a:has(> .kainos-logo) {
+  display: contents;
+  outline-offset: 4px;
+}
+
+a:has(> .kainos-logo):focus-visible {
+  outline: 2px solid var(--kainos-primary-blue);
+  border-radius: 4px;
 }
 
 .kainos-header-actions {
@@ -48,15 +93,35 @@ body.kainos-page {
   align-items: center;
   justify-content: flex-end;
   gap: 0.6rem;
+  margin-left: 5%;
+  gap: 0.6rem;
 }
 
-.kainos-header-link,
+.kainos-header-link {
+  appearance: none;
+  border: 2px solid var(--kainos-primary-blue);
+  border-radius: 0;
+  background: transparent;
+  color: var(--kainos-primary-blue);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.7rem;
+  padding: 0.65rem 1.3rem;
+  text-decoration: none;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  box-shadow: none;
+}
+
 .kainos-header-button,
 .kainos-primary-action {
   appearance: none;
   border: 0;
   border-radius: 999px;
-  background: var(--kainos-primary-blue);
+  background: linear-gradient(120deg, #253db0 0%, var(--kainos-primary-blue) 100%);
   color: #ffffff;
   cursor: pointer;
   display: inline-flex;
@@ -64,33 +129,133 @@ body.kainos-page {
   justify-content: center;
   font: inherit;
   font-weight: 700;
+  margin-block: 0.75rem;
   min-height: 2.8rem;
   padding: 0.7rem 1.4rem;
   text-decoration: none;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+  box-shadow: 0 8px 20px rgba(31, 43, 77, 0.22);
 }
 
 .kainos-header-link:hover,
-.kainos-header-link:focus-visible,
+.kainos-header-link:focus-visible {
+  background: rgba(46, 54, 165, 0.06);
+  outline: none;
+  transform: translateY(0);
+}
+
 .kainos-header-button:hover,
 .kainos-header-button:focus-visible,
 .kainos-primary-action:hover,
 .kainos-primary-action:focus-visible {
+  box-shadow: 0 10px 26px rgba(11, 28, 89, 0.3);
+  outline: none;
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+
+.kainos-secondary-action {
+  appearance: none;
+  border: 2px solid var(--kainos-primary-blue);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--kainos-primary-blue);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 650;
+  min-height: 2.8rem;
+  padding: 0.65rem 1.2rem;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.kainos-secondary-action:hover,
+.kainos-secondary-action:focus-visible {
+  background: rgba(46, 54, 165, 0.06);
   box-shadow: var(--kainos-shadow-soft);
   outline: none;
   transform: translateY(-1px);
 }
 
+.kainos-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.5rem;
+}
+
+.kainos-breadcrumb-sep {
+  color: var(--kainos-primary-blue);
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.kainos-breadcrumb-current {
+  font-weight: 650;
+  color: var(--kainos-text-navy);
+  opacity: 0.75;
+  padding: 0.55rem 0.2rem;
+}
+
+.kainos-secondary-action {
+  appearance: none;
+  border: 2px solid var(--kainos-primary-blue);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--kainos-primary-blue);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-weight: 600;
+  min-height: 2.8rem;
+  padding: 0.65rem 1.4rem;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.kainos-secondary-action:hover,
+.kainos-secondary-action:focus-visible {
+  background: rgba(46, 54, 165, 0.07);
+  box-shadow: var(--kainos-shadow-soft);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kainos-page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.kainos-breadcrumb-sep {
+  color: var(--kainos-primary-blue);
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.kainos-breadcrumb-current {
+  font-weight: 600;
+  color: var(--kainos-text-navy);
+  opacity: 0.6;
+  padding: 0.65rem 0.25rem;
+}
+
 .kainos-hero {
-  flex: 1;
   margin: 0;
-  background: var(--kainos-page-bg);
-  min-height: clamp(360px, 68vh, 760px);
+  min-height: calc(100svh - 4.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: clamp(2rem, 9vw, 7rem) clamp(1rem, 6vw, 4rem);
+  padding: clamp(2rem, 8vw, 6rem) clamp(1rem, 6vw, 4rem);
 }
 
 .kainos-home-copy {
@@ -102,11 +267,12 @@ body.kainos-page {
 
 .kainos-hero h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 6.4vw, 5.25rem);
-  line-height: 1.05;
+  font-size: clamp(2.5rem, 6.5vw, 5.4rem);
+  line-height: 0.98;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: var(--kainos-text-navy);
+  color: #182146;
+  text-wrap: balance;
 }
 
 .kainos-greeting {
@@ -116,14 +282,183 @@ body.kainos-page {
   font-weight: 700;
 }
 
+.kainos-hero-subtitle {
+  margin: 0;
+  color: #2b3e68;
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  line-height: 1.45;
+  max-width: 44ch;
+}
+
+.kainos-scroll-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  padding: 0.74rem 1.5rem;
+  background: #0f245f;
+  color: #ffffff;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 9px 24px rgba(11, 29, 93, 0.25);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.kainos-scroll-cta:visited {
+  color: #ffffff;
+}
+
+.kainos-scroll-cta:hover,
+.kainos-scroll-cta:focus-visible {
+  background: #122b71;
+  box-shadow: 0 12px 28px rgba(11, 29, 93, 0.34);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kainos-scroll-cta svg {
+  flex-shrink: 0;
+}
+
+.kainos-roles-panel {
+  background: var(--kainos-surface);
+  border-radius: 2.2rem 2.2rem 0 0;
+  box-shadow: 0 -14px 42px rgba(24, 38, 97, 0.14);
+  border-top: 3px solid var(--kainos-accent-green);
+  position: relative;
+  z-index: 1;
+  margin-top: -2rem;
+}
+
+.kainos-roles-inner {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
+}
+
+.kainos-roles-inner h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  line-height: 1.05;
+  color: var(--kainos-text-navy);
+}
+
+.kainos-login-note {
+  margin: 0 0 1.25rem;
+  color: #24549d;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.kainos-login-note a {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kainos-roles-panel {
+    opacity: 0;
+    transform: translateY(56px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .kainos-roles-panel.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kainos-hero-subtitle {
+  margin: 0;
+  color: var(--kainos-text-navy);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  opacity: 0.7;
+  max-width: 42ch;
+}
+
+.kainos-scroll-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  background: var(--kainos-primary-blue);
+  color: #ffffff;
+  border-radius: 999px;
+  font-weight: 700;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.kainos-scroll-cta:visited {
+  color: #ffffff;
+}
+
+.kainos-scroll-cta:hover,
+.kainos-scroll-cta:focus-visible {
+  box-shadow: var(--kainos-shadow-soft);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.kainos-scroll-cta svg {
+  flex-shrink: 0;
+}
+
+/* Roles panel — pulls up from below the hero on scroll */
+.kainos-roles-panel {
+  background: var(--kainos-surface);
+  border-radius: 2rem 2rem 0 0;
+  box-shadow: 0 -12px 40px rgba(24, 38, 97, 0.14);
+  position: relative;
+  z-index: 1;
+  margin-top: -2rem;
+}
+
+.kainos-roles-inner {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
+}
+
+.kainos-login-note {
+  margin: 0 0 1.25rem;
+  color: var(--kainos-primary-blue);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.kainos-login-note a {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kainos-roles-panel {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .kainos-roles-panel.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .kainos-auth-card {
-  width: min(100%, 28rem);
+  width: min(100%, 30rem);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: clamp(1.5rem, 4vw, 2.25rem);
+  padding: clamp(1.5rem, 4vw, 2.4rem);
   background: #ffffff;
-  border: 1px solid rgba(31, 43, 77, 0.12);
+  border: 1px solid rgba(31, 43, 77, 0.15);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
   text-align: left;
@@ -143,6 +478,40 @@ body.kainos-page {
   font-weight: 600;
 }
 
+.kainos-password-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(31, 43, 77, 0.6);
+}
+
+.kainos-password-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kainos-password-checklist-item::before {
+  content: "○";
+  color: rgba(31, 43, 77, 0.35);
+  font-weight: 700;
+}
+
+.kainos-password-checklist-item.is-met {
+  color: var(--kainos-text-navy);
+}
+
+.kainos-password-checklist-item.is-met::before {
+  content: "✓";
+  color: #1f8a4c;
+}
+
+
 .kainos-field input {
   width: 100%;
   min-height: 3rem;
@@ -158,6 +527,10 @@ body.kainos-page {
   outline-offset: 2px;
 }
 
+.empty-state .kainos-form-error {
+  margin-top: 0.75rem;
+}
+
 .kainos-form-error {
   margin: 0;
   min-height: 1.5rem;
@@ -165,16 +538,28 @@ body.kainos-page {
   font-weight: 600;
 }
 
+.kainos-form-footer {
+  margin: 0;
+  color: var(--kainos-text-navy);
+  font-weight: 500;
+  text-align: center;
+}
+
+.kainos-form-footer a {
+  color: var(--kainos-text-navy);
+  font-weight: 700;
+}
+
 .kainos-footer {
   width: 100%;
   background: #313147;
-  padding: 1rem clamp(1.2rem, 4vw, 3rem) 1.2rem;
+  padding: 1.1rem clamp(1.2rem, 4vw, 3rem) 1.25rem;
   text-align: center;
-  border-top: 0;
+  border-top: 3px solid var(--kainos-accent-green);
 }
 
 .kainos-footer p {
-  margin: 0.2rem 0;
+  margin: 0.25rem 0;
   color: #ffffff;
   font-size: 0.95rem;
 }
@@ -192,25 +577,7 @@ body.kainos-page {
 
 @media (max-width: 900px) {
   .kainos-hero {
-    min-height: clamp(320px, 62vh, 620px);
-  }
-}
-
-@media (max-width: 540px) {
-  .kainos-header {
-    padding-inline: 1rem;
-  }
-
-  .kainos-header--with-actions {
-    flex-wrap: wrap;
-  }
-
-  .kainos-hero {
-    min-height: clamp(300px, 58vh, 500px);
-  }
-
-  .kainos-auth-card {
-    width: 100%;
+    min-height: 100svh;
   }
 }
 
@@ -245,9 +612,23 @@ body.kainos-page {
   color: #9b1c1c;
 }
 
+.alert-info {
+  background: #e8f0fe;
+  border: 1px solid #b4c8f8;
+  color: #1e3a8a;
+}
+
+.kainos-primary-action--disabled {
+  background: linear-gradient(120deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: none;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
 .empty-state {
   background: var(--kainos-surface);
-  border: 1px solid #d9e2ec;
+  border: 1px solid var(--kainos-border-soft);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
   padding: 1rem 1.25rem;
@@ -256,7 +637,7 @@ body.kainos-page {
 .table-wrapper {
   overflow-x: auto;
   background: var(--kainos-surface);
-  border: 1px solid #d9e2ec;
+  border: 1px solid var(--kainos-border-soft);
   border-radius: var(--kainos-radius);
   box-shadow: var(--kainos-shadow-soft);
 }
@@ -296,12 +677,49 @@ tbody tr:last-child td {
 }
 
 .badge--closed {
-  background: #fff4e6;
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.badge--in-progress {
+  background: #fff7ed;
   color: #c2410c;
   border-color: #fdba74;
 }
 
+@media (max-width: 900px) {
+  .kainos-header {
+    position: static;
+  }
+
+  .kainos-hero {
+    min-height: 100svh;
+  }
+}
+
 @media (max-width: 540px) {
+  .kainos-header {
+    padding-inline: 1rem;
+  }
+
+  .kainos-header--with-actions {
+    flex-wrap: wrap;
+  }
+
+  .kainos-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .kainos-hero {
+    min-height: 100svh;
+  }
+
+  .kainos-auth-card {
+    width: 100%;
+  }
+
   .page {
     width: min(100%, calc(100% - 1rem));
     padding-top: 1.5rem;

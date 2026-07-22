@@ -1,193 +1,128 @@
 import {
 	createRegistrationPayload,
+	isPasswordValid,
+	passwordRequirements,
 } from "./registration.shared.js";
 
-(function () {
-	const demoAuthStorageKeys = {
-		email: "demoAuthEmail",
-		token: "demoAuthToken",
-	};
+const EMAIL_ERROR_MESSAGE = "Please enter a valid email address.";
 
-	const body = document.body;
-	if (!body) {
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const setFieldError = (element, message) => {
+	if (!element) {
 		return;
 	}
 
-	const page = body.dataset.page;
-	const demoAuthEnabled = body.dataset.demoAuthEnabled === "true";
-	const homeAction = document.querySelector("[data-home-auth-action]");
-	const greeting = document.querySelector("[data-auth-greeting]");
+	if (message) {
+		element.textContent = message;
+		element.hidden = false;
+	} else {
+		element.textContent = "";
+		element.hidden = true;
+	}
+};
 
-	const getSession = () => ({
-		email: window.sessionStorage.getItem(demoAuthStorageKeys.email),
-		token: window.sessionStorage.getItem(demoAuthStorageKeys.token),
-	});
+const setStatus = (element, message) => {
+	if (!element) {
+		return;
+	}
 
-	const clearSession = () => {
-		window.sessionStorage.removeItem(demoAuthStorageKeys.email);
-		window.sessionStorage.removeItem(demoAuthStorageKeys.token);
-	};
+	if (message) {
+		element.textContent = message;
+		element.hidden = false;
+	} else {
+		element.textContent = "";
+		element.hidden = true;
+	}
+};
 
-	const renderHomeState = () => {
-		if (!homeAction || !greeting) {
+const updatePasswordChecklist = (checklist, password) => {
+	if (!checklist) {
+		return;
+	}
+
+	for (const requirement of passwordRequirements) {
+		const item = checklist.querySelector(
+			`[data-requirement="${requirement.key}"]`,
+		);
+		if (item) {
+			item.classList.toggle("is-met", requirement.test(password));
+		}
+	}
+};
+
+const initRegisterForm = () => {
+	const form = document.querySelector("[data-register-form]");
+	if (!form) {
+		return;
+	}
+
+	const emailInput = form.querySelector("[data-register-email]");
+	const passwordInput = form.querySelector("[data-register-password]");
+	const emailError = form.querySelector("[data-register-email-error]");
+	const passwordChecklist = form.querySelector("[data-password-checklist]");
+	const status = form.querySelector("[data-register-status]");
+	const submitButton = form.querySelector("[data-register-submit]");
+
+	if (passwordInput) {
+		updatePasswordChecklist(passwordChecklist, passwordInput.value);
+		passwordInput.addEventListener("input", () => {
+			updatePasswordChecklist(passwordChecklist, passwordInput.value);
+		});
+	}
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const email = emailInput ? emailInput.value : "";
+		const password = passwordInput ? passwordInput.value : "";
+
+		const isEmailValid = emailPattern.test(email.trim());
+		const isPasswordValidResult = isPasswordValid(password);
+
+		setFieldError(emailError, isEmailValid ? null : EMAIL_ERROR_MESSAGE);
+		updatePasswordChecklist(passwordChecklist, password);
+
+		if (!isEmailValid || !isPasswordValidResult) {
+			setStatus(status, null);
 			return;
 		}
 
-		const { email, token } = getSession();
-		const isAuthenticated = Boolean(email && token);
-
-		if (!isAuthenticated) {
-			homeAction.innerHTML =
-				'<a class="kainos-header-link" href="/register">Register</a><a class="kainos-header-link" href="/login">Log in</a>';
-			greeting.hidden = true;
-			greeting.textContent = "";
-			return;
+		if (submitButton) {
+			submitButton.disabled = true;
 		}
+		setStatus(status, "Creating your account...");
 
-		homeAction.innerHTML =
-			'<a class="kainos-header-link" href="/job-roles">View job roles</a><button class="kainos-header-link kainos-header-button" type="button" data-logout-trigger>Log out</button>';
-		greeting.hidden = false;
-		greeting.textContent = `Welcome back, ${email}`;
-
-		const logoutTrigger = document.querySelector("[data-logout-trigger]");
-		if (logoutTrigger) {
-			logoutTrigger.addEventListener("click", () => {
-				clearSession();
-				renderHomeState();
-			});
-		}
-	};
-
-	const handleRegisterPage = () => {
-		const form = document.querySelector("[data-register-form]");
-		if (!(form instanceof HTMLFormElement)) {
-			return;
-		}
-
-		const emailInput = form.querySelector("[data-register-email]");
-		const passwordInput = form.querySelector("[data-register-password]");
-		const emailError = form.querySelector("[data-register-email-error]");
-		const passwordError = form.querySelector("[data-register-password-error]");
-		const statusRegion = form.querySelector("[data-register-status]");
-		const submitButton = form.querySelector("[data-register-submit]");
-
-		if (
-			!(emailInput instanceof HTMLInputElement) ||
-			!(passwordInput instanceof HTMLInputElement) ||
-			!(emailError instanceof HTMLElement) ||
-			!(passwordError instanceof HTMLElement) ||
-			!(statusRegion instanceof HTMLElement) ||
-			!(submitButton instanceof HTMLButtonElement)
-		) {
-			return;
-		}
-
-		let isSubmitting = false;
-
-		const renderFieldError = (target, message) => {
-			target.textContent = message;
-			target.hidden = message.length === 0;
-		};
-
-		const renderStatus = ({ variant, message, cta }) => {
-			statusRegion.textContent = message;
-			statusRegion.dataset.status = variant;
-			statusRegion.hidden = message.length === 0;
-
-			if (cta) {
-				statusRegion.textContent = "";
-				const messageSpan = document.createElement("span");
-				messageSpan.textContent = `${message} `;
-				const ctaLink = document.createElement("a");
-				ctaLink.href = cta.href;
-				ctaLink.textContent = cta.label;
-				statusRegion.append(messageSpan, ctaLink);
-			}
-		};
-
-		const registerUser = async (payload) => {
+		try {
 			const response = await fetch("/auth/register", {
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(createRegistrationPayload(email, password)),
 			});
 
-			let data = null;
+			const body = await response.json();
 
-			try {
-				data = await response.json();
-			} catch (_error) {
-				data = null;
-			}
-
-			return {
-				status: response.status,
-				data,
-			};
-		};
-
-		form.addEventListener("submit", async (event) => {
-			event.preventDefault();
-
-			if (isSubmitting) {
+			if (response.ok) {
+				setStatus(
+					status,
+					body.message ??
+						"Registration Successful, redirecting you to the login page",
+				);
+				window.setTimeout(() => {
+					window.location.href = "/login";
+				}, 1500);
 				return;
 			}
 
-			const email = emailInput.value;
-			const password = passwordInput.value;
-
-			renderFieldError(emailError, "");
-			renderFieldError(passwordError, "");
-			renderStatus({ variant: "idle", message: "", cta: null });
-
-			isSubmitting = true;
-			submitButton.disabled = true;
-			renderStatus({ variant: "info", message: "Creating account...", cta: null });
-
-			try {
-				const payload = createRegistrationPayload(email, password);
-				const registrationResult = await registerUser(payload);
-				const fieldErrors = registrationResult.data?.fieldErrors;
-
-				renderFieldError(emailError, fieldErrors?.email ?? "");
-				renderFieldError(passwordError, fieldErrors?.password ?? "");
-
-				renderStatus({
-					variant: registrationResult.data?.variant ?? "error",
-					message:
-						registrationResult.data?.message ??
-						"Something went wrong. Please try again.",
-					cta: null,
-				});
-
-				if (registrationResult.status === 201) {
-					form.reset();
-					renderFieldError(emailError, "");
-					renderFieldError(passwordError, "");
-					window.setTimeout(() => {
-						window.location.assign("/login");
-					}, 1500);
-				}
-			} catch (_error) {
-				renderStatus({
-					variant: "error",
-					message: "Something went wrong. Please try again.",
-					cta: null,
-				});
-			} finally {
-				isSubmitting = false;
+			setStatus(status, body.message ?? "Something went wrong. Please try again.");
+		} catch {
+			setStatus(status, "Something went wrong. Please try again.");
+		} finally {
+			if (submitButton) {
 				submitButton.disabled = false;
 			}
-		});
-	};
+		}
+	});
+};
 
-	if (page === "home") {
-		renderHomeState();
-	}
-
-	if (page === "register") {
-		handleRegisterPage();
-	}
-})();
+initRegisterForm();

@@ -26,7 +26,7 @@ describe("POST /login", () => {
 		expect(response.headers.location).toBe("/");
 	});
 
-	it("renders login page on authentication failure", async () => {
+	it("renders login page on unexpected authentication failure", async () => {
 		vi.spyOn(LoginService.prototype, "authenticate").mockRejectedValue(
 			new Error("Invalid credentials"),
 		);
@@ -39,7 +39,9 @@ describe("POST /login", () => {
 				password: "WrongPassword",
 			});
 
-		expect(response.status).toBe(401);
-		expect(response.text).toContain("Login failed");
+		expect(response.status).toBe(502);
+		expect(response.text).toContain(
+			"Login service unavailable. Please try again later.",
+		);
 	});
 });

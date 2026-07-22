@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 
+import { mapRegistrationStatusToResponse } from "../mappers/registerMapper";
 import type { RegisterService } from "../services/registerService";
 import { RegisterServiceError } from "../services/registerServiceError";
 import type { RegisterUserPayload } from "../services/registerServiceModels";
@@ -11,41 +12,7 @@ export class RegisterController {
 		variant: "success" | "error";
 		message: string;
 	} {
-		if (statusCode === 201) {
-			return {
-				variant: "success",
-				message: "Registration Successful, redirecting you to the login page",
-			};
-		}
-
-		if (statusCode === 400) {
-			return {
-				variant: "error",
-				message:
-					"Your registration details are invalid. Check your email and password and try again.",
-			};
-		}
-
-		if (statusCode === 409) {
-			return {
-				variant: "error",
-				message:
-					"That email is already registered. Try logging in or use a different email.",
-			};
-		}
-
-		if (statusCode === 500) {
-			return {
-				variant: "error",
-				message:
-					"Something went wrong on our side. Please try again in a moment.",
-			};
-		}
-
-		return {
-			variant: "error",
-			message: "Something went wrong. Please try again.",
-		};
+		return mapRegistrationStatusToResponse(statusCode);
 	}
 
 	getRegister(_request: Request, response: Response): void {

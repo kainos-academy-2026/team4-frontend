@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { mapJobRoleDetailApiToModel } from "../../src/mappers/jobRoleMapper";
+import {
+	mapJobRoleDetailApiToModel,
+	mapJobRoleListApiToItem,
+} from "../../src/mappers/jobRoleMapper";
 
 describe("mapJobRoleDetailApiToModel", () => {
 	it("maps API fields into a JobRole", () => {
@@ -32,6 +35,7 @@ describe("mapJobRoleDetailApiToModel", () => {
 			responsibilities: "Ship features",
 			sharepointUrl: "https://example.com/role/1",
 			numberOfOpenPositions: 2,
+			myApplication: null,
 		});
 	});
 
@@ -55,5 +59,29 @@ describe("mapJobRoleDetailApiToModel", () => {
 		expect(result.id).toBe(2);
 		expect(result.capability).toBe("Data");
 		expect(result.band).toBe("Senior Associate");
+	});
+
+	it("maps list API role shape into a list item", () => {
+		const result = mapJobRoleListApiToItem({
+			id: 3,
+			roleName: "QA Engineer",
+			location: "Dublin",
+			capabilityName: "Quality",
+			bandName: "Consultant",
+			closingDate: "2026-09-20",
+			status: "open",
+			myApplication: { status: "in_progress", cvFileName: "cv.pdf" },
+		});
+
+		expect(result).toEqual({
+			id: 3,
+			roleName: "QA Engineer",
+			location: "Dublin",
+			capability: "Quality",
+			band: "Consultant",
+			closingDate: new Date("2026-09-20"),
+			status: "open",
+			myApplication: { status: "in_progress", cvFileName: "cv.pdf" },
+		});
 	});
 });

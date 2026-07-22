@@ -9,10 +9,9 @@
   </head>
   <body class="kainos-page" data-page="register">
     <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
-      <img class="kainos-logo" src="/images/kainoslogo.png" alt="Kainos logo" />
+      <a href="/"><img class="kainos-logo" src="/images/kainoslogo.png" alt="Kainos logo" /></a>
       <nav class="kainos-header-actions kainos-header-actions--row" aria-label="Page navigation">
-        <a class="kainos-header-link" href="/">Home</a>
-        <a class="kainos-header-link" href="/login">Log in</a>
+        <a class="kainos-header-link kainos-header-button" href="/login">Log in</a>
       </nav>
     </header>
 
@@ -34,11 +33,27 @@
             autocomplete="new-password"
             required
             data-register-password
+            aria-describedby="password-checklist"
           />
-          <p class="kainos-password-hint">
-            Use at least 8 characters with uppercase, lowercase, and a special character.
-          </p>
-          <p class="kainos-field-error" data-register-password-error aria-live="polite" hidden></p>
+          <ul
+            class="kainos-password-checklist"
+            id="password-checklist"
+            data-password-checklist
+            aria-live="polite"
+          >
+            <li class="kainos-password-checklist-item" data-requirement="length">
+              At least 8 characters
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="uppercase">
+              An uppercase letter
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="lowercase">
+              A lowercase letter
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="special">
+              A special character
+            </li>
+          </ul>
         </label>
 
         <p class="kainos-form-status" data-register-status aria-live="polite" hidden></p>

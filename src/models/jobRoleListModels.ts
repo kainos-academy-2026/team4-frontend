@@ -6,9 +6,8 @@ export type JobRoleListItem = {
 	band: string;
 	closingDate: Date;
 	status: string;
-};
-
-export type JobRoleListPage = {
-	errorMessage: string | null;
-	jobRoles: JobRoleListItem[];
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };

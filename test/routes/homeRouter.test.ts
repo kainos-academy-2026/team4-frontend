@@ -1,8 +1,10 @@
 import request from "supertest";
-import { describe, expect, it, beforeAll } from "vitest";
-
 import { SignJWT } from "jose";
-import app from "../../src/app";
+import { beforeAll, describe, expect, it } from "vitest";
+
+process.env.API_BASE_URL = "http://localhost:4000";
+
+let app: typeof import("../../src/app").default;
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -10,7 +12,9 @@ describe("home branding integration", () => {
 	let authToken: string;
 
 	beforeAll(async () => {
-		authToken = await new SignJWT({ 
+		({ default: app } = await import("../../src/app"));
+
+		authToken = await new SignJWT({
 			email: "test@example.com",
 			role: "user",
 		})
@@ -19,11 +23,12 @@ describe("home branding integration", () => {
 			.sign(SECRET);
 	});
 
-	it("redirects unauthenticated requests to /login", async () => {
+	it("serves branded home markup at / when unauthenticated", async () => {
 		const response = await request(app).get("/");
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
+		expect(response.status).toBe(200);
+		expect(response.text).toContain('href="/register">Register</a>');
+		expect(response.text).toContain('href="/login">Log in</a>');
 	});
 
 	it("serves branded home markup at / when authenticated", async () => {
@@ -33,11 +38,14 @@ describe("home branding integration", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.headers["content-type"]).toContain("text/html");
-		expect(response.text).toContain("class=\"kainos-header kainos-header--with-actions\"");
-		expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
-		expect(response.text).toContain("href=\"/images/favicon.png\"");
-		expect(response.text).toContain("href=\"/styles/branding.css\"");
+		expect(response.text).toContain('class="kainos-header kainos-header--with-actions"');
+		expect(response.text).toContain('src="/images/kainoslogo.png"');
+		expect(response.text).toContain('href="/images/favicon.png"');
+		expect(response.text).toContain('href="/styles/branding.css"');
 		expect(response.text).toContain("Welcome back, test@example.com");
+		expect(response.text).toContain('action="/logout"');
+		expect(response.text).not.toContain('href="/login"');
+		expect(response.text).toContain("Browse open roles");
 	});
 
 	it("serves branded login markup at /login", async () => {
@@ -45,35 +53,31 @@ describe("home branding integration", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.headers["content-type"]).toContain("text/html");
-		expect(response.text).toContain("src=\"/images/kainoslogo.png\"");
-		expect(response.text).toContain("href=\"/styles/branding.css\"");
-		expect(response.text).toContain('href="/">Home</a>');
+		expect(response.text).toContain('src="/images/kainoslogo.png"');
+		expect(response.text).toContain('href="/styles/branding.css"');
 		expect(response.text).toContain("data-login-form");
 		expect(response.text).toContain('method="post"');
 		expect(response.text).toContain('action="/login"');
 		expect(response.text).toContain('type="email"');
 		expect(response.text).toContain('type="password"');
 		expect(response.text).toContain("data-login-error");
+		expect(response.text).toContain('href="/register">Register</a>');
 		expect(response.text).not.toContain('href="/login">Log in</a>');
 		expect(response.text).not.toContain("/scripts/auth.js");
-	});
-
-	it("renders logged-in home state when access_token cookie is present", async () => {
-		const response = await request(app)
-			.get("/")
-			.set("Cookie", [`access_token=${encodeURIComponent(authToken)}`]);
-
-		expect(response.status).toBe(200);
-		expect(response.text).toContain("Welcome back, test@example.com");
-		expect(response.text).toContain('action="/logout"');
-		expect(response.text).toContain("Log out");
-		expect(response.text).not.toContain('href="/login"');
 	});
 
 	it("serves required static branding assets", async () => {
 		const cssResponse = await request(app).get("/styles/branding.css");
 		expect(cssResponse.status).toBe(200);
 		expect(cssResponse.headers["content-type"]).toContain("text/css");
+
+		const scrollRevealResponse = await request(app).get(
+			"/scripts/scroll-reveal.js",
+		);
+		expect(scrollRevealResponse.status).toBe(200);
+		expect(scrollRevealResponse.headers["content-type"]).toContain(
+			"javascript",
+		);
 
 		const logoResponse = await request(app).get("/images/kainoslogo.png");
 		expect(logoResponse.status).toBe(200);

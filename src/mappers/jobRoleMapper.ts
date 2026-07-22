@@ -15,6 +15,10 @@ export type JobRoleDetailApi = {
 	responsibilities: string;
 	sharepointUrl: string;
 	numberOfOpenPositions: number;
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };
 
 export const mapJobRoleDetailApiToModel = (
@@ -32,6 +36,7 @@ export const mapJobRoleDetailApiToModel = (
 		responsibilities: jobRoleDetailApi.responsibilities,
 		sharepointUrl: jobRoleDetailApi.sharepointUrl,
 		numberOfOpenPositions: jobRoleDetailApi.numberOfOpenPositions,
+		myApplication: jobRoleDetailApi.myApplication ?? null,
 	};
 };
 
@@ -43,6 +48,10 @@ export type JobRoleListApi = {
 	bandName: string;
 	closingDate: string | Date;
 	status: string;
+	myApplication?: {
+		status?: string;
+		cvFileName?: string;
+	} | null;
 };
 
 export const mapJobRoleListApiToItem = (
@@ -56,19 +65,24 @@ export const mapJobRoleListApiToItem = (
 		band: jobRoleListApi.bandName,
 		closingDate: new Date(jobRoleListApi.closingDate),
 		status: jobRoleListApi.status,
+		myApplication: jobRoleListApi.myApplication ?? null,
 	};
 };
 
-export const mapJobRoleToListItem = (
-	jobRoleDetail: JobRole,
-): JobRoleListItem => {
+export type ApplicationStatusPayload = {
+	status?: string;
+	cvFileName?: string;
+};
+
+export const mapJobRoleToApplicationStatus = (
+	jobRole: JobRole,
+): ApplicationStatusPayload | null => {
+	const myApplication = jobRole.myApplication;
+	if (!myApplication) {
+		return null;
+	}
 	return {
-		id: jobRoleDetail.id,
-		roleName: jobRoleDetail.roleName,
-		location: jobRoleDetail.location,
-		capability: jobRoleDetail.capability,
-		band: jobRoleDetail.band,
-		closingDate: new Date(jobRoleDetail.closingDate),
-		status: jobRoleDetail.status,
+		status: myApplication.status,
+		cvFileName: myApplication.cvFileName,
 	};
 };
