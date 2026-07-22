@@ -1,11 +1,12 @@
-import { createRegistrationPayload } from "./registration.shared.js";
+import {
+	createRegistrationPayload,
+	isPasswordValid,
+	passwordRequirements,
+} from "./registration.shared.js";
 
 const EMAIL_ERROR_MESSAGE = "Please enter a valid email address.";
-const PASSWORD_ERROR_MESSAGE =
-	"Use at least 8 characters with uppercase, lowercase, and a special character.";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 const setFieldError = (element, message) => {
 	if (!element) {
@@ -35,6 +36,21 @@ const setStatus = (element, message) => {
 	}
 };
 
+const updatePasswordChecklist = (checklist, password) => {
+	if (!checklist) {
+		return;
+	}
+
+	for (const requirement of passwordRequirements) {
+		const item = checklist.querySelector(
+			`[data-requirement="${requirement.key}"]`,
+		);
+		if (item) {
+			item.classList.toggle("is-met", requirement.test(password));
+		}
+	}
+};
+
 const initRegisterForm = () => {
 	const form = document.querySelector("[data-register-form]");
 	if (!form) {
@@ -44,9 +60,16 @@ const initRegisterForm = () => {
 	const emailInput = form.querySelector("[data-register-email]");
 	const passwordInput = form.querySelector("[data-register-password]");
 	const emailError = form.querySelector("[data-register-email-error]");
-	const passwordError = form.querySelector("[data-register-password-error]");
+	const passwordChecklist = form.querySelector("[data-password-checklist]");
 	const status = form.querySelector("[data-register-status]");
 	const submitButton = form.querySelector("[data-register-submit]");
+
+	if (passwordInput) {
+		updatePasswordChecklist(passwordChecklist, passwordInput.value);
+		passwordInput.addEventListener("input", () => {
+			updatePasswordChecklist(passwordChecklist, passwordInput.value);
+		});
+	}
 
 	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
@@ -55,15 +78,12 @@ const initRegisterForm = () => {
 		const password = passwordInput ? passwordInput.value : "";
 
 		const isEmailValid = emailPattern.test(email.trim());
-		const isPasswordValid = passwordPattern.test(password);
+		const isPasswordValidResult = isPasswordValid(password);
 
 		setFieldError(emailError, isEmailValid ? null : EMAIL_ERROR_MESSAGE);
-		setFieldError(
-			passwordError,
-			isPasswordValid ? null : PASSWORD_ERROR_MESSAGE,
-		);
+		updatePasswordChecklist(passwordChecklist, password);
 
-		if (!isEmailValid || !isPasswordValid) {
+		if (!isEmailValid || !isPasswordValidResult) {
 			setStatus(status, null);
 			return;
 		}

@@ -33,11 +33,27 @@
             autocomplete="new-password"
             required
             data-register-password
+            aria-describedby="password-checklist"
           />
-          <p class="kainos-password-hint">
-            Use at least 8 characters with uppercase, lowercase, and a special character.
-          </p>
-          <p class="kainos-field-error" data-register-password-error aria-live="polite" hidden></p>
+          <ul
+            class="kainos-password-checklist"
+            id="password-checklist"
+            data-password-checklist
+            aria-live="polite"
+          >
+            <li class="kainos-password-checklist-item" data-requirement="length">
+              At least 8 characters
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="uppercase">
+              An uppercase letter
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="lowercase">
+              A lowercase letter
+            </li>
+            <li class="kainos-password-checklist-item" data-requirement="special">
+              A special character
+            </li>
+          </ul>
         </label>
 
         <p class="kainos-form-status" data-register-status aria-live="polite" hidden></p>
