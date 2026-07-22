@@ -23,11 +23,12 @@ describe("home branding integration", () => {
 			.sign(SECRET);
 	});
 
-	it("redirects unauthenticated requests to /login", async () => {
+	it("serves branded home markup at / when unauthenticated", async () => {
 		const response = await request(app).get("/");
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
+		expect(response.status).toBe(200);
+		expect(response.text).toContain('href="/register">Register</a>');
+		expect(response.text).toContain('href="/login">Log in</a>');
 	});
 
 	it("serves branded home markup at / when authenticated", async () => {
@@ -54,13 +55,13 @@ describe("home branding integration", () => {
 		expect(response.headers["content-type"]).toContain("text/html");
 		expect(response.text).toContain('src="/images/kainoslogo.png"');
 		expect(response.text).toContain('href="/styles/branding.css"');
-		expect(response.text).toContain('href="/">Home</a>');
 		expect(response.text).toContain("data-login-form");
 		expect(response.text).toContain('method="post"');
 		expect(response.text).toContain('action="/login"');
 		expect(response.text).toContain('type="email"');
 		expect(response.text).toContain('type="password"');
 		expect(response.text).toContain("data-login-error");
+		expect(response.text).toContain('href="/register">Register</a>');
 		expect(response.text).not.toContain('href="/login">Log in</a>');
 		expect(response.text).not.toContain("/scripts/auth.js");
 	});

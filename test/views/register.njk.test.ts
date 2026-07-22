@@ -17,7 +17,7 @@ describe("register page template", () => {
 		expect(html).toContain("src=\"/images/kainoslogo.png\"");
 		expect(html).toContain("href=\"/styles/branding.css\"");
 		expect(html).toContain("<h1 class=\"kainos-auth-title\">Create account</h1>");
-		expect(html).toContain('href="/">Home</a>');
+		expect(html).toContain('href="/"><img class="kainos-logo"');
 		expect(html).toContain('href="/login">Log in</a>');
 		expect(html).toContain("data-register-form");
 		expect(html).toContain("data-register-email");

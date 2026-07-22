@@ -22,13 +22,14 @@ jobRoleRouter.get(
 jobRoleRouter.post("/job-roles/:id/apply", (request, response) =>
 	jobRoleController.submitApplicationPage(request, response),
 );
-jobRoleRouter.get("/job-roles/:id/apply", (request, response) =>
-	jobRoleController.renderApplicationPage(request, response),
-);
 jobRoleRouter.get(
-	"/job-roles/:id",
+	"/job-roles/:id/apply",
 	authorize([Role.User, Role.Admin]),
-	(request, response) => jobRoleController.renderDetailPage(request, response),
+	(request, response) =>
+		jobRoleController.renderApplicationPage(request, response),
+);
+jobRoleRouter.get("/job-roles/:id", (request, response) =>
+	jobRoleController.renderDetailPage(request, response),
 );
 
 export default jobRoleRouter;

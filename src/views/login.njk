@@ -11,15 +11,14 @@
     class="kainos-page"
     data-page="login"
   >
-    <header class="kainos-header" aria-label="Kainos brand banner">
+    <header class="kainos-header kainos-header--with-actions" aria-label="Kainos brand banner">
       <a href="/"><img
         class="kainos-logo"
         src="/images/kainoslogo.png"
         alt="Kainos logo"
-      />
-      <nav class="kainos-header-actions kainos-header-actions--row" aria-label="Page navigation">
-        <a class="kainos-header-link" href="/">Home</a>
-        <a class="kainos-header-link" href="/register">Register</a>
+      /></a>
+      <nav class="kainos-header-actions" aria-label="Authentication actions">
+        <a class="kainos-header-link kainos-header-button" href="/register">Register</a>
       </nav>
     </header>
 
@@ -40,6 +39,9 @@
         <p class="kainos-form-error" data-login-error aria-live="polite" hidden></p>
         {% endif %}
         <button class="kainos-primary-action" type="submit">Log in</button>
+        <p class="kainos-form-footer">
+          Don't have an account? <a href="/register">Register</a>
+        </p>
       </form>
     </main>
 

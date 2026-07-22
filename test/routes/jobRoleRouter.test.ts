@@ -25,11 +25,30 @@ describe("GET /job-roles/:id", () => {
 		vi.restoreAllMocks();
 	});
 
-	it("redirects unauthenticated users to login", async () => {
+	it("renders the job role detail page for unauthenticated users", async () => {
+		vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
+			id: 1,
+			roleName: "Software Engineer",
+			location: "Belfast",
+			capability: "Engineering",
+			band: "Associate",
+			closingDate: new Date("2026-08-01"),
+			status: "open",
+			description: "Build services",
+			responsibilities: "Ship features",
+			sharepointUrl: "https://example.com/role/1",
+			numberOfOpenPositions: 2,
+			myApplication: null,
+		});
+
 		const response = await request(app).get("/job-roles/1");
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Software Engineer");
+		expect(response.text).toContain("Build services");
+		expect(response.text).toContain(
+			"You must",
+		);
 	});
 
 	it("renders the job role detail page when the service returns a role", async () => {
@@ -104,7 +123,15 @@ describe("GET /job-roles/:id/apply", () => {
 		vi.restoreAllMocks();
 	});
 
+	it("redirects unauthenticated users to login", async () => {
+		const response = await request(app).get("/job-roles/1/apply");
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login");
+	});
+
 	it("renders the application page when the role can accept applications", async () => {
+		const token = await createAuthToken();
 		vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
 			id: 1,
 			roleName: "Software Engineer",
@@ -120,7 +147,9 @@ describe("GET /job-roles/:id/apply", () => {
 			myApplication: null,
 		});
 
-		const response = await request(app).get("/job-roles/1/apply");
+		const response = await request(app)
+			.get("/job-roles/1/apply")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
 		expect(response.status).toBe(200);
 		expect(response.text).toContain("Apply: Software Engineer");
@@ -129,6 +158,7 @@ describe("GET /job-roles/:id/apply", () => {
 	});
 
 	it("renders a closed message when applications cannot be accepted", async () => {
+		const token = await createAuthToken();
 		vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue({
 			id: 1,
 			roleName: "Software Engineer",
@@ -144,7 +174,9 @@ describe("GET /job-roles/:id/apply", () => {
 			myApplication: null,
 		});
 
-		const response = await request(app).get("/job-roles/1/apply");
+		const response = await request(app)
+			.get("/job-roles/1/apply")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
 		expect(response.status).toBe(200);
 		expect(response.text).toContain("Applications are closed for this role.");
@@ -152,16 +184,22 @@ describe("GET /job-roles/:id/apply", () => {
 	});
 
 	it("redirects to not found for an invalid id", async () => {
-		const response = await request(app).get("/job-roles/not-a-number/apply");
+		const token = await createAuthToken();
+		const response = await request(app)
+			.get("/job-roles/not-a-number/apply")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/404");
 	});
 
 	it("redirects to not found when no role exists", async () => {
+		const token = await createAuthToken();
 		vi.spyOn(JobRoleService.prototype, "getRoleById").mockResolvedValue(null);
 
-		const response = await request(app).get("/job-roles/999/apply");
+		const response = await request(app)
+			.get("/job-roles/999/apply")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/404");

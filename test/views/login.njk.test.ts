@@ -13,7 +13,7 @@ describe("login page template", () => {
 
 		const html = environment.render("login.njk", { errorMessage: null });
 
-		expect(html).toContain("class=\"kainos-header\"");
+		expect(html).toContain("class=\"kainos-header kainos-header--with-actions\"");
 		expect(html).toContain("src=\"/images/kainoslogo.png\"");
 		expect(html).toContain("href=\"/styles/branding.css\"");
 		expect(html).toContain("<h1 class=\"kainos-auth-title\">Log in</h1>");
@@ -23,6 +23,7 @@ describe("login page template", () => {
 		expect(html).toContain('type="email"');
 		expect(html).toContain('type="password"');
 		expect(html).toContain("data-login-error");
+		expect(html).toContain('href="/register">Register</a>');
 		expect(html).not.toContain('href="/login">Log in</a>');
 	});
 
