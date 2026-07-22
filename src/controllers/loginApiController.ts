@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { Request, Response } from "express";
 
 import type { LoginRequestDto } from "../dto/loginDto";
@@ -23,7 +22,8 @@ export class LoginApiController {
 			setAccessTokenCookie(response, loginResponse.accessToken);
 			response.status(200).json(loginResponse);
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 401) {
+			const customError = error as { response?: { status: number } } | Error;
+			if ("response" in customError && customError.response?.status === 401) {
 				response.status(401).json({ message: "Invalid email or password." });
 				return;
 			}

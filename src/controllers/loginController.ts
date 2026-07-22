@@ -36,15 +36,46 @@ export class LoginController {
 			setAccessTokenCookie(response, accessToken);
 			response.redirect("/");
 		} catch (error) {
-			logger.warn("Login attempt failed", {
+			if (error instanceof LoginServiceError) {
+				try {
+					response.status(error.statusCode).render("login", {
+						errorMessage: error.message,
+					});
+				} catch (renderError) {
+					logger.warn("Failed to render login page with error", {
+						email,
+						renderErrorType:
+							renderError instanceof Error
+								? renderError.constructor.name
+								: typeof renderError,
+					});
+					response.status(500).json({ message: "Failed to render login page" });
+				}
+				return;
+			}
+
+			// Log error without passing the full error object to avoid serialization issues
+			logger.warn("Login attempt failed - unexpected error", {
 				email,
 				endpoint: "POST /login",
-				errorType: error instanceof Error ? error.constructor.name : "Unknown",
+				errorType:
+					error instanceof Error ? error.constructor.name : typeof error,
 			});
 
-			response.status(401).render("login", {
-				errorMessage: "Login failed. Please try again.",
-			});
+			try {
+				response.status(502).render("login", {
+					errorMessage: "Login service unavailable. Please try again later.",
+				});
+			} catch (renderError) {
+				logger.warn("Failed to render login error page", {
+					email,
+					renderErrorType:
+						renderError instanceof Error
+							? renderError.constructor.name
+							: typeof renderError,
+				});
+				response.status(500).json({ message: "Login service unavailable" });
+			}
 		}
 	};
 

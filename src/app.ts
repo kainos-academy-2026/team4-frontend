@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import cookieParser from "cookie-parser";
-import cookieParser from "cookie-parser";
 import express, { type Express } from "express";
 import nunjucks from "nunjucks";
 import { setAuthContext } from "./middleware/authContext";
@@ -40,8 +39,8 @@ app.set("views", viewsPath);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cookieParser());
 app.use(express.static(publicPath));
+app.use(setAuthContext);
 
 app.use(router);
 

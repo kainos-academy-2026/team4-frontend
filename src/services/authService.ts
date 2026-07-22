@@ -10,14 +10,11 @@ export class AuthService {
 	constructor(private readonly client: AxiosInstance = apiClient) {}
 
 	async login(email: string, password: string): Promise<LoginResponse> {
-		const backendResponse = await this.client.post<LoginResponse>(
-			"/auth/login",
-			{
-				email,
-				password,
-			},
-		);
+		const response = await this.client.post<LoginResponse>("/auth/login", {
+			email,
+			password,
+		});
 
-		return backendResponse.data;
+		return response.data;
 	}
 }

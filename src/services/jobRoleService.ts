@@ -12,7 +12,6 @@ import type { JobRoleListItem } from "../models/jobRoleListModels";
 
 export class JobRoleService {
 	constructor(private readonly client: AxiosInstance = apiClient) {}
-	constructor(private readonly client: AxiosInstance = apiClient) {}
 
 	async getOpenRoles(authHeader?: string): Promise<JobRoleListItem[]> {
 		try {

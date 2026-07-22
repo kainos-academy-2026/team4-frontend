@@ -10,6 +10,7 @@ type ApplicationStatusPayload = {
 	status?: string;
 	cvFileName?: string;
 };
+
 import { logger } from "../utils/logger";
 
 export class JobRoleController {

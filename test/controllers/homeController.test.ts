@@ -31,20 +31,16 @@ describe("HomeController.getHome", () => {
       getOpenRoles: vi.fn().mockRejectedValue(new Error("Service error")),
     } as unknown as JobRoleService;
 
-    getHome(
-      { headers: {} } as Request,
-      {
-        locals: {
-          isAuthenticated: false,
-          userEmail: null,
-        },
-        render,
-      } as unknown as Response,
+    const controller = new HomeController(mockService);
+    await controller.getHome(
+      { cookies: {} } as Request,
+      { render } as unknown as Response,
     );
 
     expect(render).toHaveBeenCalledWith("index", {
-      isAuthenticated: false,
-      userEmail: null,
+      jobRoles: [],
+      errorMessage:
+        "Something went wrong loading job roles. Please try again later.",
     });
   });
 
