@@ -40,6 +40,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(publicPath));
+if (publicPath === distPublicPath) {
+	// Fall back to source assets when dist is present but missing newer files.
+	app.use(express.static(sourcePublicPath));
+}
 app.use(setAuthContext);
 
 app.use(router);
