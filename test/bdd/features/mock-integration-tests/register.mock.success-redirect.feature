@@ -1,4 +1,4 @@
-@register @success @redirect
+@register @mock @success @redirect
 Feature: Register user page
   As an applicant
   I want to register from the frontend page

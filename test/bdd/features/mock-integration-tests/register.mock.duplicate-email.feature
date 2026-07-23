@@ -1,4 +1,4 @@
-@register @error @duplicate
+@register @mock @error @duplicate
 Feature: Register user page
   As an applicant
   I want to register from the frontend page

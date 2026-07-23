@@ -15,6 +15,13 @@ export class RegisterPage {
 		await this.page.getByRole("button", { name: "Create account" }).click();
 	}
 
+	async submitRegistrationTwiceQuickly(email: string, password: string): Promise<void> {
+		await this.page.getByLabel("Email").fill(email);
+		await this.page.getByLabel("Password").fill(password);
+		const submitButton = this.page.getByRole("button", { name: "Create account" });
+		await submitButton.dblclick();
+	}
+
 	async typePassword(password: string): Promise<void> {
 		await this.page.getByLabel("Password").fill(password);
 	}
@@ -47,6 +54,13 @@ export class RegisterPage {
 		assert.equal(actual, expected);
 	}
 
+	async assertEmailErrorHidden(): Promise<void> {
+		const hidden = await this.page
+			.locator("[data-register-email-error]")
+			.evaluate((element) => (element as HTMLParagraphElement).hidden);
+		assert.equal(hidden, true);
+	}
+
 	async assertOnRegisterPage(): Promise<void> {
 		const currentPath = new URL(this.page.url()).pathname;
 		assert.equal(currentPath, "/register");
@@ -56,6 +70,11 @@ export class RegisterPage {
 		await this.page.waitForURL("**/login", { timeout: 4_000 });
 		const currentPath = new URL(this.page.url()).pathname;
 		assert.equal(currentPath, "/login");
+		await this.page.getByRole("heading", { name: "Log in" }).waitFor();
+	}
+
+	async clickHeaderLoginLink(): Promise<void> {
+		await this.page.getByRole("link", { name: "Log in" }).click();
 	}
 
 	async assertPasswordRequirementState(key: string, shouldBeMet: boolean): Promise<void> {

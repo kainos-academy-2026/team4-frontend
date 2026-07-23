@@ -23,7 +23,7 @@ describe("POST /auth/register", () => {
 	});
 
 	it("returns 201 when backend registration succeeds", async () => {
-		vi.spyOn(RegisterService.prototype, "register").mockResolvedValue({
+		const registerSpy = vi.spyOn(RegisterService.prototype, "register").mockResolvedValue({
 			id: "new-id",
 			email: "new.user@example.com",
 			role: "user",
@@ -42,6 +42,29 @@ describe("POST /auth/register", () => {
 			variant: "success",
 			message: "Registration Successful, redirecting you to the login page",
 		});
+		expect(registerSpy).toHaveBeenCalledWith({
+			email: "new.user@example.com",
+			password: "Password!",
+		});
+	});
+
+	it("trims email before calling the register service", async () => {
+		const registerSpy = vi.spyOn(RegisterService.prototype, "register").mockResolvedValue({
+			id: "trim-id",
+			email: "trimmed.user@example.com",
+			role: "user",
+		});
+
+		const response = await request(app).post("/auth/register").send({
+			email: "  trimmed.user@example.com  ",
+			password: "Password!",
+		});
+
+		expect(response.status).toBe(201);
+		expect(registerSpy).toHaveBeenCalledWith({
+			email: "trimmed.user@example.com",
+			password: "Password!",
+		});
 	});
 
 	it("returns 400 for invalid payload", async () => {
@@ -52,6 +75,19 @@ describe("POST /auth/register", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({ message: "Invalid registration payload" });
+	});
+
+	it("returns 400 and does not call service for whitespace-only email", async () => {
+		const registerSpy = vi.spyOn(RegisterService.prototype, "register");
+
+		const response = await request(app).post("/auth/register").send({
+			email: "   ",
+			password: "Password!",
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({ message: "Invalid registration payload" });
+		expect(registerSpy).not.toHaveBeenCalled();
 	});
 
 	it("rejects payload containing role field", async () => {

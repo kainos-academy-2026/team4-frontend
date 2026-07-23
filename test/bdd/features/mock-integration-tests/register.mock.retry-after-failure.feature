@@ -1,4 +1,4 @@
-@register @network @retry
+@register @mock @network @retry
 Feature: Register user page
   As an applicant
   I want to register from the frontend page

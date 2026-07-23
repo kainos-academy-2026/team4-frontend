@@ -16,7 +16,13 @@
 		"test:bdd": "tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
 		"test:bdd:headed": "TEST_FEATURE_BDD_HEADED=true npm run test:bdd",
 		"test:bdd:debug": "PWDEBUG=1 TEST_FEATURE_BDD_HEADED=true npm run test:bdd",
-		"test:bdd:install": "playwright install chromium"
+		"test:bdd:install": "playwright install chromium",
+		"test:bdd:register:mock:folder": "tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/mock-integration-tests/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
+		"test:bdd:register:real:folder": "TEST_REAL_BACKEND_API_BASE_URL=${TEST_REAL_BACKEND_API_BASE_URL:-http://localhost:3000} tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/real-integration-tests/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
+		"test:bdd:register:mock": "npm run test:bdd:register:mock:folder",
+		"test:bdd:register:real": "npm run test:bdd:register:real:folder",
+		"test:bdd:register:all": "npm run test:bdd:register:mock:folder && npm run test:bdd:register:real:folder",
+		"test:bdd:register:real:headed": "TEST_FEATURE_BDD_HEADED=true npm run test:bdd:register:real"
 	},
 	"repository": {
 		"type": "git",

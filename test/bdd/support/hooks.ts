@@ -16,9 +16,52 @@ const isHeadedModeEnabled = (): boolean => {
 	return featureFlagEnabled || legacyFlagEnabled;
 };
 
+const isRealBackendRun = (): boolean => {
+	if (process.env.TEST_BDD_USE_REAL_BACKEND === "true") {
+		return true;
+	}
+
+	return process.argv.some((argument) => argument.includes("@real-backend"));
+};
+
+const getBackendApiBaseUrl = (): string => {
+	const realBackendBaseUrl = process.env.TEST_REAL_BACKEND_API_BASE_URL?.trim();
+	if (realBackendBaseUrl) {
+		return realBackendBaseUrl;
+	}
+
+	return process.env.API_BASE_URL ?? "http://localhost:4000";
+};
+
+const assertBackendHealth = async (apiBaseUrl: string): Promise<void> => {
+	const healthUrl = `${apiBaseUrl.replace(/\/$/, "")}/health`;
+
+	try {
+		const response = await fetch(healthUrl, {
+			signal: AbortSignal.timeout(4_000),
+		});
+
+		if (response.ok) {
+			return;
+		}
+
+		throw new Error(`Health check returned status ${response.status}`);
+	} catch (error) {
+		const reason = error instanceof Error ? error.message : "unknown error";
+		throw new Error(
+			`Real-backend BDD run requires a reachable backend. Failed health check at ${healthUrl}. ${reason}. Set TEST_REAL_BACKEND_API_BASE_URL to the live backend origin and retry.`,
+		);
+	}
+};
+
 BeforeAll(async () => {
-	process.env.API_BASE_URL ||= "http://localhost:4000";
+	const backendApiBaseUrl = getBackendApiBaseUrl();
+	process.env.API_BASE_URL = backendApiBaseUrl;
 	process.env.NODE_ENV ||= "test";
+
+	if (isRealBackendRun()) {
+		await assertBackendHealth(backendApiBaseUrl);
+	}
 
 	const { default: app } = await import("../../../src/app");
 

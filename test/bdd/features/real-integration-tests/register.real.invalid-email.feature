@@ -1,13 +1,12 @@
-@register @validation @email
-Feature: Register user page
+@register @real-backend @integration
+Feature: Register user page with real backend integration
   As an applicant
-  I want to register from the frontend page
-  So that I can create an account without relying on a real backend during test runs
+  I want to register against live backend infrastructure
+  So that frontend behavior is validated against real API and data state
 
-  @email
   Scenario Outline: Invalid email is blocked by client-side validation
     Given I am on the register page
-    And the register API responds with success
+    And I observe register API requests
     When I submit registration with email "<email>" and password "StrongPass1!"
     Then I should see email error "Please enter a valid email address."
     And the register API should be called 0 times
@@ -20,3 +19,5 @@ Feature: Register user page
       | user@.com                |
       | user@example             |
       | user example@example.com |
+      |                          |
+      |  @example.com            |
