@@ -12,7 +12,17 @@
 		"lint:ci": "biome ci .",
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"test:bdd": "tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
+		"test:bdd:headed": "TEST_FEATURE_BDD_HEADED=true npm run test:bdd",
+		"test:bdd:debug": "PWDEBUG=1 TEST_FEATURE_BDD_HEADED=true npm run test:bdd",
+		"test:bdd:install": "playwright install chromium",
+		"test:bdd:register:mock:folder": "tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/mock-integration-tests/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
+		"test:bdd:register:real:folder": "TEST_REAL_BACKEND_API_BASE_URL=${TEST_REAL_BACKEND_API_BASE_URL:-http://localhost:3000} tsx ./node_modules/@cucumber/cucumber/bin/cucumber-js \"test/bdd/features/real-integration-tests/**/*.feature\" --import \"test/bdd/support/**/*.ts\" --import \"test/bdd/steps/**/*.ts\" --format progress",
+		"test:bdd:register:mock": "npm run test:bdd:register:mock:folder",
+		"test:bdd:register:real": "npm run test:bdd:register:real:folder",
+		"test:bdd:register:all": "npm run test:bdd:register:mock:folder && npm run test:bdd:register:real:folder",
+		"test:bdd:register:real:headed": "TEST_FEATURE_BDD_HEADED=true npm run test:bdd:register:real"
 	},
 	"repository": {
 		"type": "git",
@@ -31,14 +41,16 @@
 		"cookie-parser": "^1.4.7",
 		"dotenv": "^17.4.2",
 		"express": "^5.2.1",
-		"jose": "^5.10.0",
 		"form-data": "^4.0.6",
+		"jose": "^5.10.0",
 		"multer": "^2.2.0",
 		"nunjucks": "^3.2.4",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.2",
+		"@cucumber/cucumber": "^13.2.0",
+		"@playwright/test": "^1.61.1",
 		"@types/cookie-parser": "^1.4.10",
 		"@types/express": "^5.0.6",
 		"@types/form-data": "^2.2.1",
