@@ -23,6 +23,7 @@ describe("home page template", () => {
 		expect(html).toContain('src="/images/kainoslogo.png"');
 		expect(html).toContain('href="/images/favicon.png"');
 		expect(html).toContain('href="/styles/branding.css"');
+		expect(html).toContain('src="/images/rocket-hero.png"');
 		expect(html).toContain('href="/register"');
 		expect(html).toContain('href="/login"');
 		expect(html).toContain("You must be logged in to apply for a role.");

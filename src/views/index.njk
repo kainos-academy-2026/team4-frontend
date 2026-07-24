@@ -31,17 +31,23 @@
 
     <main>
       <section class="kainos-hero" aria-label="Welcome to Kainos">
-        <div class="kainos-home-copy">
-          <h1>Welcome to Kainos Careers</h1>
-          {% if isAuthenticated and userEmail %}
-          <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
-          {% else %}
-          <p class="kainos-hero-subtitle">Explore open opportunities and take the next step in your career.</p>
-          {% endif %}
-          <a class="kainos-scroll-cta" href="#roles" aria-label="Browse open roles">
-            Browse open roles
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-          </a>
+        <div class="kainos-hero-layout">
+          <div class="kainos-home-copy">
+            <h1>Welcome to Kainos Careers</h1>
+            {% if isAuthenticated and userEmail %}
+            <p class="kainos-greeting" data-auth-greeting>Welcome back, {{ userEmail }}</p>
+            {% else %}
+            <p class="kainos-hero-subtitle">Explore open opportunities and take the next step in your career.</p>
+            {% endif %}
+            <a class="kainos-scroll-cta" href="#roles" aria-label="Browse open roles">
+              Browse open roles
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+            </a>
+          </div>
+
+          <figure class="kainos-hero-visual" aria-hidden="true">
+            <img src="/images/rocket-hero.png" alt="" decoding="async" fetchpriority="high" />
+          </figure>
         </div>
       </section>
 
