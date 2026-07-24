@@ -1,138 +1,128 @@
 {
-  "lastQuestionAnswered": 55,
-  "framework": {
-    "language": "TypeScript",
-    "bddEnabled": true,
-    "lifecycle": {
-      "globalSetup": false,
-      "globalTeardown": false
-    }
-  },
-  "testTypes": {
-    "ui": {
-      "enabled": true
-    },
-    "api": {
-      "enabled": true
-    },
-    "crossBrowser": {
-      "enabled": true,
-      "browsers": [
-        "chromium",
-        "webkit",
-        "edge",
-        "mobile-chrome"
-      ]
-    },
-    "accessibility": {
-      "enabled": false
-    }
-  },
-  "reporting": {
-    "outputDirectory": "test-reports",
-    "namingConvention": "date",
-    "traces": {
-      "enabled": true,
-      "mode": "on-first-retry"
-    },
-    "screenshots": {
-      "enabled": true,
-      "mode": "on-failure"
-    },
-    "testManagementIntegration": {
-      "enabled": false
-    }
-  },
-  "execution": {
-    "parallel": {
-      "enabled": true,
-      "workers": 4
-    },
-    "retries": {
-      "enabled": true,
-      "maxAttempts": 3
-    },
-    "timeout": {
-      "default": 30000,
-      "navigation": 60000
-    },
-    "headless": true
-  },
-  "environments": {
-    "default": "staging",
-    "available": [
-      "local",
-      "dev",
-      "staging",
-      "production"
-    ],
-    "ui": {
-      "baseUrls": [
-        {
-          "environment": "local",
-          "url": "http://localhost:3000"
-        },
-        {
-          "environment": "dev",
-          "url": "https://dev.example.com"
-        },
-        {
-          "environment": "staging",
-          "url": "https://staging.example.com"
-        },
-        {
-          "environment": "production",
-          "url": "https://example.com"
-        }
-      ]
-    },
-    "api": {
-      "baseUrls": []
-    }
-  },
-  "utilities": {
-    "loggingModule": {
-      "enabled": true
-    },
-    "fileReaders": {
-      "enabled": false
-    },
-    "configuration": {
-      "enabled": true
-    },
-    "asyncWaits": {
-      "enabled": false
-    },
-    "mfa": {
-      "enabled": false
-    },
-    "database": {
-      "enabled": true,
-      "type": "postgresql",
-      "connectionPooling": true
-    },
-    "queues": {
-      "enabled": false
-    }
-  },
-  "cloud": {
-    "enabled": false
-  },
-  "pipelines": {
-    "onDemand": {
-      "enabled": true
-    },
-    "technology": "github-actions",
-    "scheduled": {
-      "enabled": false
-    }
-  },
-  "dataManagement": {
-    "testData": {
-      "enabled": true
-    },
-    "users": {
-      "enabled": true
-    }
-  }
+	"lastQuestionAnswered": 55,
+	"framework": {
+		"language": "TypeScript",
+		"bddEnabled": true,
+		"lifecycle": {
+			"globalSetup": false,
+			"globalTeardown": false
+		}
+	},
+	"testTypes": {
+		"ui": {
+			"enabled": true
+		},
+		"api": {
+			"enabled": true
+		},
+		"crossBrowser": {
+			"enabled": true,
+			"browsers": ["chromium", "webkit", "edge", "mobile-chrome"]
+		},
+		"accessibility": {
+			"enabled": false
+		}
+	},
+	"reporting": {
+		"outputDirectory": "test-reports",
+		"namingConvention": "date",
+		"traces": {
+			"enabled": true,
+			"mode": "on-first-retry"
+		},
+		"screenshots": {
+			"enabled": true,
+			"mode": "on-failure"
+		},
+		"testManagementIntegration": {
+			"enabled": false
+		}
+	},
+	"execution": {
+		"parallel": {
+			"enabled": true,
+			"workers": 4
+		},
+		"retries": {
+			"enabled": true,
+			"maxAttempts": 3
+		},
+		"timeout": {
+			"default": 30000,
+			"navigation": 60000
+		},
+		"headless": true
+	},
+	"environments": {
+		"default": "staging",
+		"available": ["local", "dev", "staging", "production"],
+		"ui": {
+			"baseUrls": [
+				{
+					"environment": "local",
+					"url": "http://localhost:3000"
+				},
+				{
+					"environment": "dev",
+					"url": "https://dev.example.com"
+				},
+				{
+					"environment": "staging",
+					"url": "https://staging.example.com"
+				},
+				{
+					"environment": "production",
+					"url": "https://example.com"
+				}
+			]
+		},
+		"api": {
+			"baseUrls": []
+		}
+	},
+	"utilities": {
+		"loggingModule": {
+			"enabled": true
+		},
+		"fileReaders": {
+			"enabled": false
+		},
+		"configuration": {
+			"enabled": true
+		},
+		"asyncWaits": {
+			"enabled": false
+		},
+		"mfa": {
+			"enabled": false
+		},
+		"database": {
+			"enabled": true,
+			"type": "postgresql",
+			"connectionPooling": true
+		},
+		"queues": {
+			"enabled": false
+		}
+	},
+	"cloud": {
+		"enabled": false
+	},
+	"pipelines": {
+		"onDemand": {
+			"enabled": true
+		},
+		"technology": "github-actions",
+		"scheduled": {
+			"enabled": false
+		}
+	},
+	"dataManagement": {
+		"testData": {
+			"enabled": true
+		},
+		"users": {
+			"enabled": true
+		}
+	}
 }

@@ -62,6 +62,69 @@ npm run test:coverage
 npm run test:ui
 ```
 
+- Run all BDD features:
+
+```bash
+npm run test:bdd
+```
+
+- Install Playwright browser dependency for BDD runs (first time only):
+
+```bash
+npm run test:bdd:install
+```
+
+## Registration Integration Tests (BDD)
+
+Registration BDD features are now organized by integration mode:
+
+- Mock integration features: `test/bdd/features/mock-integration-tests/`
+- Real backend integration features: `test/bdd/features/real-integration-tests/`
+
+Each `.feature` file contains exactly one scenario (or one scenario outline).
+
+### Run mock registration integration tests
+
+Primary run command:
+
+```bash
+npm run test:bdd:register:mock
+```
+
+Folder-based run:
+
+```bash
+npm run test:bdd:register:mock:folder
+```
+
+### Run real registration integration tests
+
+Start a reachable backend first and ensure the backend health endpoint is available.
+
+Primary run command:
+
+```bash
+npm run test:bdd:register:real
+```
+
+Folder-based run:
+
+```bash
+npm run test:bdd:register:real:folder
+```
+
+If your backend is not at `http://localhost:3000`, set the base URL:
+
+```bash
+TEST_REAL_BACKEND_API_BASE_URL=http://localhost:4000 npm run test:bdd:register:real
+```
+
+### Run all registration BDD tests
+
+```bash
+npm run test:bdd:register:all
+```
+
 Default local port is `3000`. Override with `PORT`, for example:
 
 ```bash

@@ -41,7 +41,7 @@ describe("app module public static path selection", () => {
     const sourcePath = "/tmp/source/public";
     const fsModule = await import("node:fs");
 
-    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
+    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule, "production");
 
     expect(selectedPath).toBe(distPath);
     expect(fsModule.existsSync).toHaveBeenCalledWith(path.join(distPath, "styles", "branding.css"));
@@ -65,10 +65,24 @@ describe("app module public static path selection", () => {
     const sourcePath = "/tmp/source/public";
     const fsModule = await import("node:fs");
 
-    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule);
+    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule, "production");
 
     expect(selectedPath).toBe(sourcePath);
     expect(fsModule.existsSync).toHaveBeenCalledWith(path.join(distPath, "styles", "branding.css"));
     expect(fsModule.existsSync).toHaveBeenCalledWith("/tmp/dist/public/styles/branding.css");
+  });
+
+  it("uses the source public path in test mode even when dist exists", async () => {
+    vi.stubEnv("API_BASE_URL", "http://localhost:4000");
+
+    const { resolvePublicPath } = await import("../../src/app");
+    const distPath = "/tmp/dist/public";
+    const sourcePath = "/tmp/source/public";
+    const fsModule = { existsSync: vi.fn(() => true) };
+
+    const selectedPath = resolvePublicPath(distPath, sourcePath, fsModule, "test");
+
+    expect(selectedPath).toBe(sourcePath);
+    expect(fsModule.existsSync).not.toHaveBeenCalled();
   });
 });

@@ -23,12 +23,17 @@ describe("register page template", () => {
 		expect(html).toContain("data-register-email");
 		expect(html).toContain("data-register-password");
 		expect(html).toContain("data-register-email-error");
+		expect(html).toContain("data-register-email-error aria-live=\"polite\" hidden");
 		expect(html).toContain("data-password-checklist");
+		expect(html).toContain("id=\"password-checklist\"");
+		expect(html).toContain("aria-describedby=\"password-checklist\"");
+		expect(html).toContain("novalidate");
 		expect(html).toContain('data-requirement="length"');
 		expect(html).toContain('data-requirement="uppercase"');
 		expect(html).toContain('data-requirement="lowercase"');
 		expect(html).toContain('data-requirement="special"');
 		expect(html).toContain("data-register-status");
+		expect(html).toContain("data-register-status aria-live=\"polite\" hidden");
 		expect(html).toContain("data-register-submit");
 		expect(html).toContain("/scripts/auth.js");
 	});
