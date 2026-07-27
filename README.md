@@ -74,6 +74,52 @@ npm run test:bdd
 npm run test:bdd:install
 ```
 
+## Docker Hybrid Scripts
+
+The hybrid Dockerfile supports two runtime dependency modes via `INCLUDE_DEV_DEPS`:
+
+- `false` -> production dependencies only
+- `true` -> development + production dependencies
+
+To make this easy to operate, use the scripts below.
+
+### Build and push both hybrid images to Azure ACR
+
+This script builds and pushes both tags for one version:
+
+- `<version>-prod-deps` (built with `INCLUDE_DEV_DEPS=false`)
+- `<version>-dev-deps` (built with `INCLUDE_DEV_DEPS=true`)
+
+```bash
+ACR_NAME=acraiacademy26 VERSION=1.2.50 ./scripts/push-acr-images.sh
+```
+
+Optional environment variables:
+
+- `REPOSITORY` (default: `team4-frontend`)
+- `DOCKERFILE` (default: `Dockerfile`)
+- `CONTEXT_DIR` (default: `.`)
+- `VERIFY_PUSH` (default: `true`)
+- `USE_BUILDX_CACHE` (default: `true`)
+- `BUILDX_CACHE_REF` (default: `<acr>.azurecr.io/<repository>:buildcache`)
+
+### Benchmark prod/dev images from ACR to CSV
+
+This script pulls the image pair, checks startup-to-health timing, size/layers, and idle usage,
+then appends a row to `scripts/image-metrics.csv`.
+
+```bash
+ACR_NAME=acraiacademy26 VERSION=1.2.50 ./scripts/benchmark-acr-images.sh
+```
+
+If `VERSION` is omitted, the script auto-detects the latest `-prod-deps` tag and uses its base version.
+
+Optional environment variables:
+
+- `REPOSITORY` (default: `team4-frontend`)
+- `CSV_FILE` (default: `scripts/image-metrics.csv`)
+- `BASE_PORT` (default: `4310`)
+
 ## Registration Integration Tests (BDD)
 
 Registration BDD features are now organized by integration mode:
