@@ -111,6 +111,7 @@ Before(async function (this: CustomWorld) {
 After(async function (this: CustomWorld) {
 	if (this.page) {
 		await this.page.unroute("**/auth/register").catch(() => undefined);
+		await this.page.unroute("**/login").catch(() => undefined);
 	}
 
 	if (this.context) {
