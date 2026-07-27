@@ -1,0 +1,2 @@
+timestamp,acr_name,repository,version,prod_image,dev_image,prod_pull_cached_s,dev_pull_cached_s,prod_pull_tag_cold_s,dev_pull_tag_cold_s,prod_run_to_health_s,dev_run_to_health_s,prod_size_mb,dev_size_mb,dev_minus_prod_size_mb,prod_layer_count,dev_layer_count,prod_idle_stats,dev_idle_stats
+2026-07-27T14:58:20Z,acraiacademy26,team4-frontend,1.2.41,acraiacademy26.azurecr.io/team4-frontend:1.2.41-prod-deps,acraiacademy26.azurecr.io/team4-frontend:1.2.41-dev-deps,0.583,0.637,0.693,0.686,0.372,0.373,60.063,146.350,86.287,20,20,0.00%|28.91MiB / 7.749GiB,0.04%|29.42MiB / 7.749GiB

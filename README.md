@@ -142,7 +142,28 @@ VERIFY_AFTER_PUSH=true
 API_BASE_URL=http://host.docker.internal:3000
 PROD_PORT=3011
 DEV_PORT=3012
+USE_BUILDX_CACHE=true
+BUILDX_CACHE_REF=acraiacademy26.azurecr.io/team4-frontend:buildcache
 ```
+
+Generate a CSV benchmark report for the latest prod/dev tag pair:
+
+```bash
+ACR_NAME=acraiacademy26 ./scripts/benchmark-acr-images.sh
+```
+
+Generate a CSV benchmark report for a specific version:
+
+```bash
+ACR_NAME=acraiacademy26 VERSION=1.2.41 ./scripts/benchmark-acr-images.sh
+```
+
+The script appends results to `scripts/image-metrics.csv` with 3-decimal timing and size metrics.
+
+Notes on cache behavior:
+
+- `USE_BUILDX_CACHE=true` (default) uses `docker buildx build` with registry-backed cache import/export.
+- `USE_BUILDX_CACHE=false` falls back to `docker build` then `docker push`.
 
 Pull the most recently pushed tag:
 
