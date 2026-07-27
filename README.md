@@ -71,6 +71,123 @@ Stop and remove the container:
 docker rm -f team4-frontend-local
 ```
 
+## Pull Docker Images From Azure ACR
+
+Use these commands to discover and pull published image versions from Azure Container Registry.
+
+Set shared variables:
+
+```bash
+ACR_NAME=acraiacademy26
+REPOSITORY=team4-frontend
+```
+
+Log in to Azure and your ACR:
+
+```bash
+az login
+az acr login --name "$ACR_NAME"
+```
+
+List all available image tags (versions):
+
+```bash
+az acr repository show-tags \
+	--name "$ACR_NAME" \
+	--repository "$REPOSITORY" \
+	--orderby time_desc \
+	--output table
+```
+
+Pull a specific version:
+
+```bash
+VERSION=1.1
+IMAGE="${ACR_NAME}.azurecr.io/${REPOSITORY}:${VERSION}-prod-deps"
+docker pull "$IMAGE"
+```
+
+Pull a development-dependencies image (if published with a dev tag):
+
+```bash
+VERSION=1.1
+IMAGE_DEV="${ACR_NAME}.azurecr.io/${REPOSITORY}:${VERSION}-dev-deps"
+docker pull "$IMAGE_DEV"
+```
+
+Automate build + push for both production and development-dependencies tags:
+
+Before running, be sure to change the VERSION number.
+```bash
+ACR_NAME=acraiacademy26 VERSION=1.2.0 ./scripts/push-acr-images.sh
+```
+
+The single command above pushes both tags to ACR:
+
+- Production runtime image: `${ACR_NAME}.azurecr.io/${REPOSITORY}:${VERSION}-prod-deps`
+- Development-dependencies image: `${ACR_NAME}.azurecr.io/${REPOSITORY}:${VERSION}-dev-deps`
+
+This script will:
+
+- Build and push `${VERSION}-prod-deps` (production dependencies)
+- Build and push `${VERSION}-dev-deps` (development dependencies)
+- Verify both tags exist in ACR
+- Pull and smoke test both images by default
+
+Optional environment variables:
+
+```bash
+REPOSITORY=team4-frontend
+VERIFY_AFTER_PUSH=true
+API_BASE_URL=http://host.docker.internal:3000
+PROD_PORT=3011
+DEV_PORT=3012
+```
+
+Pull the most recently pushed tag:
+
+```bash
+LATEST_TAG=$(az acr repository show-tags \
+	--name "$ACR_NAME" \
+	--repository "$REPOSITORY" \
+	--orderby time_desc \
+	--top 1 \
+	--output tsv)
+
+IMAGE="${ACR_NAME}.azurecr.io/${REPOSITORY}:${LATEST_TAG}"
+docker pull "$IMAGE"
+echo "Pulled $IMAGE"
+```
+
+Run a pulled image and verify it is healthy:
+
+```bash
+docker rm -f team4-frontend-acr-verify >/dev/null 2>&1 || true
+docker run -d --name team4-frontend-acr-verify -p 3011:3000 -e API_BASE_URL=http://host.docker.internal:3000 "$IMAGE" >/dev/null
+curl -fsS --retry 12 --retry-all-errors --retry-connrefused --retry-delay 1 http://localhost:3011/health
+docker exec team4-frontend-acr-verify sh -c 'echo uid $(id -u); echo user $(id -un)'
+docker rm -f team4-frontend-acr-verify >/dev/null
+```
+
+Run the development-dependencies image:
+
+```bash
+docker rm -f team4-frontend-acr-dev-verify >/dev/null 2>&1 || true
+docker run -d --name team4-frontend-acr-dev-verify -p 3012:3000 -e API_BASE_URL=http://host.docker.internal:3000 "$IMAGE_DEV" >/dev/null
+curl -fsS --retry 12 --retry-all-errors --retry-connrefused --retry-delay 1 http://localhost:3012/health
+docker exec team4-frontend-acr-dev-verify sh -c 'echo uid $(id -u); echo user $(id -un)'
+docker rm -f team4-frontend-acr-dev-verify >/dev/null
+```
+
+If you need to publish that image variant, build with development dependencies enabled and push a dev-specific tag:
+
+```bash
+VERSION=1.1
+IMAGE_DEV="${ACR_NAME}.azurecr.io/${REPOSITORY}:${VERSION}-dev-deps"
+docker build --build-arg INCLUDE_DEV_DEPS=true -t "$IMAGE_DEV" .
+docker push "$IMAGE_DEV"
+```
+
 ## Run Scripts
 
 - Build to `dist`:

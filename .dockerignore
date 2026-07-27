@@ -3,6 +3,8 @@ node_modules
 
 # Git metadata
 .git
+.github/
+.vscode/
 
 # Environment files
 .env
@@ -22,3 +24,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
+
+# Local and CI artifacts
+images/
+*.log
+.DS_Store

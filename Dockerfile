@@ -5,7 +5,7 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 FROM deps AS prod-deps
 
@@ -31,12 +31,15 @@ WORKDIR /app
 
 ARG INCLUDE_DEV_DEPS=false
 
-ENV NODE_ENV=production
-ENV PORT=3000
+ENV NODE_ENV=production PORT=3000
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-COPY package*.json ./
+COPY --chown=appuser:appgroup package*.json ./
+RUN chown appuser:appgroup /app
+
+USER appuser
+
 RUN --mount=from=deps,source=/app/node_modules,target=/mnt/deps,ro \
 	--mount=from=prod-deps,source=/app/node_modules,target=/mnt/prod-deps,ro \
 	if [ "$INCLUDE_DEV_DEPS" = "true" ]; then \
@@ -45,11 +48,7 @@ RUN --mount=from=deps,source=/app/node_modules,target=/mnt/deps,ro \
 		cp -a /mnt/prod-deps/. ./node_modules/; \
 	fi
 
-COPY --from=build /app/dist ./dist
-
-RUN chown -R appuser:appgroup /app
-
-USER appuser
+COPY --from=build --chown=appuser:appgroup /app/dist ./dist
 
 EXPOSE 3000
 
