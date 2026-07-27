@@ -20,6 +20,20 @@ Build the Docker image:
 docker build -t team4-frontend:local .
 ```
 
+Build modes for dependencies:
+
+- Default (production dependencies only):
+
+```bash
+docker build -t team4-frontend:prod-default .
+```
+
+- Development image (includes devDependencies):
+
+```bash
+docker build --build-arg INCLUDE_DEV_DEPS=true -t team4-frontend:dev-deps .
+```
+
 Run the container:
 
 ```bash
