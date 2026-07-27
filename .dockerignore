@@ -1,0 +1,23 @@
+# Node dependencies and build outputs
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist
+
+# VCS and editor files
+.git
+.gitignore
+.vscode
+.idea
+
+# Local env and test artifacts
+.env
+.env.*
+coverage
+playwright-report
+test-results
+
+# OS files
+.DS_Store

@@ -12,6 +12,51 @@ Minimal TypeScript Node frontend scaffold using Express + Nunjucks.
 npm ci
 ```
 
+## Docker Quick Start
+
+Build the Docker image:
+
+```bash
+docker build -t team4-frontend:local .
+```
+
+Run the container:
+
+```bash
+docker run -d --name team4-frontend-local -p 3000:3000 -e API_BASE_URL=http://host.docker.internal:3000 team4-frontend:local
+```
+
+Rerun safely with the same container name:
+
+```bash
+docker rm -f team4-frontend-local >/dev/null 2>&1 || true
+docker run -d --name team4-frontend-local -p 3000:3000 -e API_BASE_URL=http://host.docker.internal:3000 team4-frontend:local
+```
+
+Run the container using environment variables from a file:
+
+```bash
+docker run -d --name team4-frontend-local -p 3000:3000 --env-file .env team4-frontend:local
+```
+
+Check the health endpoint:
+
+```bash
+curl -sS http://localhost:3000/health
+```
+
+View container logs:
+
+```bash
+docker logs -f team4-frontend-local
+```
+
+Stop and remove the container:
+
+```bash
+docker rm -f team4-frontend-local
+```
+
 ## Run Scripts
 
 - Build to `dist`:
