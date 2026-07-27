@@ -1,24 +1,39 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.7
 
 # ---- Dependencies stage ----
-# Installs all dependencies once (including devDependencies like typescript,
-# vitest, biome) so the build stage can compile/type-check/test the app.
-# Isolating installs into their own stage means Docker can cache this layer
-# independently of source-code changes - it only re-runs when package*.json
-# changes, not every time application code changes.
+# Installs full dependencies once (including devDependencies) for build use.
 FROM node:22-alpine AS deps
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-# Cache mount persists npm's download cache across builds even when the
-# lockfile changes, speeding up dependency installs.
 RUN --mount=type=cache,target=/root/.npm npm ci
 
+# ---- Production dependencies stage ----
+# Derive runtime deps from already-installed modules for faster cold builds.
+FROM deps AS prod-deps
+
+RUN npm prune --omit=dev && npm cache clean --force
+
+# ---- Runtime dependency selection stage ----
+# Materializes either dev+prod deps or prod-only deps for final image copy.
+FROM node:22-alpine AS runtime-deps
+
+WORKDIR /usr/src/app
+
+ARG INCLUDE_DEV_DEPS=false
+
+RUN --mount=from=deps,source=/usr/src/app/node_modules,target=/mnt/deps,ro \
+  --mount=from=prod-deps,source=/usr/src/app/node_modules,target=/mnt/prod-deps,ro \
+  mkdir -p /out/node_modules && \
+  if [ "$INCLUDE_DEV_DEPS" = "true" ]; then \
+    cp -a /mnt/deps/. /out/node_modules/; \
+  else \
+    cp -a /mnt/prod-deps/. /out/node_modules/; \
+  fi
+
 # ---- Build stage ----
-# Uses the full (dev + prod) dependencies from the deps stage to compile
-# TypeScript and assemble static assets. These build-time tools (typescript,
-# rsync) are never needed at runtime, so this stage is discarded afterwards.
+# Uses full dependencies to compile TypeScript and assemble static assets.
 FROM node:22-alpine AS build
 
 WORKDIR /usr/src/app
@@ -26,35 +41,30 @@ WORKDIR /usr/src/app
 # Install rsync, used by the build script to copy views/public into dist/
 RUN apk add --no-cache rsync
 
-# Reuse already-installed node_modules instead of re-running npm ci
 COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-
-# ---- Production dependencies stage ----
-# A fresh install with only runtime dependencies (--omit=dev), so packages
-# such as typescript/vitest/playwright never end up in the final image.
-FROM node:22-alpine AS prod-deps
-
-WORKDIR /usr/src/app
-
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
+COPY tsconfig.json ./
+COPY src ./src
+COPY public ./public
+RUN npm run build
 
 # ---- Production stage ----
 # The final runtime image copies in only what's needed to run the app:
-# production node_modules and the compiled dist/ output. Source files,
-# devDependencies, and build tools (rsync, typescript, npm cache) are left
-# behind in the earlier stages and never make it into this image.
+# runtime dependencies and the compiled dist/ output.
 FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app
+
+ARG INCLUDE_DEV_DEPS=false
+
 ENV NODE_ENV=production
 
-COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
+COPY package*.json ./
 
-# Run as the non-root "node" user (built into the base image) instead of root
+COPY --from=runtime-deps --chown=node:node /out/node_modules ./node_modules
+
+COPY --from=build --chown=node:node /usr/src/app/dist ./dist
+
 USER node
 
 EXPOSE 3000
