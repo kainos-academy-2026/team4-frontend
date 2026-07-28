@@ -1,0 +1,50 @@
+# syntax=docker/dockerfile:1
+
+# ---- Build stage ----
+FROM node:22-alpine AS build
+
+WORKDIR /usr/src/app
+
+# Install rsync, used by the build script to copy views/public into dist/
+RUN apk add --no-cache rsync
+
+# Install dependencies first for better layer caching.
+# Cache mount persists npm's download cache across builds even when the
+# lockfile changes, speeding up dependency installs.
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
+
+# Copy the rest of the source and build
+COPY . .
+RUN npm run build
+
+# Install only production dependencies (needs npm/shell, so done in an
+# alpine-based intermediate stage since distroless has neither)
+FROM node:22-alpine AS deps
+
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
+
+# ---- Production stage ----
+# Google's distroless nodejs image ships only the node runtime and its
+# minimal OS deps - no shell, package manager or other tooling that alpine
+# still carries, so it's smaller and has a reduced attack surface.
+# The ":nonroot" tag already runs as a non-root user (uid 65532).
+FROM gcr.io/distroless/nodejs22-debian12:nonroot AS production
+
+WORKDIR /usr/src/app
+
+# Copy production node_modules and built application from earlier stages
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
+
+EXPOSE 3000
+
+# No shell available in distroless, so HEALTHCHECK/CMD must use exec form
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD ["/nodejs/bin/node", "-e", "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+
+CMD ["dist/index.js"]

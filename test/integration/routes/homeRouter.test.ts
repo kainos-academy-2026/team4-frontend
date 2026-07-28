@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 process.env.API_BASE_URL = "http://localhost:4000";
 
-let app: typeof import("../../src/app").default;
+let app: typeof import("../../../src/app").default;
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -12,7 +12,7 @@ describe("home branding integration", () => {
 	let authToken: string;
 
 	beforeAll(async () => {
-		({ default: app } = await import("../../src/app"));
+		({ default: app } = await import("../../../src/app"));
 
 		authToken = await new SignJWT({
 			email: "test@example.com",

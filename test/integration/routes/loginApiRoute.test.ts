@@ -1,8 +1,8 @@
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import app from "../../src/app";
-import { AuthService } from "../../src/services/authService";
+import app from "../../../src/app";
+import { AuthService } from "../../../src/services/authService";
 
 describe("POST /api/login", () => {
 	afterEach(() => {

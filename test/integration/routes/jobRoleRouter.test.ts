@@ -2,11 +2,12 @@ import request from "supertest";
 import { SignJWT } from "jose";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { JobRoleService } from "../../src/services/jobRoleService";
+import { JobApplicationService } from "../../../src/services/jobApplicationService";
+import { JobRoleService } from "../../../src/services/jobRoleService";
 
 process.env.API_BASE_URL = "http://localhost:4000";
 
-let app: typeof import("../../src/app").default;
+let app: typeof import("../../../src/app").default;
 
 const SECRET = new TextEncoder().encode("test-secret-key");
 
@@ -18,7 +19,7 @@ const createAuthToken = async (): Promise<string> =>
 
 describe("GET /job-roles/:id", () => {
 	beforeAll(async () => {
-		({ default: app } = await import("../../src/app"));
+		({ default: app } = await import("../../../src/app"));
 	});
 
 	afterEach(() => {
@@ -203,5 +204,156 @@ describe("GET /job-roles/:id/apply", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/404");
+	});
+});
+
+describe("GET /job-roles/:id/applications/upload-url", () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it("redirects unauthenticated users to login", async () => {
+		const response = await request(app).get(
+			"/job-roles/1/applications/upload-url",
+		);
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Unauthorised." });
+	});
+
+	it("returns 400 when the job role id is invalid", async () => {
+		const token = await createAuthToken();
+
+		const response = await request(app)
+			.get("/job-roles/not-a-number/applications/upload-url")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({ message: "Invalid job role ID." });
+	});
+
+	it("returns upload URL payload when the request is valid", async () => {
+		const token = await createAuthToken();
+		vi.spyOn(JobApplicationService.prototype, "getUploadUrl").mockResolvedValue({
+			presignedUrl: "https://uploads.example.com/presigned",
+			s3Key: "applications/1/cv.pdf",
+		});
+
+		const response = await request(app)
+			.get("/job-roles/1/applications/upload-url")
+			.query({ fileName: "cv.pdf", mimeType: "application/pdf" })
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual({
+			presignedUrl: "https://uploads.example.com/presigned",
+			s3Key: "applications/1/cv.pdf",
+		});
+		expect(JobApplicationService.prototype.getUploadUrl).toHaveBeenCalledWith(
+			1,
+			expect.stringMatching(/^Bearer\s.+/),
+			"cv.pdf",
+			"application/pdf",
+		);
+	});
+
+	it("maps backend not found to 404", async () => {
+		const token = await createAuthToken();
+		vi.spyOn(JobApplicationService.prototype, "getUploadUrl").mockRejectedValue({
+			isAxiosError: true,
+			response: { status: 404, data: {} },
+		});
+
+		const response = await request(app)
+			.get("/job-roles/1/applications/upload-url")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`]);
+
+		expect(response.status).toBe(404);
+		expect(response.body).toEqual({ message: "Job role not found." });
+	});
+});
+
+describe("POST /job-roles/:id/applications", () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it("returns 401 when the user is unauthenticated", async () => {
+		const response = await request(app).post("/job-roles/1/applications").send({
+			s3Key: "applications/1/cv.pdf",
+			cvFileName: "cv.pdf",
+			cvMimeType: "application/pdf",
+			cvSizeBytes: 12345,
+		});
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Unauthorised." });
+	});
+
+	it("returns 400 when upload fields are missing", async () => {
+		const token = await createAuthToken();
+
+		const response = await request(app)
+			.post("/job-roles/1/applications")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`])
+			.send({ cvFileName: "cv.pdf" });
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({ message: "Missing required upload fields." });
+	});
+
+	it("returns backend response when application is submitted", async () => {
+		const token = await createAuthToken();
+		vi.spyOn(JobApplicationService.prototype, "submitApplication").mockResolvedValue({
+			status: 201,
+			data: { id: "app-1", status: "in_progress" },
+		});
+
+		const response = await request(app)
+			.post("/job-roles/1/applications")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`])
+			.send({
+				s3Key: "applications/1/cv.pdf",
+				cvFileName: "cv.pdf",
+				cvMimeType: "application/pdf",
+				cvSizeBytes: 12345,
+			});
+
+		expect(response.status).toBe(201);
+		expect(response.body).toEqual({ id: "app-1", status: "in_progress" });
+		expect(JobApplicationService.prototype.submitApplication).toHaveBeenCalledWith(
+			1,
+			expect.stringMatching(/^Bearer\s.+/),
+			{
+				s3Key: "applications/1/cv.pdf",
+				cvFileName: "cv.pdf",
+				cvMimeType: "application/pdf",
+				cvSizeBytes: 12345,
+			},
+		);
+	});
+
+	it("forwards backend error responses", async () => {
+		const token = await createAuthToken();
+		vi.spyOn(JobApplicationService.prototype, "submitApplication").mockRejectedValue({
+			isAxiosError: true,
+			response: {
+				status: 409,
+				data: { message: "Application already exists." },
+			},
+		});
+
+		const response = await request(app)
+			.post("/job-roles/1/applications")
+			.set("Cookie", [`access_token=${encodeURIComponent(token)}`])
+			.send({
+				s3Key: "applications/1/cv.pdf",
+				cvFileName: "cv.pdf",
+				cvMimeType: "application/pdf",
+				cvSizeBytes: 12345,
+			});
+
+		expect(response.status).toBe(409);
+		expect(response.body).toEqual({ message: "Application already exists." });
 	});
 });

@@ -1,9 +1,9 @@
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import app from "../../src/app";
-import { RegisterService } from "../../src/services/registerService";
-import { RegisterServiceError } from "../../src/services/registerServiceError";
+import app from "../../../src/app";
+import { RegisterService } from "../../../src/services/registerService";
+import { RegisterServiceError } from "../../../src/services/registerServiceError";
 
 describe("GET /register", () => {
 	it("renders the registration page", async () => {
