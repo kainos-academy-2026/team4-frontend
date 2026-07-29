@@ -206,7 +206,6 @@ jobs:
           exit 1
 
       - name: Validate ACR config (template values)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: |
           set -euo pipefail
           : "${ACR_NAME:?Set repository variable ACR_NAME}"
@@ -215,7 +214,6 @@ jobs:
           : "${TENANT_ID:?Set repository secret AZURE_TENANT_ID}"
 
       - name: Azure login as service principal
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: |
           set -euo pipefail
           az login --service-principal \
@@ -224,11 +222,9 @@ jobs:
             --tenant "$TENANT_ID"
 
       - name: Log in to Azure ACR
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: az acr login --name "$ACR_NAME"
 
       - name: Push verified images to ACR
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         run: |
           set -euo pipefail
           ACR_LOGIN_SERVER="${ACR_NAME}.azurecr.io"
