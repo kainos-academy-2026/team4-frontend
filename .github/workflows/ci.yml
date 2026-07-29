@@ -143,23 +143,60 @@ jobs:
       - codeql
       - coverage
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build-target:
-          - include-dev-deps: "false"
-            tag-suffix: "prod-deps"
-          - include-dev-deps: "true"
-            tag-suffix: "dev-deps"
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build Docker image (no push)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: false
-          build-args: |
-            INCLUDE_DEV_DEPS=${{ matrix.build-target.include-dev-deps }}
-          tags: team4-frontend:ci-${{ matrix.build-target.tag-suffix }}
+
+      - name: Create tags
+        run: |
+          set -euo pipefail
+          SHORT_SHA=${GITHUB_SHA::8}
+          TS=$(date +'%Y-%m-%d-%H-%M-%S')
+          IMAGE_REPO="team4-frontend"
+
+          echo "PROD_TAG=${IMAGE_REPO}:${SHORT_SHA}-${TS}-prod-deps" >> "$GITHUB_ENV"
+          echo "DEV_TAG=${IMAGE_REPO}:${SHORT_SHA}-${TS}-dev-deps" >> "$GITHUB_ENV"
+          echo "LATEST_PROD_TAG=${IMAGE_REPO}:latest-prod-deps" >> "$GITHUB_ENV"
+          echo "LATEST_DEV_TAG=${IMAGE_REPO}:latest-dev-deps" >> "$GITHUB_ENV"
+
+      - name: Build Docker images
+        run: |
+          set -euo pipefail
+          docker build --build-arg INCLUDE_DEV_DEPS=false -t "$PROD_TAG" .
+          docker tag "$PROD_TAG" "$LATEST_PROD_TAG"
+
+          docker build --build-arg INCLUDE_DEV_DEPS=true -t "$DEV_TAG" .
+          docker tag "$DEV_TAG" "$LATEST_DEV_TAG"
+
+      - name: Verify build tags
+        run: |
+          set -euo pipefail
+          docker image inspect "$PROD_TAG" > /dev/null
+          docker image inspect "$LATEST_PROD_TAG" > /dev/null
+          docker image inspect "$DEV_TAG" > /dev/null
+          docker image inspect "$LATEST_DEV_TAG" > /dev/null
+          echo "Docker images built successfully: $PROD_TAG, $LATEST_PROD_TAG, $DEV_TAG, $LATEST_DEV_TAG"
+
+      - name: Smoke test container startup and health endpoint
+        run: |
+          set -euo pipefail
+          docker run -d --name team4-frontend-smoke -p 3000:3000 \
+            -e API_BASE_URL='http://127.0.0.1:3000' \
+            "$PROD_TAG"
+          trap 'docker logs team4-frontend-smoke || true; docker rm -f team4-frontend-smoke || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/health > /dev/null; then
+              echo "Container is healthy"
+              exit 0
+            fi
+
+            if ! docker ps --filter "name=team4-frontend-smoke" --filter "status=running" --format '{{.Names}}' | grep -q '^team4-frontend-smoke$'; then
+              echo "Container stopped before becoming healthy"
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          echo "Health check timed out"
+          exit 1
