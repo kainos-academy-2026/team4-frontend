@@ -8,8 +8,7 @@ on:
     branches:
       - main
   schedule:
-  - cron: "0 7 * * *"
-  - cron: "0 16 * * *"
+  - cron: "0 7,16 * * *"
 permissions:
   contents: read
 
@@ -135,27 +134,20 @@ jobs:
           IMAGE_REPO="team4-frontend"
 
           echo "PROD_TAG=${IMAGE_REPO}:${SHORT_SHA}-prod-deps-${TS}" >> "$GITHUB_ENV"
-          echo "DEV_TAG=${IMAGE_REPO}:${SHORT_SHA}-dev-deps-${TS}" >> "$GITHUB_ENV"
           echo "LATEST_PROD_TAG=${IMAGE_REPO}:latest-prod-deps" >> "$GITHUB_ENV"
-          echo "LATEST_DEV_TAG=${IMAGE_REPO}:latest-dev-deps" >> "$GITHUB_ENV"
 
       - name: Build Docker images
         run: |
           set -euo pipefail
-          docker build --build-arg INCLUDE_DEV_DEPS=false -t "$PROD_TAG" .
+          docker build -t "$PROD_TAG" .
           docker tag "$PROD_TAG" "$LATEST_PROD_TAG"
-
-          docker build --build-arg INCLUDE_DEV_DEPS=true -t "$DEV_TAG" .
-          docker tag "$DEV_TAG" "$LATEST_DEV_TAG"
 
       - name: Verify build tags
         run: |
           set -euo pipefail
           docker image inspect "$PROD_TAG" > /dev/null
           docker image inspect "$LATEST_PROD_TAG" > /dev/null
-          docker image inspect "$DEV_TAG" > /dev/null
-          docker image inspect "$LATEST_DEV_TAG" > /dev/null
-          echo "Docker images built successfully: $PROD_TAG, $LATEST_PROD_TAG, $DEV_TAG, $LATEST_DEV_TAG"
+          echo "Docker images built successfully: $PROD_TAG, $LATEST_PROD_TAG"
 
       - name: Smoke test container startup and health endpoint
         run: |
@@ -182,15 +174,18 @@ jobs:
           echo "Health check timed out"
           exit 1
 
-      - name: Validate ACR config (template values)
+      - name: Validate Azure credentials and ACR reachability
+        if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          : "${ACR_NAME:?Set repository variable ACR_NAME}"
-          : "${CLIENT_ID:?Set repository secret AZURE_CLIENT_ID}"
-          : "${CLIENT_SECRET:?Set repository secret AZURE_CLIENT_SECRET}"
-          : "${TENANT_ID:?Set repository secret AZURE_TENANT_ID}"
+          az login --service-principal \
+            --username "$CLIENT_ID" \
+            --password "$CLIENT_SECRET" \
+            --tenant "$TENANT_ID"
+          az acr show --name "$ACR_NAME" --query loginServer --output tsv
 
       - name: Azure login as service principal
+        if: github.event_name == 'push'
         run: |
           set -euo pipefail
           az login --service-principal \
@@ -199,18 +194,17 @@ jobs:
             --tenant "$TENANT_ID"
 
       - name: Log in to Azure ACR
+        if: github.event_name == 'push'
         run: az acr login --name "$ACR_NAME"
 
       - name: Push verified images to ACR
+        if: github.event_name == 'push'
         run: |
           set -euo pipefail
           ACR_LOGIN_SERVER="${ACR_NAME}.azurecr.io"
           ACR_REPOSITORY="${PROD_TAG%%:*}"
           ACR_PROD_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${PROD_TAG#*:}"
-          ACR_DEV_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${DEV_TAG#*:}"
 
           docker tag "$PROD_TAG" "$ACR_PROD_TAG"
-          docker tag "$DEV_TAG" "$ACR_DEV_TAG"
 
           docker push "$ACR_PROD_TAG"
-          docker push "$ACR_DEV_TAG"

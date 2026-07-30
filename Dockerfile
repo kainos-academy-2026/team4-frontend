@@ -15,23 +15,6 @@ FROM deps AS prod-deps
 
 RUN npm prune --omit=dev && npm cache clean --force
 
-# ---- Runtime dependency selection stage ----
-# Materializes either dev+prod deps or prod-only deps for final image copy.
-FROM node:22-alpine AS runtime-deps
-
-WORKDIR /usr/src/app
-
-ARG INCLUDE_DEV_DEPS=false
-
-RUN --mount=from=deps,source=/usr/src/app/node_modules,target=/mnt/deps,ro \
-  --mount=from=prod-deps,source=/usr/src/app/node_modules,target=/mnt/prod-deps,ro \
-  mkdir -p /out/node_modules && \
-  if [ "$INCLUDE_DEV_DEPS" = "true" ]; then \
-    cp -a /mnt/deps/. /out/node_modules/; \
-  else \
-    cp -a /mnt/prod-deps/. /out/node_modules/; \
-  fi
-
 # ---- Build stage ----
 # Uses full dependencies to compile TypeScript and assemble static assets.
 FROM node:22-alpine AS build
@@ -55,13 +38,11 @@ FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app
 
-ARG INCLUDE_DEV_DEPS=false
-
 ENV NODE_ENV=production
 
 COPY package*.json ./
 
-COPY --from=runtime-deps --chown=node:node /out/node_modules ./node_modules
+COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules ./node_modules
 
 COPY --from=build --chown=node:node /usr/src/app/dist ./dist
 
