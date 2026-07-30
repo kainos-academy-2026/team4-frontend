@@ -42,21 +42,7 @@ The workflow pushes only when all earlier jobs pass and the event is:
 
 No image push occurs for pull requests or scheduled runs.
 
-## 5) Tag Format Produced by CI
-
-The workflow now creates image tags that end with date and time:
-
-- `team4-frontend:<short-sha>-prod-deps-YYYY-MM-DD-HH-MM-SS`
-- `team4-frontend:<short-sha>-dev-deps-YYYY-MM-DD-HH-MM-SS`
-- plus moving aliases:
-  - `latest-prod-deps`
-  - `latest-dev-deps`
-
-In ACR, images are pushed under:
-
-- `<ACR_NAME>.azurecr.io/team4-frontend:<tag>`
-
-## 6) Preflight Checklist
+## 5) Preflight Checklist
 
 - Confirm `ACR_NAME` is set.
 - Confirm `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_TENANT_ID` exist.
