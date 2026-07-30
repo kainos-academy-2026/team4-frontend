@@ -208,3 +208,4 @@ jobs:
           docker tag "$PROD_TAG" "$ACR_PROD_TAG"
 
           docker push "$ACR_PROD_TAG"
+          
