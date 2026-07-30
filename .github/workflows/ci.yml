@@ -171,7 +171,6 @@ jobs:
           exit 1
 
       - name: Validate Azure credentials and ACR reachability
-        if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
           az login --service-principal \
