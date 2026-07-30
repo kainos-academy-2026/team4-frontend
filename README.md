@@ -74,21 +74,15 @@ npm run test:bdd
 npm run test:bdd:install
 ```
 
-## Docker Hybrid Scripts
+## Docker Scripts
 
-The hybrid Dockerfile supports two runtime dependency modes via `INCLUDE_DEV_DEPS`:
+The Dockerfile builds a production-only image with runtime dependencies.
 
-- `false` -> production dependencies only
-- `true` -> development + production dependencies
+### Build and push the production image to Azure ACR
 
-To make this easy to operate, use the scripts below.
+This script builds and pushes the production tag for one version:
 
-### Build and push both hybrid images to Azure ACR
-
-This script builds and pushes both tags for one version:
-
-- `<version>-prod-deps` (built with `INCLUDE_DEV_DEPS=false`)
-- `<version>-dev-deps` (built with `INCLUDE_DEV_DEPS=true`)
+- `<version>-prod-deps`
 
 ```bash
 ACR_NAME=acraiacademy26 VERSION=1.2.50 ./scripts/push-acr-images.sh
@@ -103,9 +97,9 @@ Optional environment variables:
 - `USE_BUILDX_CACHE` (default: `true`)
 - `BUILDX_CACHE_REF` (default: `<acr>.azurecr.io/<repository>:buildcache`)
 
-### Benchmark prod/dev images from ACR to CSV
+### Benchmark prod image from ACR to CSV
 
-This script pulls the image pair, checks startup-to-health timing, size/layers, and idle usage,
+This script pulls the image, checks startup-to-health timing, size/layers, and idle usage,
 then appends a row to `scripts/image-metrics.csv`.
 
 ```bash
