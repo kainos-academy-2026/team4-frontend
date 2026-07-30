@@ -231,15 +231,9 @@ jobs:
           ACR_REPOSITORY="${PROD_TAG%%:*}"
           ACR_PROD_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${PROD_TAG#*:}"
           ACR_DEV_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${DEV_TAG#*:}"
-          ACR_LATEST_PROD_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:latest-prod-deps"
-          ACR_LATEST_DEV_TAG="${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:latest-dev-deps"
 
           docker tag "$PROD_TAG" "$ACR_PROD_TAG"
           docker tag "$DEV_TAG" "$ACR_DEV_TAG"
-          docker tag "$PROD_TAG" "$ACR_LATEST_PROD_TAG"
-          docker tag "$DEV_TAG" "$ACR_LATEST_DEV_TAG"
 
           docker push "$ACR_PROD_TAG"
           docker push "$ACR_DEV_TAG"
-          docker push "$ACR_LATEST_PROD_TAG"
-          docker push "$ACR_LATEST_DEV_TAG"
