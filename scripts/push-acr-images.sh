@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Builds and pushes both hybrid runtime modes:
+# Builds and pushes the production runtime image:
 # - prod deps image: <version>-prod-deps
-# - dev deps image:  <version>-dev-deps
 
 ACR_NAME="${ACR_NAME:-}"
 REPOSITORY="${REPOSITORY:-team4-frontend}"
@@ -33,9 +32,7 @@ fi
 REGISTRY="${ACR_NAME}.azurecr.io"
 IMAGE_BASE="${REGISTRY}/${REPOSITORY}"
 PROD_TAG="${VERSION}-prod-deps"
-DEV_TAG="${VERSION}-dev-deps"
 PROD_IMAGE="${IMAGE_BASE}:${PROD_TAG}"
-DEV_IMAGE="${IMAGE_BASE}:${DEV_TAG}"
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -52,14 +49,12 @@ az acr login --name "$ACR_NAME" >/dev/null
 
 build_and_push() {
   local image="$1"
-  local include_dev_deps="$2"
 
-  echo "Building and pushing: ${image} (INCLUDE_DEV_DEPS=${include_dev_deps})"
+  echo "Building and pushing: ${image}"
 
   if [[ "$USE_BUILDX_CACHE" == "true" ]] && docker buildx version >/dev/null 2>&1; then
     docker buildx build \
       --file "$DOCKERFILE" \
-      --build-arg "INCLUDE_DEV_DEPS=${include_dev_deps}" \
       --cache-from "type=registry,ref=${BUILDX_CACHE_REF}" \
       --cache-to "type=registry,ref=${BUILDX_CACHE_REF},mode=max" \
       --tag "$image" \
@@ -68,15 +63,13 @@ build_and_push() {
   else
     docker build \
       --file "$DOCKERFILE" \
-      --build-arg "INCLUDE_DEV_DEPS=${include_dev_deps}" \
       --tag "$image" \
       "$CONTEXT_DIR"
     docker push "$image"
   fi
 }
 
-build_and_push "$PROD_IMAGE" false
-build_and_push "$DEV_IMAGE" true
+build_and_push "$PROD_IMAGE"
 
 if [[ "$VERIFY_PUSH" == "true" ]]; then
   echo "Verifying pushed tags exist in ACR"
@@ -85,14 +78,8 @@ if [[ "$VERIFY_PUSH" == "true" ]]; then
     --repository "$REPOSITORY" \
     --output tsv | grep -Fx "$PROD_TAG" >/dev/null
 
-  az acr repository show-tags \
-    --name "$ACR_NAME" \
-    --repository "$REPOSITORY" \
-    --output tsv | grep -Fx "$DEV_TAG" >/dev/null
-
-  echo "Verification passed for tags: ${PROD_TAG}, ${DEV_TAG}"
+  echo "Verification passed for tag: ${PROD_TAG}"
 fi
 
 echo "Done"
 echo "  PROD: ${PROD_IMAGE}"
-echo "  DEV : ${DEV_IMAGE}"
