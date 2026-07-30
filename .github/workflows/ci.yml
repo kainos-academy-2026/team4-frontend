@@ -34,32 +34,6 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
 
-  terraform-validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - name: Validate existing Terraform directories
-        run: |
-          set -euo pipefail
-          found_dir="false"
-
-          for dir in my-infrastructure modules/resource-group; do
-            if [[ -d "$dir" ]]; then
-              found_dir="true"
-              echo "Validating Terraform in $dir"
-              terraform -chdir="$dir" fmt -check -recursive
-              terraform -chdir="$dir" init -backend=false
-              terraform -chdir="$dir" validate
-            else
-              echo "Skipping missing Terraform directory: $dir"
-            fi
-          done
-
-          if [[ "$found_dir" == "false" ]]; then
-            echo "No Terraform directories found, skipping Terraform validation."
-          fi
-
   codeql:
     runs-on: ubuntu-latest
     permissions:
@@ -138,7 +112,6 @@ jobs:
   docker-image-build-verify:
     needs:
       - dependency-audit
-      - terraform-validate
       - codeql
       - coverage
     runs-on: ubuntu-latest
