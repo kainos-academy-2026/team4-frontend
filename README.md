@@ -237,3 +237,108 @@ Example health response:
 4. Submit valid details and confirm success guidance appears.
 5. Submit an already-registered email and confirm duplicate-user guidance appears.
 6. Confirm no role field is sent from the frontend payload.
+
+## Azure and Container Onboarding
+
+Use this checklist when a new developer joins and needs to get cloud deployment and container workflow access.
+
+### Access to set up first
+
+1. Azure tenant access for the project.
+2. Correct Azure subscription access: sub-ai-academy-26.
+3. GitHub repository access with permission to view Actions.
+4. Access to the shared Azure Container Registry.
+5. Access to Key Vault used by backend runtime secrets.
+6. Clarity on who owns CI credentials and secret rotation.
+
+### CI secrets required
+
+These repository secrets must exist and be valid:
+
+1. ACR_NAME
+2. AZURE_CLIENT_ID
+3. AZURE_CLIENT_SECRET
+4. AZURE_TENANT_ID
+
+If these are wrong or expired, image publish and Terraform jobs will fail.
+
+### How Azure pieces connect
+
+1. GitHub Actions builds backend container image.
+2. CI tags image with commit SHA.
+3. CI logs into Azure and pushes image to ACR.
+4. Terraform deploys Container Apps.
+5. Container Apps pull from ACR using managed identity.
+6. Backend reads environment secrets from Key Vault.
+
+### Key Vault secrets backend needs
+
+1. database-url
+2. jwt-access-secret
+3. access-token-ttl
+4. aws-region
+5. s3-bucket-name
+6. aws-access-key-id
+7. aws-secret-access-key
+
+Missing any of these can cause backend revision startup failures.
+
+### Terraform first-run for new devs
+
+1. Login to Azure:
+    
+    az login
+
+2. Select the correct subscription:
+    
+    az account set --subscription sub-ai-academy-26
+
+3. Initialize Terraform in infrastructure folder:
+    
+    cd my-infrastructure
+    terraform init -reconfigure
+
+4. Validate and plan:
+    
+    terraform validate
+    terraform plan -var="environment=dev"
+
+### Local containers vs cloud containers
+
+1. Local:
+- Docker Compose runs backend and Postgres.
+- Local env values come from the local env file.
+- Used for development and testing.
+
+2. Cloud:
+- CI builds and pushes images to ACR.
+- Terraform points Container Apps at image repository and tag.
+- Runtime values come from Key Vault, not local env file.
+
+### Day-1 verification checklist
+
+1. Docker is running and compose works.
+2. App runs locally with database and migrations.
+3. Azure CLI login works.
+4. Terraform init and plan work in dev.
+5. ACR repositories are visible.
+6. Container Apps resources are visible.
+7. Key Vault has all required secret names.
+8. CI pipeline is visible and understandable.
+
+### Common failure points
+
+1. Azure login step fails in CI:
+- Service principal credentials or tenant mismatch.
+
+2. ACR push fails:
+- CI identity missing required registry permissions.
+
+3. Container App pull fails:
+- Managed identity missing AcrPull on registry scope.
+
+4. Backend fails at startup:
+- Key Vault secret missing, wrong name, or invalid value.
+
+5. Terraform init fails:
+- No permission for remote state storage backend.
