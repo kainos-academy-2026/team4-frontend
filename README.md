@@ -264,12 +264,12 @@ If these are wrong or expired, image publish and Terraform jobs will fail.
 
 ### How Azure pieces connect
 
-1. GitHub Actions builds backend container image.
-2. CI tags image with commit SHA.
-3. CI logs into Azure and pushes image to ACR.
-4. Terraform deploys Container Apps.
-5. Container Apps pull from ACR using managed identity.
-6. Backend reads environment secrets from Key Vault.
+1. GitHub Actions builds the frontend container image.
+2. CI tags the image with commit SHA.
+3. CI logs into Azure and pushes the image to ACR.
+4. Deployment (e.g., Container Apps) is handled by infrastructure configuration outside this repository.
+5. The deployed runtime pulls from ACR using managed identity.
+6. Runtime configuration/secrets are provided by the deployment environment (and Key Vault if configured).
 
 ### Key Vault secrets backend needs
 
