@@ -1,0 +1,10 @@
+title = "team4-frontend gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "SonarQube CE's own default bootstrap credentials for an ephemeral CI-only container, not a real secret"
+regexes = [
+  '''^admin:admin$''',
+]
