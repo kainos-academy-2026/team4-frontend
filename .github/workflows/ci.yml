@@ -240,10 +240,13 @@ jobs:
         run: docker run -d --name sonarqube -p 9000:9000 sonarqube:community
 
       - name: Wait for SonarQube to become healthy
+        env:
+          # SonarQube's own default bootstrap credentials, not a real secret
+          SONAR_ADMIN_CREDS: admin:admin
         run: |
           set -euo pipefail
           for _ in $(seq 1 60); do
-            status=$(curl --silent -u admin:admin http://127.0.0.1:9000/api/system/health | grep -o '"health":"[A-Z]*"' || true)
+            status=$(curl --silent -u "$SONAR_ADMIN_CREDS" http://127.0.0.1:9000/api/system/health | grep -o '"health":"[A-Z]*"' || true)
             if [ "$status" = '"health":"GREEN"' ]; then
               exit 0
             fi
@@ -253,9 +256,11 @@ jobs:
           exit 1
 
       - name: Generate a scan token
+        env:
+          SONAR_ADMIN_CREDS: admin:admin
         run: |
           set -euo pipefail
-          token=$(curl --silent -u admin:admin -X POST "http://127.0.0.1:9000/api/user_tokens/generate?name=ci-scan-${GITHUB_RUN_ID}" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+          token=$(curl --silent -u "$SONAR_ADMIN_CREDS" -X POST "http://127.0.0.1:9000/api/user_tokens/generate?name=ci-scan-${GITHUB_RUN_ID}" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
           echo "::add-mask::$token"
           echo "SONAR_TOKEN=$token" >> "$GITHUB_ENV"
 
@@ -268,8 +273,10 @@ jobs:
 
       - name: Fetch issue report
         if: always()
+        env:
+          SONAR_ADMIN_CREDS: admin:admin
         run: |
-          curl --silent -u admin:admin \
+          curl --silent -u "$SONAR_ADMIN_CREDS" \
             "http://127.0.0.1:9000/api/issues/search?componentKeys=team4-frontend" \
             -o sonar-issues.json || true
 
