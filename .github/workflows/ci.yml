@@ -157,7 +157,9 @@ jobs:
       - name: Start compiled frontend
         run: |
           set -euo pipefail
-          API_BASE_URL=http://127.0.0.1:9 NODE_ENV=production PORT=3000 \
+          node -e 'require("http").createServer((_request, response) => { response.writeHead(200, { "Content-Type": "application/json" }); response.end("[]"); }).listen(4000)' > backend-stub.log 2>&1 &
+          echo "$!" > backend-stub.pid
+          API_BASE_URL=http://127.0.0.1:4000 NODE_ENV=production PORT=3000 \
             node dist/index.js > app.log 2>&1 &
           echo "$!" > app.pid
 
@@ -177,14 +179,17 @@ jobs:
       - name: Run OWASP ZAP baseline scan
         run: |
           set -euo pipefail
+          ZAP_REPORT_DIR="$RUNNER_TEMP/zap"
+          mkdir -p "$ZAP_REPORT_DIR"
+          chmod 777 "$ZAP_REPORT_DIR"
           docker run --rm --network host \
-            -v "$GITHUB_WORKSPACE:/zap/wrk:rw" \
+            -v "$ZAP_REPORT_DIR:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:2.17.0 \
             zap-baseline.py \
             -t http://127.0.0.1:3000/health \
-            -r /zap/wrk/zap-report.html \
-            -J /zap/wrk/zap-report.json \
-            -x /zap/wrk/zap-report.xml \
+            -r zap-report.html \
+            -J zap-report.json \
+            -x zap-report.xml \
             -I
 
       - name: Upload OWASP ZAP reports
@@ -193,10 +198,11 @@ jobs:
         with:
           name: owasp-zap-reports
           path: |
-            zap-report.html
-            zap-report.json
-            zap-report.xml
+            ${{ runner.temp }}/zap/zap-report.html
+            ${{ runner.temp }}/zap/zap-report.json
+            ${{ runner.temp }}/zap/zap-report.xml
             app.log
+            backend-stub.log
           if-no-files-found: warn
 
       - name: Stop compiled frontend
@@ -204,6 +210,9 @@ jobs:
         run: |
           if [ -f app.pid ]; then
             kill "$(cat app.pid)" 2>/dev/null || true
+          fi
+          if [ -f backend-stub.pid ]; then
+            kill "$(cat backend-stub.pid)" 2>/dev/null || true
           fi
 
   docker-image-build-verify:
