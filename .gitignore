@@ -1,5 +1,6 @@
 /dist
 /node_modules
+/coverage
 .env
 .github/ticket-instructions
 .DS_Store

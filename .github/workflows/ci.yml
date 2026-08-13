@@ -215,6 +215,78 @@ jobs:
             kill "$(cat backend-stub.pid)" 2>/dev/null || true
           fi
 
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:coverage
+
+      - name: Raise vm.max_map_count for SonarQube's Elasticsearch
+        run: sudo sysctl -w vm.max_map_count=262144
+
+      - name: Start SonarQube Community Edition
+        run: docker run -d --name sonarqube -p 9000:9000 sonarqube:community
+
+      - name: Wait for SonarQube to become healthy
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 60); do
+            status=$(curl --silent -u admin:admin http://127.0.0.1:9000/api/system/health | grep -o '"health":"[A-Z]*"' || true)
+            if [ "$status" = '"health":"GREEN"' ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          docker logs sonarqube || true
+          exit 1
+
+      - name: Generate a scan token
+        run: |
+          set -euo pipefail
+          token=$(curl --silent -u admin:admin -X POST "http://127.0.0.1:9000/api/user_tokens/generate?name=ci-scan-${GITHUB_RUN_ID}" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+          echo "::add-mask::$token"
+          echo "SONAR_TOKEN=$token" >> "$GITHUB_ENV"
+
+      - name: Run SonarQube scan
+        continue-on-error: true
+        uses: sonarsource/sonarqube-scan-action@v4
+        env:
+          SONAR_HOST_URL: http://127.0.0.1:9000
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+
+      - name: Fetch issue report
+        if: always()
+        run: |
+          curl --silent -u admin:admin \
+            "http://127.0.0.1:9000/api/issues/search?componentKeys=team4-frontend" \
+            -o sonar-issues.json || true
+
+      - name: Upload SonarQube report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: sonarqube-report
+          path: sonar-issues.json
+          if-no-files-found: warn
+
+      - name: Stop SonarQube
+        if: always()
+        run: |
+          docker stop sonarqube || true
+          docker rm sonarqube || true
+
   docker-image-build-verify:
     needs:
       - dependency-audit
