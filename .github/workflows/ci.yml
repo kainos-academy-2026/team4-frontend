@@ -33,6 +33,22 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
 
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+      - run: npm ci
+      - name: Run audit-ci security scan
+        run: npm run audit:ci
+      - name: Run tokenless AuditJS report
+        continue-on-error: true
+        run: npm run audit:auditjs
+
   codeql:
     runs-on: ubuntu-latest
     permissions:
@@ -123,9 +139,77 @@ jobs:
       - run: npm ci
       - run: npm run test:coverage
 
+  owasp-zap-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Start compiled frontend
+        run: |
+          set -euo pipefail
+          API_BASE_URL=http://127.0.0.1:9 NODE_ENV=production PORT=3000 \
+            node dist/index.js > app.log 2>&1 &
+          echo "$!" > app.pid
+
+      - name: Wait for frontend health endpoint
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 30); do
+            if curl --fail --silent --show-error \
+              http://127.0.0.1:3000/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat app.log
+          exit 1
+
+      - name: Run OWASP ZAP baseline scan
+        run: |
+          set -euo pipefail
+          docker run --rm --network host \
+            -v "$GITHUB_WORKSPACE:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:2.17.0 \
+            zap-baseline.py \
+            -t http://127.0.0.1:3000/health \
+            -r /zap/wrk/zap-report.html \
+            -J /zap/wrk/zap-report.json \
+            -x /zap/wrk/zap-report.xml \
+            -I
+
+      - name: Upload OWASP ZAP reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-zap-reports
+          path: |
+            zap-report.html
+            zap-report.json
+            zap-report.xml
+            app.log
+          if-no-files-found: warn
+
+      - name: Stop compiled frontend
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" 2>/dev/null || true
+          fi
+
   docker-image-build-verify:
     needs:
       - dependency-audit
+      - security-scan
       - codeql
       - gitleaks-scan
       - coverage
