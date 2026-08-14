@@ -62,6 +62,24 @@ npm run test:coverage
 npm run test:ui
 ```
 
+- Run the blocking high and critical dependency audit:
+
+```bash
+npm run audit:ci
+```
+
+- Run the optional tokenless AuditJS dependency report:
+
+```bash
+npm run audit:auditjs
+```
+
+The CI pipeline always runs `audit-ci` and fails for high or critical vulnerabilities. AuditJS uses the deprecated anonymous OSS Index mode as an informational report. Anonymous requests are rate-limited, so this check may be unavailable or incomplete in CI.
+
+- Run the OWASP ZAP baseline scan in CI:
+
+The pipeline builds and starts the compiled frontend, scans its local `/health` endpoint with OWASP ZAP, and uploads HTML, JSON, and XML reports as workflow artifacts. This is a passive baseline scan and is informational; it does not cover authenticated routes, uploads, authorization, or business workflows.
+
 - Run all BDD features:
 
 ```bash

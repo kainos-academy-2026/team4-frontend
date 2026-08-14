@@ -9,7 +9,8 @@ export default defineConfig({
     },
     coverage: {
       provider: "v8",
-      reporter: ["text", "text-summary"],
+      // lcov is consumed by the SonarQube scanner job in CI
+      reporter: ["text", "text-summary", "lcov"],
       exclude: [
         // V8 cannot instrument simple single-expression re-export files
         "src/middleware/cookieParser.ts",
